@@ -161,6 +161,30 @@ details.ob .chk{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;col
 details.ob .chk input{margin-top:3px;flex-shrink:0}
 .fu2{display:block;font-size:10.5px;color:#8a918c;font-style:italic;margin-top:1px}
 .ejeq{font-weight:400;font-size:11.5px;color:#8a918c;font-style:italic;margin-left:8px}
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--linea);margin-bottom:20px;flex-wrap:wrap}
+.tab{background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;
+  padding:10px 16px;font-family:inherit;font-size:14px;font-weight:600;color:#8a918c;cursor:pointer}
+.tab:hover{color:var(--gris)}
+.tab.on{color:var(--verde);border-bottom-color:var(--verde)}
+.guia{max-width:830px}
+.guia h2{border:0;padding:0;margin:28px 0 4px}
+.guia .eje{font-size:12.5px;color:#8a918c;margin-bottom:15px;line-height:1.6}
+.guia .bloque{border:1px solid var(--linea);border-radius:8px;background:#fff;padding:15px 18px;margin-bottom:11px}
+.guia .preg{font-size:14px;color:var(--negro);font-weight:600;margin:15px 0 3px}
+.guia .bloque .preg:first-child{margin-top:0}
+.guia .porq{font-size:12.5px;color:var(--gris);margin:0 0 4px;line-height:1.6}
+.guia .oido{font-size:12px;color:#8a6a2f;margin:0;line-height:1.55;background:#faf6ec;
+  border-radius:5px;padding:6px 9px}
+.guia .regla{border-left:3px solid var(--verde);background:var(--verde-bg);padding:12px 16px;
+  border-radius:0 6px 6px 0;font-size:13px;margin:15px 0;line-height:1.65}
+.guia .nunca{border-left:3px solid #d03b3b;background:#fdefec;padding:12px 16px;
+  border-radius:0 6px 6px 0;font-size:13px;margin:15px 0;line-height:1.65}
+.guia table{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0}
+.guia th{background:var(--verde);color:#fff;text-align:left;padding:8px 10px;font-weight:600}
+.guia td{border-bottom:1px solid var(--linea);padding:8px 10px;vertical-align:top;color:var(--gris)}
+.guia td.a{color:var(--negro);font-weight:500}
+.guia ul{margin:6px 0 0;padding-left:19px;font-size:12.5px;color:var(--gris);line-height:1.7}
+.guia li{margin-bottom:4px}
 label.ns{display:flex;gap:5px;align-items:center;font-size:11px;color:#8a918c;margin-top:5px;
   font-weight:400;cursor:pointer}
 label.ns input{margin:0}
@@ -356,6 +380,13 @@ label.ns input{margin:0}
 <div id="guardadas" class="noprint"></div>
 <div id="avisoDerivada" class="noprint"></div>
 
+<nav class="tabs noprint">
+  <button class="tab on" data-t="cotizar">Cotizar</button>
+  <button class="tab" data-t="guion">Guion de la junta</button>
+  <button class="tab" data-t="consejos">Cómo se conduce</button>
+</nav>
+<div id="t-cotizar">
+
 <div class="aviso noprint">
   <b>Cómo se usa.</b> Captura el diagnóstico de cada entidad y no marques servicios: la herramienta
   decide cuáles aplican, cuáles no y por qué. Lo común al grupo se cotiza una vez; lo propio de cada
@@ -512,6 +543,9 @@ esos no se inventan. Lo que redacta es el texto que los une.</p>
   <div class="estadoIA" id="estadoIA"></div>
 </div>
 <div id="propuesta"></div>
+</div><!-- fin t-cotizar -->
+<div id="t-guion" hidden class="guia"></div>
+<div id="t-consejos" hidden class="guia"></div>
 </div>
 
 <!-- Firebase. Si no carga, el cotizador sigue calculando; solo no guarda. -->
@@ -685,7 +719,7 @@ const CONFIG={
 
   {id:'bc', corto:'BC del cliente', q:'Identificación del beneficiario controlador del CLIENTE',
    desde:'1 de marzo de 2027', ord:2,
-   f:'Ley art. 18 fr. III · RCG Cap. III Quinquies arts. 23 Quinquies a 23 Quinquies 3 · umbral 25% · multa 200 a 2,000 UMA',
+   f:'Ley art. 18 fr. III · RCG Cap. III Quinquies arts. 23 Quinquies a 23 Quinquies 3 · umbral 25% · sus criterios van DENTRO del Manual, no se construye aparte',
    puntos:[
     {p:'Hay criterios escritos en el Manual para identificarlo', f:'RCG art. 23 Quinquies'},
     {p:'Se aplica la prelación: 25% o más del capital, luego control por otros medios, luego alta dirección', f:'RCG art. 23 Quinquies fr. I a III'},
@@ -693,16 +727,6 @@ const CONFIG={
     {p:'Hay tratamiento específico para fideicomisos', f:'RCG art. 23 Quinquies 1'},
     {p:'Se aplican las excepciones que la norma permite, sin excederse', f:'RCG art. 23 Quinquies 2'},
     {p:'El soporte se conserva diez años y se actualiza durante la relación de negocios', f:'Ley art. 18 fr. IV'}]},
-
-  {id:'bcPropio', corto:'BC propio · fiscal', q:'Beneficiario controlador DE LA PROPIA EMPRESA · obligación fiscal',
-   desde:null, ord:0,
-   f:'CFF arts. 32-B Ter, Quáter y Quinquies · RMF 2.8.1.20 a 2.8.1.23 · umbral MÁS DEL 15% · NO es LFPIORPI',
-   puntos:[
-    {p:'Tiene identificado a su propio beneficiario controlador', f:'CFF art. 32-B Ter'},
-    {p:'La información forma parte de su contabilidad, no de un archivo suelto', f:'CFF art. 32-B Ter'},
-    {p:'Usó el umbral fiscal de MÁS DEL 15%, no el 25% de PLD', f:'CFF art. 32-B Quáter fr. II b'},
-    {p:'Se actualiza dentro de los 15 días naturales siguientes a cualquier cambio', f:'CFF art. 32-B Quinquies'},
-    {p:'Puede entregarla al SAT dentro de 15 días hábiles si se la requieren', f:'CFF art. 32-B Ter'}]},
 
   {id:'bcRegistro', corto:'Registro ante Economía', q:'Registro del beneficiario controlador ante el sistema de la Secretaría de Economía',
    desde:null, ord:0,
@@ -839,7 +863,7 @@ const CONFIG={
   biopsia:{sello:'GMC360',ambito:'entidad',nombre:'Biopsia de Cumplimiento',
     alcance:'Diagnóstico integral: qué actividades vulnerables aplican, si el alta está correcta, estado de expedientes y brechas frente al marco vigente',
     entregables:'Informe con hallazgos priorizados · matriz de actividades aplicables · gap analysis · estimación de exposición · recomendación de ruta',base:'fijo',importe:100000},
-  determinacion:{sello:'LEX-GMC',ambito:'entidad',nombre:'Dictamen de determinación de actividad vulnerable',
+  determinacion:{sello:'LEX-QUO',ambito:'entidad',nombre:'Dictamen de determinación de actividad vulnerable',
     alcance:'Determina si la operación configura actividad vulnerable y en qué fracción, con fundamento',
     entregables:'Dictamen firmado · matriz de obligaciones · hoja de ruta',base:'fijo',importe:96000},
   padron:{sello:'GMC360',ambito:'entidad',nombre:'Alta en Padrón y designación del Representante',
@@ -860,7 +884,7 @@ const CONFIG={
   avisosExt:{sello:'GMC360',ambito:'entidad',nombre:'Preparación y carga de avisos extemporáneos',
     alcance:'Por bloque de 1,000 avisos',
     entregables:'Avisos presentados con acuse · bitácora',base:'bloques',importe:40000,porBloque:1000},
-  art55:{sello:'LEX-GMC',ambito:'entidad',nombre:'Escrito y expediente de autocorrección (Ley art. 55 · Regl. art. 55 Bis)',
+  art55:{sello:'LEX-QUO',ambito:'entidad',nombre:'Escrito y expediente de autocorrección (Ley art. 55 · Regl. art. 55 Bis)',
     alcance:'Escrito libre con la totalidad de faltas por operación y periodo, bajo protesta de decir verdad',
     entregables:'Escrito presentado · expediente probatorio · calendario',base:'fijo',importe:70000},
   expedientes:{sello:'GMC360',ambito:'entidad',nombre:'Integración de expedientes de identificación',
@@ -912,7 +936,7 @@ const CONFIG={
 const $=id=>document.getElementById(id);
 const mx=n=>'$'+Math.round(n).toLocaleString('es-MX');
 const buscar=(a,i)=>a.find(o=>o.id===i)||a[0];
-const sc=s=>s==='GMC360'?'s-gmc':s==='LEX-GMC'?'s-lex':'s-edu';
+const sc=s=>s==='GMC360'?'s-gmc':s==='LEX-QUO'?'s-lex':'s-edu';
 const escalon=(tabla,v)=>{for(const e of tabla){if(v<=e.h)return e.s}return tabla[tabla.length-1].s};
 
 let ENT=[], OV={};
@@ -1510,6 +1534,206 @@ $('calendario').innerHTML=`<details class="cal"><summary>Qué ya es exigible y q
     <td class="${x.desde==='Vigente hoy'?'hoy':'luego'}">${x.desde}</td>
     <td class="fund">${x.f}</td></tr>`).join('')}</tbody></table>
   </div></details>`;
+
+/* ══════════════════════════════════════════════════════════════
+   GUION DE LA JUNTA
+   Las mismas preguntas que la herramienta necesita, pero dichas como
+   se dicen en una junta, con por qué se preguntan y qué escuchar en
+   la respuesta. La herramienta calcula; esto es lo que hay que saber
+   para poder llenarla.
+   ══════════════════════════════════════════════════════════════ */
+const GUION=[
+ {t:'Antes de empezar', eje:'Dos minutos. Lo que se dice al abrir y lo que hay que traer decidido.',
+  bloques:[{ps:[
+   {p:'Reconoce primero lo que ya hicieron.',
+    porq:'Nunca se abre con lo que falta. Si ya están en el padrón, si ya nombraron representante, si ya presentan avisos: se dice. El diagnóstico pesa distinto cuando viene después de un reconocimiento.',
+    oido:'Si no han hecho nada, se reconoce que estén sentados aquí antes de que se les venga encima.'},
+   {p:'Di de entrada que hoy no sale un número.',
+    porq:'El número no se entrega antes de la sesión cliente/consultor360. Decirlo al principio evita la pregunta a los diez minutos y quita la ansiedad de la mesa.',
+    oido:'"Hoy vengo a entender su operación. El número se lo llevo cuando sepa qué necesita, no antes."'}]}]},
+
+ {t:'Puerta de entrada', eje:'Antes de cualquier otra cosa hay que separar dos casos que no se parecen en nada.',
+  bloques:[{ps:[
+   {p:'¿Ustedes ya saben que realizan una actividad vulnerable, o es algo que están averiguando?',
+    porq:'Si no lo saben, no se cotiza cumplimiento: se cotiza determinación. Es un dictamen jurídico que responde una sola pregunta —si configura y en qué fracción— y hasta que existe no hay propuesta de implementación.',
+    oido:'<b>Señales de que hay que determinar aunque no lo digan:</b> describen su operación con dudas · su contador no está seguro · rozan varias fracciones sin actualizar ninguna con claridad · se registraron por precaución · hay fideicomisos, préstamos intercompañías o adjudicaciones de por medio.'},
+   {p:'¿Es una sola empresa o son varias del grupo?',
+    porq:'Cada entidad se diagnostica por separado. Dos empresas del mismo dueño pueden estar en situaciones completamente distintas, y así se presentan en la propuesta.',
+    oido:'Busca a la persona física del grupo. En la práctica suele traer el problema, porque su contador no atendió el tema.'}]}]},
+
+ {t:'Eje A · Qué le falta', eje:'La brecha normativa. Doce preguntas, una por obligación. Se contestan con lo que sepan hoy: "a medias" es una respuesta válida y cambia el diagnóstico.',
+  bloques:[{ps:[
+   {p:'¿Están dados de alta en el padrón, y con la e.firma de la empresa o con la del representante legal?',
+    porq:'Es de las tres cosas exigibles hoy. Y el alta hecha con la e.firma del representante legal en vez de la de la persona moral es un error frecuente que invalida el trámite.',
+    oido:'Pregunta también si dieron de alta <b>todas</b> las actividades que realizan, no solo una.'},
+   {p:'¿Quién es el Representante Encargado, y aceptó el cargo en el portal?',
+    porq:'Designar no basta: la persona tiene que entrar con su e.firma y aceptar. Muchos designan y ahí queda.',
+    oido:'Si dicen un despacho o una empresa: no se puede. Solo persona física.'},
+   {p:'¿Cómo van con los avisos? ¿Presentan, presentan tarde, presentan en ceros?',
+    porq:'<b>Este es el detonante, no el tamaño del negocio.</b> Un sujeto obligado que presenta en ceros mientras opera sobre el umbral es el hallazgo más grave que se puede encontrar, y no tiene nada que ver con cuánto factura.',
+    oido:'Si presentan tarde, importa cuánto: pasados treinta días la extemporaneidad se sanciona como omisión, y la multa salta de 200-2,000 UMA a 10,000-65,000 o al 10-100% del valor de la operación.'},
+   {p:'¿Tienen manual? ¿Y qué trae ese manual?',
+    porq:'"¿Tiene manual?" no sirve de nada: el manual tiene catorce contenidos mínimos. Uno que existe pero no trae clasificación de riesgo ni perfil transaccional está a medias, y así hay que capturarlo.',
+    oido:'Si dicen que sí, pide verlo. La diferencia entre "cumple" y "cumple mayoritariamente" es lo que se vende.'},
+   {p:'¿Cuántos ejercicios llevan sin revisar?',
+    porq:'Las facultades de comprobación son de cinco años. Corregir solo el ejercicio en curso deja descubierto el resto y gasta el beneficio de la autocorrección en el año equivocado.',
+    oido:'Si no lo saben, márcalo como "no sé" en la herramienta. Un cero capturado por desconocimiento hace que la cotización salga en firme cuando no debería.'}]}]},
+
+ {t:'Eje B · De qué tamaño es', eje:'Dimensiona el trabajo. De aquí salen los escalones del precio, así que estas son las que no se pueden dejar en blanco.',
+  bloques:[{ps:[
+   {p:'¿Cuántos avisos presentan al año? ¿Cuántos clientes activos tienen?',
+    porq:'Son los dos escalones de la auditoría. Sin ellos la auditoría no se puede cotizar, y así hay que decirlo.',
+    oido:'Si no lo saben de memoria, pídelo por correo antes de mandar la propuesta. No lo estimes.'},
+   {p:'¿Cuántas operaciones sobre el umbral hacen al mes? ¿En cuántos estados operan?',
+    porq:'El volumen dimensiona el trabajo; los estados definen si la modalidad es remota, híbrida o presencial, y los viáticos van aparte del honorario.',
+    oido:''},
+   {p:'¿Llevan el control en un sistema o en hoja de cálculo?',
+    porq:'A partir de junio de 2027 se exigen mecanismos automatizados de monitoreo con históricos de diez años. Una hoja de cálculo llevada a mano no lo es.',
+    oido:''},
+   {p:'¿Hay efectivo, divisas o activos virtuales en la operación?',
+    porq:'Cada uno pesa distinto: el efectivo por restricciones de monto propias, las divisas por riesgo bancario, los activos virtuales porque son fracción propia con su capítulo de alta específico.',
+    oido:'Los activos virtuales <b>se escalan a dirección</b>: no se cotizan de rutina.'},
+   {p:'¿A quién le venden o le rentan: a terceros, a su grupo, o a los dos?',
+    porq:'Un padrón intragrupo cambia el alcance de la revisión de expedientes. No lo elimina automáticamente, pero es señal de revisar el alcance.',
+    oido:''}]}]},
+
+ {t:'Eje C · Qué clase de propuesta van a leer', eje:'El eje que decide todo. No mide cumplimiento: mide si esta empresa se toma el tema en serio y quién lo lleva.',
+  bloques:[{ps:[
+   {p:'¿Quién lleva el tema hoy?',
+    porq:'Esta sola respuesta decide qué línea de servicio aplica y, sobre todo, qué NO se le ofrece. Está en la tabla de la pestaña de al lado.',
+    oido:'Si dice "el contador, entre sus otras cosas", es lo mismo que nadie.'},
+   {p:'El Representante, ¿tiene tiempo asignado al tema o es un nombramiento nominal?',
+    porq:'Un representante nominal es un hallazgo, no un dato. Significa que la responsabilidad está firmada pero nadie la ejerce.',
+    oido:''},
+   {p:'¿Hay presupuesto anual para cumplimiento, o se autoriza gasto por gasto?',
+    porq:'Predice si van a poder sostener una iguala o si conviene una propuesta de alcance cerrado.',
+    oido:''},
+   {p:'¿La dirección pregunta por el tema, o se entera cuando hay un problema?',
+    porq:'Es la diferencia entre vender un sistema y vender un apagafuegos.',
+    oido:''},
+   {p:'¿Han hecho algo por decisión propia, sin que nadie se lo exigiera?',
+    porq:'Una auditoría voluntaria, una capacitación que nadie pidió, un manual hecho antes de que lo obligaran. Es la mejor señal de postura de mejora continua.',
+    oido:'Si dicen que solo quieren el mínimo pero han hecho cosas por su cuenta, créele a los hechos, no a la frase.'},
+   {p:'¿Tienen requerimiento, visita, procedimiento abierto o cuentas bloqueadas?',
+    porq:'Si la respuesta es sí, <b>el arquetipo se ignora y el caso se escala a dirección.</b> No se cotiza de rutina.',
+    oido:'Cuentas bloqueadas invierten la prioridad: la defensa bancaria va antes que el plan de cumplimiento.'}]}]},
+
+ {t:'Para cerrar', eje:'Los últimos tres minutos.',
+  bloques:[{ps:[
+   {p:'Cuantifica el riesgo una sola vez.',
+    porq:'Un número concreto, dicho una vez, y se sigue adelante. Repetirlo suena a amenaza y la amenaza se cae en cuanto lo consultan con su abogado.',
+    oido:''},
+   {p:'Usa la fecha, no la multa.',
+    porq:'De las doce obligaciones, solo tres son exigibles hoy. Las demás vencen entre noviembre de 2026 y 2029. "Tienen hasta el 1 de marzo y construirlo bien toma meses" mueve más que cualquier cifra de sanción, y es verdad.',
+    oido:'<b>Nunca les digas que están en falta de algo que todavía no los obliga.</b>'},
+   {p:'Di qué NO tienen que hacer.',
+    porq:'Si una empresa del grupo no actualiza los supuestos, se dice con todas sus letras y se le dedica espacio. Eso construye la credibilidad de todo lo demás.',
+    oido:''},
+   {p:'Cierra con el siguiente paso, no con el precio.',
+    porq:'El número llega en la sesión cliente/consultor360. Lo que se acuerda hoy es la fecha de esa sesión y qué datos van a mandar mientras tanto.',
+    oido:''}]}]}
+];
+
+/* ══ CÓMO SE CONDUCE · el criterio de dirección, a la mano ══ */
+function pintarGuion(){
+  $('t-guion').innerHTML = `
+   <h2>Guion de la junta de diagnóstico</h2>
+   <p class="eje">Para el consultor que va a la junta. No es un cuestionario que se lee en voz alta:
+     es lo que hay que salir sabiendo. El orden sí importa — la puerta de entrada va antes que todo.</p>
+   ${GUION.map(s=>`
+    <h2>${s.t}</h2><p class="eje">${s.eje}</p>
+    ${s.bloques.map(b=>`<div class="bloque">${b.ps.map(x=>`
+      <div class="preg">${x.p}</div>
+      <p class="porq">${x.porq}</p>
+      ${x.oido?`<p class="oido">${x.oido}</p>`:''}`).join('')}</div>`).join('')}
+   `).join('')}`;
+
+  $('t-consejos').innerHTML = `
+   <h2>Cómo se conduce la conversación</h2>
+   <p class="eje">El criterio de dirección, para que una propuesta salga igual la arme quien la arme.</p>
+
+   <h2>Quién lleva el tema decide qué se le ofrece</h2>
+   <p class="eje">Y sobre todo, qué NO se le ofrece. Ofrecer lo equivocado aquí es la forma más rápida de perder credibilidad.</p>
+   <table><thead><tr><th style="width:26%">Quién lo lleva hoy</th><th style="width:37%">Qué necesita</th><th>Qué NO se le ofrece</th></tr></thead><tbody>
+    <tr><td class="a">Nadie, o el contador entre sus pendientes</td>
+        <td>Que alguien lo opere: iguala u oficial externo, más capacitación básica</td>
+        <td>Metodologías sofisticadas que nadie va a mantener</td></tr>
+    <tr><td class="a">Un despacho especializado</td>
+        <td>Auditoría independiente y metodología. Se complementa, no se compite</td>
+        <td>Iguala de operación. Ya la tienen</td></tr>
+    <tr><td class="a">Una persona dedicada</td>
+        <td>Herramientas, metodología, matriz, capacitación especializada, acompañamiento</td>
+        <td>Operación tercerizada: le quitas el trabajo a quien contrataron</td></tr>
+    <tr><td class="a">Un área con equipo propio</td>
+        <td>Auditoría externa, calibración, evaluación del sistema, riesgos emergentes</td>
+        <td>Manual y metodología básicos. Ya los tienen, aunque estén imperfectos</td></tr>
+   </tbody></table>
+   <div class="regla"><b>Si el despacho que ya los atiende es cliente nuestro,</b> la propuesta se posiciona
+     como complemento. Si es competencia, el argumento es que los generalistas no están al día con el
+     Acuerdo 115 — no que el despacho lo haga mal.</div>
+
+   <h2>Qué buscan × qué tan grande es la brecha</h2>
+   <p class="eje">Decide el largo de la propuesta. Equivocarse aquí no pierde el trato por precio: lo pierde porque el documento no se parece a lo que el cliente cree que necesita.</p>
+   <table><thead><tr><th style="width:20%"></th><th>Brecha alta</th><th>Brecha media</th><th>Brecha baja</th></tr></thead><tbody>
+    <tr><td class="a">Cumplir el mínimo</td>
+        <td>Remediación acotada. Alcance y precio cerrados, sin iguala. Una fase, un entregable</td>
+        <td>Corrección puntual de lo que está mal</td>
+        <td>Auditoría anual y nada más</td></tr>
+    <tr><td class="a">Un sistema que sostenga una revisión</td>
+        <td>Plan integral por fases, con iguala y acompañamiento. Es la propuesta larga</td>
+        <td>Implementación por componentes más acompañamiento</td>
+        <td>Auditoría, matriz, calibración y riesgos emergentes</td></tr>
+   </tbody></table>
+   <div class="nunca"><b>A un cliente de postura mínima no se le manda la propuesta de cinco fases.</b>
+     La va a leer como cara y sobrada, y va a comparar precio contra quien le cotice una sola cosa.
+     Y al revés: a uno de mejora continua, una propuesta de un solo entregable le dice que no entendimos su problema.</div>
+
+   <h2>Lo que nunca se hace</h2>
+   <div class="nunca">
+     <ul>
+      <li>No se compite contra el despacho que ya atiende al cliente: se complementa.</li>
+      <li>No se vende implementación antes del diagnóstico.</li>
+      <li>Quien implementa no audita cuando el encargo requiere independencia.</li>
+      <li>La auditoría no baja de Precio B.</li>
+      <li>No se promete resultado normativo: es encargo de medios.</li>
+      <li>No se promete desarrollo de software. Se entrega la especificación funcional.</li>
+      <li>Los viáticos nunca van dentro del honorario.</li>
+      <li>El número no se entrega antes de la sesión cliente/consultor360.</li>
+      <li>Ninguna cifra de credenciales que no se pueda sostener.</li>
+      <li><b>Ninguna propuesta menciona a otro cliente.</b> Ni por nombre, ni por descripción reconocible,
+          ni como caso de éxito. La experiencia se acredita por método, no por clientela.</li>
+     </ul>
+   </div>
+
+   <h2>Se escala a dirección, sin importar el monto</h2>
+   <div class="regla">Requerimiento, visita o procedimiento abierto · fideicomisos · más de dos entidades ·
+     activos virtuales · cualquier servicio marcado "por calibrar" · postura de mínimo con brecha alta.</div>
+
+   <h2>La voz</h2>
+   <div class="bloque">
+    <ul>
+     <li>Se le habla al dueño del negocio, no al auditor.</li>
+     <li>Se empieza reconociendo lo que el cliente ya hizo.</li>
+     <li>Se cuantifica el riesgo una sola vez, con un número concreto, y se sigue adelante.</li>
+     <li>Se explica el mecanismo, no solo la conclusión.</li>
+     <li>Se pone la escalera completa sobre la mesa y se recomienda una.</li>
+     <li>Se dice qué no se recomienda y por qué.</li>
+     <li>Nunca se promete impunidad, pero tampoco se amenaza.</li>
+     <li>Las fechas de exigibilidad son el argumento, no la multa.</li>
+     <li>Se nombra lo que queda fuera del alcance con la misma claridad que lo que entra.</li>
+     <li>Se cede la palabra al equipo, por nombre.</li>
+    </ul>
+   </div>`;
+}
+pintarGuion();
+
+document.querySelectorAll('.tab').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
+    ['cotizar','guion','consejos'].forEach(t=>$('t-'+t).hidden = (t!==b.dataset.t));
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+});
 
 ENT.push(nuevaEnt()); pintarEntidades(); render();
 
