@@ -1530,30 +1530,61 @@ async function redactar(){
   if(!ins.contexto){
     est.textContent='Cuéntale algo del cliente, aunque sean tres renglones, o pega la transcripción.'; return; }
 
-  btn.disabled=true; est.textContent='Redactando. Tarda entre veinte segundos y un minuto…';
+  btn.disabled=true; $('btnWord').style.display='none';
+  est.textContent='Redactando. La vas a ver escribirse; tarda entre treinta segundos y un minuto…';
+  $('propuesta').innerHTML='<div class="doc" id="docVivo"></div>';
+  $('propuesta').scrollIntoView({behavior:'smooth'});
+
   try{
     const idToken=await USUARIO.getIdToken();
     const r=await fetch('/.netlify/functions/propuesta',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({idToken, datos:ins})});
 
-    /* Si Netlify contesta con una página en vez de con datos, es que la función
-       no está publicada. Se dice así, no con un error de programador. */
+    /* La respuesta llega en dos formas posibles:
+       texto plano si está redactando, o JSON si algo falló antes de empezar. */
     const tipo=r.headers.get('content-type')||'';
-    if(!tipo.includes('application/json')){
-      est.innerHTML= r.status===404
-        ? 'El redactor todavía no está publicado. Falta subir al repositorio la carpeta <b>netlify</b> con el archivo <b>propuesta.js</b> y el <b>netlify.toml</b>. Todo lo demás del cotizador funciona sin eso.'
-        : `El servidor contestó algo que no se entiende (código ${r.status}). Revisa el registro de la función en Netlify.`;
-      btn.disabled=false; return;
+    if(!r.ok || tipo.includes('application/json')){
+      let msj;
+      if(tipo.includes('application/json')){
+        const d=await r.json();
+        msj=(d.error||('código '+r.status))+(d.detalle?' · '+d.detalle:'');
+      }else{
+        msj = r.status===404
+          ? 'El redactor no está publicado. Falta subir la carpeta funciones y el netlify.toml al repositorio.'
+          : 'El servidor contestó con un código '+r.status+'. Revisa el registro de la función en Netlify.';
+      }
+      est.textContent='No se pudo: '+msj;
+      $('propuesta').innerHTML=''; btn.disabled=false; return;
     }
-    const d=await r.json();
-    if(!r.ok){ est.textContent='No se pudo: '+(d.error||r.status)+(d.detalle?' · '+d.detalle:''); btn.disabled=false; return; }
-    ULTIMA_PROPUESTA=d.html||'';
-    $('propuesta').innerHTML='<div class="doc">'+ULTIMA_PROPUESTA+'</div>';
+
+    /* Se va pintando conforme llega. Mientras haya texto saliendo,
+       Netlify no corta la función por tiempo. */
+    const lector=r.body.getReader(), dec=new TextDecoder();
+    const caja=$('docVivo');
+    let texto='';
+    while(true){
+      const {done,value}=await lector.read();
+      if(done) break;
+      texto+=dec.decode(value,{stream:true});
+      caja.innerHTML=texto;
+      caja.scrollIntoView({behavior:'smooth',block:'end'});
+    }
+
+    if(!texto.trim()){
+      est.textContent='El redactor no devolvió nada. Vuelve a intentar; si sigue igual, revisa el registro en Netlify.';
+      $('propuesta').innerHTML=''; btn.disabled=false; return;
+    }
+
+    /* Toda propuesta nace como borrador. La marca solo la quita dirección. */
+    const marca=`<p><strong>BORRADOR · no se envía al cliente hasta que dirección lo autorice.</strong><br>
+      Capturó: ${USUARIO.email} · Revisó: [PENDIENTE] · Autorizó: [PENDIENTE]</p><hr>`;
+    ULTIMA_PROPUESTA=marca+texto;
+    caja.innerHTML=ULTIMA_PROPUESTA;
     $('btnWord').style.display='';
     est.innerHTML='Lista. <b>Revísala completa antes de mandarla</b>: si ves un [POR CONFIRMAR], es un dato que le faltó.';
-    $('propuesta').scrollIntoView({behavior:'smooth'});
-  }catch(e){ est.textContent='No se pudo: '+e.message; }
+
+  }catch(e){ est.textContent='No se pudo: '+e.message; $('propuesta').innerHTML=''; }
   btn.disabled=false;
 }
 

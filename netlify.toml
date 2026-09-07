@@ -7,10 +7,15 @@
 #               de propuestas, el único que toca la llave de Claude.
 #
 # Van separadas porque si la función estuviera dentro de la carpeta
-# publicada, Netlify la trataría como un archivo más del sitio y no
-# la registraría como función.
+# publicada, Netlify la trataría como un archivo más del sitio.
 # ══════════════════════════════════════════════════════════════
 
 [build]
   publish = "sitio"
   functions = "funciones"
+
+# Node 20 es indispensable: el redactor usa fetch, que no existe en
+# las versiones viejas de Node. Sin esta línea la función truena al
+# recibir la petición y Netlify devuelve una página de error en HTML.
+[build.environment]
+  NODE_VERSION = "20"
