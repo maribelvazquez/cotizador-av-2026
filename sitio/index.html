@@ -131,6 +131,9 @@ button{padding:9px 16px;border:none;border-radius:6px;font-size:14px;font-weight
 select.mueve{border:1px solid var(--linea);border-radius:5px;padding:4px 7px;font-size:11.5px;
   font-family:inherit;cursor:pointer;background:#fff;color:var(--gris)}
 select.mueve:focus{outline:none;border-color:var(--verde)}
+button.base{border:1px solid var(--linea);background:#fff;border-radius:5px;padding:4px 9px;
+  font-size:11.5px;font-family:inherit;cursor:pointer;color:var(--gris);margin-left:6px;white-space:nowrap}
+button.base:hover{border-color:var(--verde);color:var(--verde)}
 .diag{border:1px solid var(--linea);border-radius:8px;background:#fff;margin-bottom:14px;overflow:hidden}
 .diag .dh{background:var(--verde-bg);border-bottom:1px solid var(--linea);padding:10px 14px;
   display:flex;align-items:center;gap:11px;flex-wrap:wrap}
@@ -351,6 +354,7 @@ label.ns input{margin:0}
 <div class="barra noprint" id="barra"></div>
 <div id="calendario" class="noprint"></div>
 <div id="guardadas" class="noprint"></div>
+<div id="avisoDerivada" class="noprint"></div>
 
 <div class="aviso noprint">
   <b>Cómo se usa.</b> Captura el diagnóstico de cada entidad y no marques servicios: la herramienta
@@ -1587,6 +1591,59 @@ async function mover(folio, estado){
   }catch(e){ alert('No se pudo mover: '+(e.code||e.message)); }
 }
 
+let DERIVADA_DE='';
+
+/* Trae una cotización guardada de vuelta al formulario para hacerle una versión
+   nueva. La original NO se toca: se duplica. Así la versión 1 sigue diciendo lo
+   que dijo el día que se cotizó, y la versión 2 queda amarrada a ella. */
+async function usarComoBase(folio){
+  try{
+    const d=await db.collection('cotizaciones').doc(folio).get();
+    if(!d.exists){ alert('No se encontró esa cotización.'); return; }
+    const x=d.data();
+
+    /* Las entidades vuelven tal cual se capturaron. Se quitan los campos que el
+       motor calcula solo, para que se recalculen con los precios de hoy. */
+    ENT = (x.entidades||[]).map(e=>{
+      const c={...e}; delete c.riesgo; delete c.muestra;
+      const base=nuevaEnt();
+      /* Si el catálogo de obligaciones creció desde que se guardó, las nuevas
+         entran vacías en vez de romper. */
+      CONFIG.obligaciones.forEach(o=>{
+        if(!c.chk||!c.chk[o.id]) { c.chk=c.chk||{}; c.chk[o.id]=o.puntos.map(()=>false); }
+        if(!c.niv||!c.niv[o.id]) { c.niv=c.niv||{}; c.niv[o.id]='no'; }
+        if(!c.det||c.det[o.id]===undefined){ c.det=c.det||{}; c.det[o.id]=false; }
+      });
+      return {...base, ...c};
+    });
+    if(!ENT.length) ENT=[nuevaEnt()];
+
+    const pon=(id,v)=>{const el=$(id); if(el&&v!==undefined&&v!==null) el.value=v;};
+    pon('g-nombre',(x.cliente||{}).grupo); pon('g-contacto',(x.cliente||{}).contacto);
+    pon('g-ejecutivo',(x.cliente||{}).ejecutivo);
+    const c=x.contexto||{};
+    pon('g-quien',c.quien); pon('g-postura',c.postura); pon('g-conting',c.contingencia);
+    pon('g-fideicomiso',c.fideicomiso); pon('g-riesgoBanc',c.riesgoBancario);
+    pon('g-repTiempo',c.repTiempo); pon('g-presupuesto',c.presupuesto);
+    pon('g-atencion',c.atencion); pon('g-iniciativa',c.iniciativa);
+    pon('g-modalidad',c.modalidad); pon('g-descuento',c.descuento);
+    pon('g-urgencia',c.urgente?'urgente':'normal');
+    pon('g-renovacion',c.renovacion?'1':'0');
+    pon('g-meses',c.meses); pon('g-sesiones',c.sesiones); pon('g-horas',c.horas);
+    pon('g-impresion',c.impresion?'1':'0');
+
+    OV={}; guardada=false; FOLIO_INFORME=''; ULTIMA_PROPUESTA='';
+    DERIVADA_DE=folio;
+    $('guardadas').innerHTML='';
+    ENT.forEach(sincronizar); pintarEntidades(); render();
+    $('avisoDerivada').innerHTML=`<div class="alerta"><b>Versión nueva de ${folio}.</b>
+      Estás trabajando sobre una copia. La cotización original no se modifica: al guardar se crea
+      un folio nuevo, amarrado a aquél. Revisa que los precios de hoy sean los que quieres —
+      la original se cotizó con la versión de precios ${x.versionPrecios||'anterior'}.</div>`;
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(e){ alert('No se pudo cargar: '+(e.code||e.message)); }
+}
+
 async function listar(forzar){
   const caja=$('guardadas');
   if(caja.innerHTML && !forzar){ caja.innerHTML=''; return; }
@@ -1618,7 +1675,8 @@ async function listar(forzar){
         <td class="num">${((x.totales&&x.totales.texto)||'').split('\n').pop()||'—'}</td>
         <td class="est ${st.c}">${st.n}${ult?`<span class="fund"> ${quien(ult.por)}</span>`:''}</td>
         <td><select class="mueve" data-folio="${folio}">
-              <option value="">Cambiar a…</option>${opciones}</select></td></tr>`;
+              <option value="">Cambiar a…</option>${opciones}</select>
+            <button class="base" data-folio="${folio}" title="Trae esta cotización al formulario para hacerle una versión nueva. La original no se toca.">Usar como base</button></td></tr>`;
     }).join('');
 
     caja.innerHTML=`<details class="cal" open><summary>Cotizaciones guardadas · las ${q.size} más recientes</summary>
@@ -1629,11 +1687,17 @@ async function listar(forzar){
       <p class="fund">Una cotización guardada no se puede editar: eso protege la calibración.
          Lo que cambia aquí es su estado, que vive aparte.</p>
       <table><thead><tr><th>Folio</th><th>Fecha</th><th>Cliente</th><th>Cotizó</th>
-        <th class="num">Total</th><th>Estado</th><th>Mover</th></tr></thead>
+        <th class="num">Total</th><th>Estado</th><th>Estado y versiones</th></tr></thead>
       <tbody>${filas}</tbody></table></div></details>`;
 
     caja.querySelectorAll('select.mueve').forEach(sel=>{
       sel.onchange=()=>{ if(sel.value) mover(sel.dataset.folio, sel.value); };
+    });
+    caja.querySelectorAll('button.base').forEach(b=>{
+      b.onclick=()=>{
+        if(confirm('Se va a traer esta cotización al formulario para hacerle una versión nueva.\n\nLa original NO se modifica. Lo que tengas capturado ahora se pierde.'))
+          usarComoBase(b.dataset.folio);
+      };
     });
   }catch(e){
     caja.innerHTML=`<div class="cal"><div class="cuerpo"><p>No se pudieron cargar: ${e.code||e.message}</p></div></div>`;
@@ -1650,6 +1714,7 @@ function armarRegistro(){
   const sub=[...document.querySelectorAll('#tfoot tr')][0]?.innerText||'';
   return {
     folio:nuevoFolio(),
+    derivadaDe:DERIVADA_DE||null,   // de qué cotización salió, si es una versión nueva
     versionPrecios:CONFIG.versionPrecios,
     capturadaPor:USUARIO.email,          // las reglas exigen que coincida con quien entró
     capturadaEl:firebase.firestore.FieldValue.serverTimestamp(),
