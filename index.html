@@ -138,6 +138,23 @@ button{padding:9px 16px;border:none;border-radius:6px;font-size:14px;font-weight
 .e-si{color:var(--verde)} .e-no{color:#c0392b} .e-fut{color:#b26a00} .e-nose{color:#7a6a00}
 .diag .fu{font-size:11px;color:#8a918c;font-style:italic;display:block;margin-top:3px}
 .diag .nt{font-size:11.5px;color:#b26a00;display:block;margin-top:4px}
+.prop textarea{width:100%;font-family:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--linea);
+  border-radius:6px;resize:vertical;color:var(--negro);background:#fff;line-height:1.55}
+.prop textarea:focus{outline:none;border-color:var(--verde)}
+.prop .campos{display:grid;gap:12px;margin-bottom:12px}
+.prop label{display:block;font-weight:600;font-size:12.5px;margin-bottom:5px;color:var(--negro)}
+.prop .ayuda{font-weight:400;font-size:11.5px;color:#8a918c;display:block;margin-top:2px}
+.doc{border:1px solid var(--linea);border-radius:8px;background:#fff;padding:26px 30px;margin-top:14px;
+  font-size:13.5px;line-height:1.7;color:var(--negro)}
+.doc h1{color:var(--verde);font-size:21px;margin:0 0 14px}
+.doc h2{color:var(--verde);font-size:16px;margin:22px 0 9px;border:0;padding:0}
+.doc h3{font-size:14px;margin:16px 0 6px;color:var(--negro)}
+.doc p{margin:0 0 11px}
+.doc ul{margin:0 0 11px;padding-left:20px}.doc li{margin-bottom:4px}
+.doc table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.5px}
+.doc th{background:var(--verde);color:#fff;text-align:left;padding:7px 9px}
+.doc td{border-bottom:1px solid var(--linea);padding:7px 9px}
+.estadoIA{font-size:12.5px;color:var(--gris);margin-top:9px}
 @media print{body{background:#fff}.wrap{max-width:none;padding:0}.noprint{display:none!important}.card{border:none;padding:0}}
 </style>
 </head>
@@ -251,9 +268,33 @@ Lo que falta pero todavía no es exigible no se llama incumplimiento: se llama p
     <button class="b1" onclick="window.print()">Imprimir o guardar en PDF</button>
     <button class="b2" onclick="location.reload()">Empezar de nuevo</button>
   </div>
-  <p class="nota">Importes sin IVA salvo donde se indique. Vigencia sugerida: 30 días naturales.
+  <p class="nota" style="margin-bottom:0">Importes sin IVA salvo donde se indique. Vigencia sugerida: 30 días naturales.
   Los viáticos se cotizan aparte cuando la sede es fuera de CDMX.</p>
 </div>
+
+<!-- 6 · PROPUESTA -->
+<h2 class="noprint"><span class="n">6</span>Redactar la propuesta</h2>
+<p class="hint noprint">Cuéntale de qué se trató. Los números, el diagnóstico y los alcances ya los tiene:
+esos no se inventan. Lo que redacta es el texto que los une.</p>
+<div class="card prop noprint">
+  <div class="campos">
+    <div><label>¿A quién va dirigida?
+      <span class="ayuda">Nombre y cargo. Si no lo sabes, déjalo vacío y la propuesta lo marca como pendiente.</span></label>
+      <input type="text" id="p-dest" placeholder="Lic. Nombre Apellido · Director General"></div>
+    <div><label>¿Quién es el cliente y de qué se trató?
+      <span class="ayuda">Con tus palabras. Qué hacen, cómo llegaron, qué les preocupa, qué te pidieron.</span></label>
+      <textarea id="p-desc" rows="5"></textarea></div>
+    <div><label>Transcripción de la junta
+      <span class="ayuda">Opcional. Pégala tal cual, aunque venga sucia.</span></label>
+      <textarea id="p-trans" rows="6"></textarea></div>
+  </div>
+  <div class="btns" style="margin:0">
+    <button class="b1" id="btnPropuesta">Redactar propuesta</button>
+    <button class="b2" id="btnWord" style="display:none">Descargar para Word</button>
+  </div>
+  <div class="estadoIA" id="estadoIA"></div>
+</div>
+<div id="propuesta"></div>
 </div>
 
 <!-- Firebase. Si no carga, el cotizador sigue calculando; solo no guarda. -->
@@ -436,25 +477,63 @@ const CONFIG={
  entidadAdicional:{ auditoria:.15, otros:[{hasta:3,d:.15},{hasta:10,d:.30},{hasta:Infinity,d:.50}] },
 
  servicios:{
-  biopsia:{sello:'GMC360',ambito:'entidad',nombre:'Biopsia de Cumplimiento',base:'fijo',importe:100000},
-  determinacion:{sello:'LEX-GMC',ambito:'entidad',nombre:'Dictamen de determinación de actividad vulnerable',base:'fijo',importe:96000},
-  padron:{sello:'GMC360',ambito:'entidad',nombre:'Alta en Padrón y designación del Representante',base:'fijo',importe:15000},
-  auditoria:{sello:'GMC360',ambito:'entidad',nombre:'Auditoría PLD/FT de actividad vulnerable',base:'auditoria',modalidad:true,topeB:true},
-  auditoriaAvisos:{sello:'GMC360',ambito:'entidad',nombre:'Auditoría de avisos',base:'auditoriaAvisos',modalidad:true,topeB:true},
-  auditoriaExterna:{sello:'GMC360',ambito:'entidad',nombre:'Auditoría externa anual (Ley art. 18 fr. XI)',base:'auditoria',modalidad:true,topeB:true},
-  reconstruccion:{sello:'GMC360',ambito:'entidad',nombre:'Reconstrucción retroactiva de ejercicios',base:'ejercicios',importe:180000,ejerciciosBase:5},
-  avisosExt:{sello:'GMC360',ambito:'entidad',nombre:'Preparación y carga de avisos extemporáneos',base:'bloques',importe:40000,porBloque:1000},
-  art55:{sello:'LEX-GMC',ambito:'entidad',nombre:'Escrito y expediente de autocorrección (Ley art. 55 · Regl. art. 55 Bis)',base:'fijo',importe:70000},
-  expedientes:{sello:'GMC360',ambito:'entidad',nombre:'Integración de expedientes de identificación',base:'muestra',importe:600},
-  bc:{sello:'GMC360',ambito:'entidad',nombre:'Beneficiario controlador de la entidad y de clientes',base:'fijo',importe:103000},
-  manualVol:{sello:'GMC360',ambito:'entidad',nombre:'Manual de cumplimiento voluntario',base:'fijo',importe:70000},
-  manual:{sello:'GMC360',ambito:'grupo',nombre:'Manual de Políticas Internas (art. 37 Bis)',base:'manual'},
-  mebr:{sello:'GMC360',ambito:'grupo',nombre:'Metodología de riesgos con modelo de riesgo de cliente',base:'mebr'},
-  paqueteMarco:{sello:'GMC360',ambito:'grupo',nombre:'Paquete: Manual + Metodología + Modelo de clientes',base:'paquete'},
-  programaCap:{sello:'GMC360',ambito:'grupo',nombre:'Diseño del programa anual de capacitación',base:'fijo',importe:18000},
-  capacitacion:{sello:'360educa',ambito:'grupo',nombre:'Capacitación a la medida',base:'sesiones',importe:40000,modalidad:true},
-  acompanamiento:{sello:'GMC360',ambito:'grupo',nombre:'Bolsa de horas de acompañamiento',base:'horas'},
-  iguala:{sello:'GMC360',ambito:'grupo',nombre:'Iguala de operación mensual',base:'mensual',importe:40000},
+  biopsia:{sello:'GMC360',ambito:'entidad',nombre:'Biopsia de Cumplimiento',
+    alcance:'Diagnóstico integral: qué actividades vulnerables aplican, si el alta está correcta, estado de expedientes y brechas frente al marco vigente',
+    entregables:'Informe con hallazgos priorizados · matriz de actividades aplicables · gap analysis · estimación de exposición · recomendación de ruta',base:'fijo',importe:100000},
+  determinacion:{sello:'LEX-GMC',ambito:'entidad',nombre:'Dictamen de determinación de actividad vulnerable',
+    alcance:'Determina si la operación configura actividad vulnerable y en qué fracción, con fundamento',
+    entregables:'Dictamen firmado · matriz de obligaciones · hoja de ruta',base:'fijo',importe:96000},
+  padron:{sello:'GMC360',ambito:'entidad',nombre:'Alta en Padrón y designación del Representante',
+    alcance:'Nombramiento, registro y aceptación en el Portal con e.firma',
+    entregables:'Acuse de alta · acta de designación · acuse de aceptación',base:'fijo',importe:15000},
+  auditoria:{sello:'GMC360',ambito:'entidad',nombre:'Auditoría PLD/FT de actividad vulnerable',
+    alcance:'Revisión integral bajo metodología 360Audit: expedientes, avisos, manual, altas y documentación soporte',
+    entregables:'Informe · matriz de hallazgos por criticidad · plan de acción · formatos de control',base:'auditoria',modalidad:true,topeB:true},
+  auditoriaAvisos:{sello:'GMC360',ambito:'entidad',nombre:'Auditoría de avisos',
+    alcance:'Revisión acotada a la presentación de avisos, sin expedientes de clientes',
+    entregables:'Informe de avisos · conciliación · plan de regularización',base:'auditoriaAvisos',modalidad:true,topeB:true},
+  auditoriaExterna:{sello:'GMC360',ambito:'entidad',nombre:'Auditoría externa anual (Ley art. 18 fr. XI)',
+    alcance:'Dictamen con opinión independiente conforme a Boletines 7010 y 7040 IMCP',
+    entregables:'Informe · opinión profesional · cédulas y evidencia',base:'auditoria',modalidad:true,topeB:true},
+  reconstruccion:{sello:'GMC360',ambito:'entidad',nombre:'Reconstrucción retroactiva de ejercicios',
+    alcance:'Extracción, conciliación contra depósitos y calificación con UMA por ejercicio',
+    entregables:'Informe de reconstrucción · matriz por periodo · base conciliada',base:'ejercicios',importe:180000,ejerciciosBase:5},
+  avisosExt:{sello:'GMC360',ambito:'entidad',nombre:'Preparación y carga de avisos extemporáneos',
+    alcance:'Por bloque de 1,000 avisos',
+    entregables:'Avisos presentados con acuse · bitácora',base:'bloques',importe:40000,porBloque:1000},
+  art55:{sello:'LEX-GMC',ambito:'entidad',nombre:'Escrito y expediente de autocorrección (Ley art. 55 · Regl. art. 55 Bis)',
+    alcance:'Escrito libre con la totalidad de faltas por operación y periodo, bajo protesta de decir verdad',
+    entregables:'Escrito presentado · expediente probatorio · calendario',base:'fijo',importe:70000},
+  expedientes:{sello:'GMC360',ambito:'entidad',nombre:'Integración de expedientes de identificación',
+    alcance:'Por expediente de cliente con operaciones sobre umbral',
+    entregables:'Expedientes integrados · índice · constancias',base:'muestra',importe:600},
+  bc:{sello:'GMC360',ambito:'entidad',nombre:'Beneficiario controlador de la entidad y de clientes',
+    alcance:'Desdoblamiento hasta persona física de control efectivo y campaña con clientes',
+    entregables:'Expediente de BC · formato de declaración · campaña ejecutada',base:'fijo',importe:103000},
+  manualVol:{sello:'GMC360',ambito:'entidad',nombre:'Manual de cumplimiento voluntario',
+    alcance:'Manual para entidad que no actualiza los supuestos, con su justificación',
+    entregables:'Manual voluntario · memo de no configuración',base:'fijo',importe:70000},
+  manual:{sello:'GMC360',ambito:'grupo',nombre:'Manual de Políticas Internas (art. 37 Bis)',
+    alcance:'Los catorce contenidos mínimos, redactados sobre la operación real',
+    entregables:'Manual aprobado por el órgano de administración · matriz de contenidos',base:'manual'},
+  mebr:{sello:'GMC360',ambito:'grupo',nombre:'Metodología de riesgos con modelo de riesgo de cliente',
+    alcance:'Cuatro elementos, indicadores, medición, mitigantes, gobernanza y modelo de grado de riesgo de clientes',
+    entregables:'Metodología · matriz institucional · modelo de clientes · memoria de calibración',base:'mebr'},
+  paqueteMarco:{sello:'GMC360',ambito:'grupo',nombre:'Paquete: Manual + Metodología + Modelo de clientes',
+    alcance:'Los tres entregables construidos como un solo marco coherente',
+    entregables:'Manual · metodología · modelo de clientes · texto integrable · memoria de calibración',base:'paquete'},
+  programaCap:{sello:'GMC360',ambito:'grupo',nombre:'Diseño del programa anual de capacitación',
+    alcance:'Cuatro niveles, calendario, evaluación y formato de constancias',
+    entregables:'Programa anual · materiales por nivel · formatos',base:'fijo',importe:18000},
+  capacitacion:{sello:'360educa',ambito:'grupo',nombre:'Capacitación a la medida',
+    alcance:'Sesión de dos horas con material propio, apoyo en plataforma, examen, constancia y seguimiento del grupo',
+    entregables:'Sesión · material · examen · constancias · seguimiento',base:'sesiones',importe:40000,modalidad:true},
+  acompanamiento:{sello:'GMC360',ambito:'grupo',nombre:'Bolsa de horas de acompañamiento',
+    alcance:'El cliente ejecuta y GMC360 asesora, revisa y valida. Sesiones con dirección y con las directoras',
+    entregables:'Horas aplicadas · minutas · validaciones documentadas',base:'horas'},
+  iguala:{sello:'GMC360',ambito:'grupo',nombre:'Iguala de operación mensual',
+    alcance:'Avisos mensuales en tiempo, monitoreo de umbrales y de operaciones fuera de perfil, actualización de padrón, consultas y reporte mensual. El Representante Encargado sigue siendo del cliente',
+    entregables:'Avisos presentados · minutas · reporte mensual',base:'mensual',importe:40000},
   /* IGUALA DE ARRANQUE · autorizada por dirección el 7-sep-2026.
      Sustituye a la iguala con Representante Encargado, que se dio de baja:
      era cara y al cliente le conviene más tener su propio oficial de planta.
@@ -463,6 +542,8 @@ const CONFIG={
      Incluye, sin cobro aparte: avisos mes a mes, manual, metodología de
      riesgos con modelo de clientes y programa anual de capacitación. */
   igualaArranque:{sello:'GMC360',ambito:'grupo',nombre:'Iguala de arranque · todo incluido',
+    alcance:'Construcción y operación en un solo precio mensual: manual, metodología de riesgos con modelo de clientes, programa anual de capacitación y la operación de avisos mes a mes. Máximo 12 meses',
+    entregables:'Marco completo entregado · avisos presentados · programa de capacitación · minutas y reporte mensual',
     base:'mensual',importe:50000,topeMeses:12,
     incluye:['paqueteMarco','manual','mebr','programaCap','iguala']}
  }
@@ -1037,7 +1118,8 @@ function armarRegistro(){
       .map(([k,v])=>({servicio:k,activado:v})),
     partidas:filas,
     totales:{ subtotal:sub, texto:$('tfoot').innerText.trim() },
-    alertas:$('alertas').innerText.trim()
+    alertas:$('alertas').innerText.trim(),
+    propuesta:ULTIMA_PROPUESTA||null
   };
 }
 
@@ -1058,6 +1140,87 @@ async function guardar(){
     btn.disabled=false;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   REDACCIÓN DE LA PROPUESTA
+
+   Aquí NO hay ninguna llave. La página le pide a una función de
+   servidor de Netlify que redacte; esa función es la única que
+   conoce la llave de Claude. Lo que se manda es el diagnóstico,
+   los alcances del catálogo y los honorarios ya calculados: el
+   modelo redacta la prosa que los une, no los hechos.
+   ══════════════════════════════════════════════════════════════ */
+let ULTIMA_PROPUESTA='';
+
+function insumosPropuesta(){
+  const g=grupo();
+  /* Los servicios que quedaron activos, con el alcance del catálogo. */
+  const servicios=[...document.querySelectorAll('#tbody tr')]
+    .filter(t=>!t.classList.contains('sec'))
+    .map(t=>{const c=t.querySelectorAll('td'); const nom=c[0]?.innerText||'';
+      const s=Object.values(CONFIG.servicios).find(x=>x.nombre===nom);
+      return {servicio:nom, sello:c[1]?.innerText||'', honorario:c[3]?.innerText||'',
+              alcance:s?.alcance||'', entregables:s?.entregables||''};});
+  return {
+    destinatario:$('p-dest').value.trim(),
+    descripcion:$('p-desc').value.trim(),
+    transcripcion:$('p-trans').value.trim(),
+    arquetipo:$('arquetipo').innerText.trim(),
+    diagnostico:ENT.filter(e=>e.actividad!=='ninguna'&&e.sabe==='si')
+      .map(e=>({entidad:e.nombre||'la entidad', riesgo:riesgoDe(e,g).n,
+        obligaciones:diagnostico(e).map(x=>({obligacion:x.q, fundamento:x.f,
+          exigibleDesde:x.desde, estado:x.estado}))})),
+    servicios,
+    totales:$('tfoot').innerText.trim(),
+    alertas:$('alertas').innerText.trim()
+  };
+}
+
+async function redactar(){
+  const est=$('estadoIA'), btn=$('btnPropuesta');
+  if(local){ est.textContent='En modo local no se puede redactar: entra por la dirección en línea.'; return; }
+  if(!USUARIO){ est.textContent='Entra con tu correo primero.'; return; }
+  const ins=insumosPropuesta();
+  if(!ins.servicios.length){ est.textContent='Primero cotiza: la propuesta se arma sobre los servicios y el diagnóstico.'; return; }
+  if(!ins.descripcion && !ins.transcripcion){
+    est.textContent='Cuéntale algo del cliente, aunque sean tres renglones, o pega la transcripción.'; return; }
+
+  btn.disabled=true; est.textContent='Redactando. Tarda entre veinte segundos y un minuto…';
+  try{
+    const idToken=await USUARIO.getIdToken();
+    const r=await fetch('/.netlify/functions/propuesta',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({idToken, datos:ins})});
+    const d=await r.json();
+    if(!r.ok){ est.textContent='No se pudo: '+(d.error||r.status)+(d.detalle?' · '+d.detalle:''); btn.disabled=false; return; }
+    ULTIMA_PROPUESTA=d.html||'';
+    $('propuesta').innerHTML='<div class="doc">'+ULTIMA_PROPUESTA+'</div>';
+    $('btnWord').style.display='';
+    est.innerHTML='Lista. <b>Revísala completa antes de mandarla</b>: si ves un [POR CONFIRMAR], es un dato que le faltó.';
+    $('propuesta').scrollIntoView({behavior:'smooth'});
+  }catch(e){ est.textContent='No se pudo: '+e.message; }
+  btn.disabled=false;
+}
+
+/* Descarga en un formato que Word abre y deja editar, sin librerías. */
+function descargarWord(){
+  if(!ULTIMA_PROPUESTA) return;
+  const cliente=($('g-nombre').value||'propuesta').replace(/[^\wáéíóúñÁÉÍÓÚÑ ]/g,'').trim();
+  const doc=`<!DOCTYPE html><html xmlns:w="urn:schemas-microsoft-com:office:word"><head>
+    <meta charset="utf-8"><title>${cliente}</title><style>
+    body{font-family:Arial,sans-serif;font-size:11pt;line-height:1.6;color:#1b1b1e}
+    h1{color:#64c27b;font-size:18pt} h2{color:#64c27b;font-size:13pt}
+    table{border-collapse:collapse;width:100%} th{background:#64c27b;color:#fff;padding:6px;text-align:left}
+    td{border-bottom:1px solid #ddd;padding:6px}
+    </style></head><body>${ULTIMA_PROPUESTA}</body></html>`;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+doc],{type:'application/msword'}));
+  a.download=`Propuesta ${cliente||'GMC360'}.doc`;
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+$('btnPropuesta').onclick=redactar;
+$('btnWord').onclick=descargarWord;
 
 /* Aviso si se cierra la pestaña con una cotización sin guardar. */
 window.addEventListener('beforeunload',ev=>{

@@ -1,0 +1,9 @@
+# Configuración de Netlify · cotizador de actividades vulnerables
+# El sitio es un solo archivo estático en la raíz del repositorio.
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
