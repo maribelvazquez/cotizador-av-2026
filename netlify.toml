@@ -1,21 +1,22 @@
 # ══════════════════════════════════════════════════════════════
 # CONFIGURACIÓN DE NETLIFY · Cotizador de Actividades Vulnerables
 #
-# Dos carpetas, separadas a propósito:
 #   sitio/      lo que ve el navegador. Aquí vive el cotizador.
 #   funciones/  lo que corre en el servidor. Aquí vive el redactor
 #               de propuestas, el único que toca la llave de Claude.
 #
-# Van separadas porque si la función estuviera dentro de la carpeta
-# publicada, Netlify la trataría como un archivo más del sitio.
+# El redactor es una función DE BORDE, no una función normal. Las
+# normales se cortan a los diez segundos y redactar una propuesta
+# tarda entre treinta y sesenta: por eso devolvían 504. Las de borde
+# no tienen ese límite.
+#
+# Se atiende en la dirección /api/propuesta
 # ══════════════════════════════════════════════════════════════
 
 [build]
   publish = "sitio"
-  functions = "funciones"
+  edge_functions = "funciones"
 
-# Node 20 es indispensable: el redactor usa fetch, que no existe en
-# las versiones viejas de Node. Sin esta línea la función truena al
-# recibir la petición y Netlify devuelve una página de error en HTML.
-[build.environment]
-  NODE_VERSION = "20"
+[[edge_functions]]
+  path = "/api/propuesta"
+  function = "propuesta"

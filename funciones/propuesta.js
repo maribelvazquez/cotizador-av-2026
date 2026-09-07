@@ -1,31 +1,46 @@
 /* ══════════════════════════════════════════════════════════════
    GENERADOR DE PROPUESTAS · GMC360
-   Función de servidor. Corre en Netlify, no en el navegador.
+   Función de borde (edge function). Corre en el servidor, no en el
+   navegador, y se atiende en la dirección /api/propuesta
 
-   AQUÍ ES DONDE VIVE LA LLAVE DE CLAUDE, y solo aquí.
-   La llave se guarda en Netlify → Project configuration →
-   Environment variables, con el nombre ANTHROPIC_API_KEY.
+   AQUÍ VIVE LA LLAVE DE CLAUDE, y solo aquí.
+   Se guarda en Netlify → Project configuration → Environment
+   variables, con el nombre ANTHROPIC_API_KEY, marcada como secreta.
    Nunca se escribe en este archivo ni en el repositorio.
 
-   Antes de gastar un solo peso de la llave, la función verifica
-   contra Google que quien pide la propuesta entró de verdad con
-   un correo @gmc360.com.mx. Sin eso, cualquiera que descubriera
-   la dirección podría consumir el saldo.
+   POR QUÉ ES DE BORDE Y NO NORMAL
+   Las funciones normales de Netlify se cortan a los diez segundos.
+   Redactar una propuesta completa tarda entre treinta y sesenta, así
+   que siempre devolvían un 504. Las de borde no tienen ese límite y
+   están hechas para respuestas largas.
+
+   Esta función casi no hace trabajo: verifica quién pide, le pregunta
+   a Claude, y deja pasar el texto tal como va llegando. Armarlo es
+   tarea del navegador. Así se mantiene liviana y no se traba.
+
+   Antes de gastar un peso de la llave, verifica contra Google que
+   quien pide la propuesta entró con un correo de GMC360. Sin eso,
+   cualquiera que descubriera la dirección podría consumir el saldo.
    ══════════════════════════════════════════════════════════════ */
 
 const DOMINIO = '@gmc360.com.mx';
 const FIREBASE_API_KEY = 'AIzaSyC-T5ObXrd_lObRvgstBks-0uZONj5RNAc'; // identifica al proyecto, no es secreta
-const MODELO = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5';
-/* Si la API contesta que el modelo no existe, cambia ANTHROPIC_MODEL
-   en Netlify por el nombre vigente. No hay que tocar este archivo. */
 
-const json = (code, obj) => ({
-  statusCode: code,
-  headers: { 'Content-Type': 'application/json; charset=utf-8' },
-  body: JSON.stringify(obj)
-});
+const err = (code, obj) =>
+  new Response(JSON.stringify(obj), {
+    status: code,
+    headers: { 'Content-Type': 'application/json; charset=utf-8' }
+  });
 
-/* Le pregunta a Google si el token es real y de quién es. */
+/* Lee una variable de entorno, sin importar cómo se llame el entorno. */
+const env = (n) => {
+  try { if (typeof Netlify !== 'undefined' && Netlify.env) return Netlify.env.get(n); } catch {}
+  try { if (typeof Deno !== 'undefined' && Deno.env) return Deno.env.get(n); } catch {}
+  try { if (typeof process !== 'undefined' && process.env) return process.env[n]; } catch {}
+  return undefined;
+};
+
+/* Le pregunta a Google si la sesión es real y de quién es. */
 async function verificar(idToken) {
   const r = await fetch(
     `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${FIREBASE_API_KEY}`,
@@ -39,25 +54,27 @@ async function verificar(idToken) {
   return u.email;
 }
 
-exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') return json(405, { error: 'Solo POST' });
+export default async (request) => {
+  try {
+    if (request.method !== 'POST') return err(405, { error: 'Solo POST' });
 
-  if (!process.env.ANTHROPIC_API_KEY)
-    return json(500, { error: 'Falta la llave. Guárdala en Netlify como ANTHROPIC_API_KEY y vuelve a publicar.' });
+    const LLAVE = env('ANTHROPIC_API_KEY');
+    if (!LLAVE)
+      return err(500, { error: 'Falta la llave. Guárdala en Netlify como ANTHROPIC_API_KEY, con el alcance Runtime activado, y vuelve a publicar.' });
 
-  let cuerpo;
-  try { cuerpo = JSON.parse(event.body || '{}'); }
-  catch { return json(400, { error: 'No se entendió la petición' }); }
+    let cuerpo;
+    try { cuerpo = await request.json(); }
+    catch { return err(400, { error: 'No se entendió la petición' }); }
 
-  const correo = await verificar(cuerpo.idToken || '');
-  if (!correo) return json(401, { error: 'Tu sesión no es válida. Sal y vuelve a entrar.' });
+    const correo = await verificar(cuerpo.idToken || '');
+    if (!correo) return err(401, { error: 'Tu sesión no es válida. Sal del cotizador y vuelve a entrar.' });
 
-  const d = cuerpo.datos || {};
+    const d = cuerpo.datos || {};
 
-  /* ── Lo que el modelo PUEDE inventar: la prosa.
-       Lo que NO puede inventar: hechos, cifras, fundamentos y alcances.
-       Todo eso va aquí abajo ya resuelto, y la instrucción se lo prohíbe. ── */
-  const contexto = `
+    /* ── Lo que el modelo PUEDE hacer: redactar la prosa.
+         Lo que NO puede: inventar hechos, cifras, fundamentos o alcances.
+         Todo eso va aquí abajo ya resuelto. ── */
+    const contexto = `
 DESTINATARIO DE LA PROPUESTA
 ${d.destinatario || '(no especificado — usa una fórmula neutra y marca [POR CONFIRMAR])'}
 
@@ -66,7 +83,7 @@ Puede venir como notas de quien lo atendió, como transcripción cruda de la jun
 mezcladas. Distíngue tú: si es transcripción, quédate con lo que dijo EL CLIENTE, no con lo que dijo
 quien lo atendió; si son notas, tómalas como buenas. Nunca cites la transcripción literalmente en la
 propuesta ni menciones que hubo una grabación.
-${d.contexto || '(no capturado — la propuesta va a salir genérica; márcalo con [POR CONFIRMAR] donde haga falta)'}
+${d.contexto || '(no capturado — márcalo con [POR CONFIRMAR] donde haga falta)'}
 
 ARQUETIPO DE PROPUESTA QUE DETERMINÓ EL MOTOR
 ${d.arquetipo || ''}
@@ -84,7 +101,7 @@ ALERTAS INTERNAS DEL MOTOR (no van en la propuesta; son para que entiendas el ca
 ${d.alertas || 'ninguna'}
 `.trim();
 
-  const instruccion = `Eres quien redacta las propuestas de GMC360, una firma mexicana de consultoría
+    const instruccion = `Eres quien redacta las propuestas de GMC360, una firma mexicana de consultoría
 en prevención de lavado de dinero dirigida por Maribel Vázquez Menchaca, contadora pública con más de
 treinta años de experiencia y más de seiscientas auditorías. Escribe la propuesta como la escribiría ella.
 
@@ -156,35 +173,42 @@ PORTADA — Título del plan, entidades destinatarias, mes y año, y la leyenda 
 Devuelve HTML limpio: solo <h1>, <h2>, <h3>, <p>, <ul>, <li>, <table>, <tr>, <th>, <td>, <strong>.
 Sin CSS, sin <html>, sin <body>, sin comentarios y sin explicarme lo que hiciste. Solo el documento.`;
 
-  try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const upstream = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': LLAVE,
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: MODELO,
-        max_tokens: 8000,
+        model: env('ANTHROPIC_MODEL') || 'claude-sonnet-4-5',
+        /* Techo de salida. Una propuesta de siete secciones ronda las 5,000;
+           16,000 deja margen para un grupo de varias entidades. Si aun así se
+           topa, el navegador lo detecta y lo dice dentro del documento. */
+        max_tokens: 16000,
         system: instruccion,
+        stream: true,
         messages: [{ role: 'user', content: contexto }]
       })
     });
 
-    if (!r.ok) {
-      const t = await r.text();
-      return json(502, { error: 'La API de Claude respondió con error', detalle: t.slice(0, 500) });
+    if (!upstream.ok) {
+      const t = await upstream.text();
+      return err(502, { error: 'La API de Claude respondió con error', detalle: t.slice(0, 400) });
     }
-    const data = await r.json();
-    const texto = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n');
-    /* Toda propuesta nace como BORRADOR. La marca solo la quita dirección,
-       y el registro guarda quién capturó, quién revisó y quién autorizó. */
-    const marca = `<p><strong>BORRADOR · no se envía al cliente hasta que dirección lo autorice.</strong><br>
-      Capturó: ${correo} · Revisó: [PENDIENTE] · Autorizó: [PENDIENTE]</p><hr>`;
-    return json(200, { html: marca + texto, generadaPor: correo, modelo: MODELO, borrador: true });
+
+    /* Se deja pasar el flujo tal cual, sin tocarlo. El navegador lo arma.
+       Cuanto menos trabajo haga esta función, menos posibilidades hay de
+       que se trabe a la mitad de una propuesta. */
+    return new Response(upstream.body, {
+      headers: {
+        'Content-Type': 'text/event-stream; charset=utf-8',
+        'Cache-Control': 'no-store',
+        'X-Cotiza': correo
+      }
+    });
 
   } catch (e) {
-    return json(502, { error: 'No se pudo contactar a la API', detalle: String(e).slice(0, 300) });
+    return err(500, { error: 'El redactor falló antes de escribir', detalle: String((e && e.message) || e).slice(0, 300) });
   }
 };

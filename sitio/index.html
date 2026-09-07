@@ -1537,7 +1537,7 @@ async function redactar(){
 
   try{
     const idToken=await USUARIO.getIdToken();
-    const r=await fetch('/.netlify/functions/propuesta',{
+    const r=await fetch('/api/propuesta',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({idToken, datos:ins})});
 
@@ -1552,24 +1552,41 @@ async function redactar(){
       }else{
         msj = r.status===404
           ? 'El redactor no está publicado. Falta subir la carpeta funciones y el netlify.toml al repositorio.'
+          : r.status===504
+          ? 'Se acabó el tiempo del servidor. El redactor debe estar configurado como función de borde en el netlify.toml.'
           : 'El servidor contestó con un código '+r.status+'. Revisa el registro de la función en Netlify.';
       }
       est.textContent='No se pudo: '+msj;
       $('propuesta').innerHTML=''; btn.disabled=false; return;
     }
 
-    /* Se va pintando conforme llega. Mientras haya texto saliendo,
-       Netlify no corta la función por tiempo. */
+    /* El servidor solo deja pasar el flujo de Claude tal cual; armarlo toca
+       aquí. Llega como renglones que empiezan con "data:", cada uno con un
+       pedacito de texto. Se van pegando y pintando conforme llegan. */
     const lector=r.body.getReader(), dec=new TextDecoder();
     const caja=$('docVivo');
-    let texto='';
+    let texto='', resto='', truncada=false;
     while(true){
       const {done,value}=await lector.read();
       if(done) break;
-      texto+=dec.decode(value,{stream:true});
+      resto+=dec.decode(value,{stream:true});
+      const lineas=resto.split('\n'); resto=lineas.pop();
+      for(const linea of lineas){
+        if(!linea.startsWith('data:')) continue;
+        const crudo=linea.slice(5).trim();
+        if(!crudo||crudo==='[DONE]') continue;
+        try{
+          const ev=JSON.parse(crudo);
+          if(ev.type==='content_block_delta'&&ev.delta&&ev.delta.text) texto+=ev.delta.text;
+          if(ev.type==='message_delta'&&ev.delta&&ev.delta.stop_reason==='max_tokens') truncada=true;
+          if(ev.type==='error'&&ev.error) throw new Error(ev.error.message||'error de la API');
+        }catch(e){ if(e instanceof SyntaxError) continue; throw e; }
+      }
       caja.innerHTML=texto;
       caja.scrollIntoView({behavior:'smooth',block:'end'});
     }
+    if(truncada) texto+='<p><strong>[LA PROPUESTA SE CORTÓ AQUÍ POR LARGO. Vuelve a generarla, '
+      +'o pártela en dos: primero el diagnóstico y el alcance, después el cronograma y las condiciones.]</strong></p>';
 
     if(!texto.trim()){
       est.textContent='El redactor no devolvió nada. Vuelve a intentar; si sigue igual, revisa el registro en Netlify.';
