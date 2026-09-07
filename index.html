@@ -183,6 +183,84 @@ details.ob .chk input{margin-top:3px;flex-shrink:0}
 .doc th{background:var(--verde);color:#fff;text-align:left;padding:7px 9px}
 .doc td{border-bottom:1px solid var(--linea);padding:7px 9px}
 .estadoIA{font-size:12.5px;color:var(--gris);margin-top:9px}
+#informe{display:none}
+.inf{font-size:12.5px;line-height:1.65;color:var(--negro);max-width:900px;margin:0 auto}
+
+/* Portada */
+.inf .port{padding:0 0 26px;margin-bottom:30px;border-bottom:1px solid var(--linea);position:relative}
+.inf .port::after{content:'';position:absolute;left:0;bottom:-1px;width:96px;height:3px;background:var(--verde)}
+.inf .marca{color:var(--verde);font-weight:700;letter-spacing:.2em;font-size:10px;margin-bottom:14px}
+.inf h1{font-size:26px;line-height:1.25;margin:0 0 14px;color:var(--negro);font-weight:600;max-width:660px}
+.inf .meta{display:flex;flex-wrap:wrap;gap:0 26px;font-size:11.5px;color:var(--gris)}
+.inf .meta b{color:var(--negro);font-weight:600}
+.inf .conf{color:var(--verde);font-weight:600;letter-spacing:.06em;font-size:10.5px}
+
+/* Texto */
+.inf .intro{font-size:13px;color:var(--gris);max-width:680px;margin-bottom:14px}
+.inf .aclara{border-left:3px solid var(--verde);background:var(--verde-bg);
+  padding:13px 17px;border-radius:0 6px 6px 0;margin:18px 0 30px;font-size:12.5px;max-width:680px}
+.inf .aclara b{color:var(--negro)}
+
+/* Tablero de la entidad */
+.inf .ent{margin-bottom:34px;page-break-inside:avoid}
+.inf h2{font-size:17px;color:var(--negro);margin:0 0 3px;font-weight:600;
+  padding-bottom:9px;border-bottom:2px solid var(--verde)}
+.inf .act{font-size:11.5px;color:#8a918c;margin:9px 0 15px}
+.inf .cifras{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.inf .cif{flex:1;min-width:132px;border:1px solid var(--linea);border-radius:7px;padding:11px 13px}
+.inf .cif .v{font-size:21px;font-weight:600;color:var(--negro);line-height:1.15}
+.inf .cif .l{font-size:10.5px;color:#8a918c;margin-top:3px;line-height:1.4}
+.inf .cif.ok .v{color:var(--verde)} .inf .cif.al .v{color:#c0392b} .inf .cif.pe .v{color:#b26a00}
+
+/* Barra de avance */
+.inf .barraP{height:5px;background:#eef1ef;border-radius:3px;overflow:hidden;margin-top:7px}
+.inf .barraP i{display:block;height:100%;background:var(--verde);border-radius:3px}
+
+/* Tabla */
+.inf table{width:100%;border-collapse:collapse;font-size:11.5px}
+.inf thead th{background:var(--verde);color:#fff;text-align:left;padding:8px 10px;font-weight:600;font-size:11px;
+  letter-spacing:.02em}
+.inf thead th:first-child{border-radius:5px 0 0 0} .inf thead th:last-child{border-radius:0 5px 0 0}
+.inf tbody td{border-bottom:1px solid var(--linea);padding:9px 10px;vertical-align:top;color:var(--gris)}
+.inf tbody tr:nth-child(even) td{background:#fafbfa}
+.inf td.o{color:var(--negro);font-weight:500}
+.inf .fu{display:block;font-size:10px;color:#8a918c;font-style:italic;margin-top:3px;font-weight:400}
+.inf .pend{display:block;font-size:10.5px;color:#b26a00;margin-top:5px;font-weight:400}
+.inf .fecha{white-space:nowrap;font-size:11px}
+.inf .fecha.v{color:var(--verde);font-weight:600}
+.inf .fecha.f{color:#b26a00;font-weight:600}
+
+/* Etiqueta de estado */
+.inf .pill{display:inline-block;padding:2px 9px;border-radius:11px;font-size:10.5px;font-weight:600;
+  white-space:nowrap;border:1px solid}
+.p-si{color:#2f7d45;border-color:#bfe3ca;background:#eef8f1}
+.p-may{color:#4a9d5f;border-color:#cfe9d7;background:#f2faf5}
+.p-par{color:#a05e00;border-color:#f0dcb8;background:#fdf6e9}
+.p-no{color:#b03a2b;border-color:#f2cdc7;background:#fdefec}
+.p-fut{color:#8a6a2f;border-color:#e8ddc4;background:#faf6ec}
+
+/* No obligada */
+.inf .nob{border:1px solid var(--linea);border-left:3px solid #c9d2cb;background:#fafbfa;
+  padding:13px 17px;border-radius:0 6px 6px 0;font-size:12.5px;color:var(--gris)}
+
+/* Calendario final */
+.inf .cal2{margin-top:30px;page-break-inside:avoid}
+.inf .cal2 h2{border-bottom-color:var(--linea)}
+
+.inf .leg{font-size:10px;color:#8a918c;border-top:1px solid var(--linea);
+  margin-top:34px;padding-top:13px;line-height:1.65;max-width:700px}
+.inf .leg b{color:var(--gris)}
+
+@media print{
+  body.pr-inf .wrap > *{display:none !important}
+  body.pr-inf #informe{display:block !important}
+  body.pr-inf{background:#fff}
+  .inf .ent{page-break-inside:auto}
+  .inf h2{page-break-after:avoid}
+  .inf tr{page-break-inside:avoid}
+  .inf .cif,.inf .aclara,.inf .cal2{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .inf thead th,.inf .pill,.inf .barraP i{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 @media print{body{background:#fff}.wrap{max-width:none;padding:0}.noprint{display:none!important}.card{border:none;padding:0}}
 </style>
 </head>
@@ -286,6 +364,13 @@ Arriba va el <b>Eje B</b>, que dimensiona el trabajo; abajo el <b>Eje A</b>, que
 <p class="hint">Esto es lo que se le entrega al cliente. Cada obligación con su fundamento y su fecha.
 Lo que falta pero todavía no es exigible no se llama incumplimiento: se llama pendiente con fecha.</p>
 <div id="diagnostico"></div>
+<div class="btns noprint" style="margin-top:0">
+  <button class="b1" id="btnInforme">Informe de diagnóstico en PDF</button>
+  <button class="b2" id="btnInformeWord">Descargar para Word</button>
+</div>
+<p class="nota noprint">Este informe se le entrega al cliente. No lleva honorarios, ni recomendaciones
+   de venta, ni notas internas: solo qué le aplica, desde cuándo y cómo va.</p>
+<div id="informe"></div>
 
 <!-- 4 · RECOMENDACIÓN -->
 <h2><span class="n">4</span>Lo que recomienda la herramienta</h2>
@@ -343,12 +428,10 @@ esos no se inventan. Lo que redacta es el texto que los une.</p>
     <div><label>¿A quién va dirigida?
       <span class="ayuda">Nombre y cargo. Si no lo sabes, déjalo vacío y la propuesta lo marca como pendiente.</span></label>
       <input type="text" id="p-dest" placeholder="Lic. Nombre Apellido · Director General"></div>
-    <div><label>¿Quién es el cliente y de qué se trató?
-      <span class="ayuda">Con tus palabras. Qué hacen, cómo llegaron, qué les preocupa, qué te pidieron.</span></label>
-      <textarea id="p-desc" rows="5"></textarea></div>
-    <div><label>Transcripción de la junta
-      <span class="ayuda">Opcional. Pégala tal cual, aunque venga sucia.</span></label>
-      <textarea id="p-trans" rows="6"></textarea></div>
+    <div><label>¿De qué se trató?
+      <span class="ayuda">Con tus palabras o pegando la transcripción de la junta, como te sea más rápido.
+        Puedes mezclar las dos cosas. Entre más contexto, menos [POR CONFIRMAR] va a traer la propuesta.</span></label>
+      <textarea id="p-desc" rows="9" placeholder="Arrendadora de naves industriales en Querétaro. Los buscó su contador porque el banco les pidió el manual…"></textarea></div>
   </div>
   <div class="btns" style="margin:0">
     <button class="b1" id="btnPropuesta">Redactar propuesta</button>
@@ -392,7 +475,7 @@ const CONFIG={
     está en falta de algo que aún no lo obliga es un error que se cae solo en
     cuanto lo consulta con su abogado. */
  obligaciones:[
-  {id:'padron', q:'Alta y registro en el padrón de actividades vulnerables', desde:null,
+  {id:'padron', q:'Alta y registro en el padrón de actividades vulnerables', desde:null, ord:0,
    f:'Reglamento art. 12 · RCG arts. 4 a 8',
    puntos:[
     {p:'Está dada de alta en el padrón del SAT', f:'Regl. art. 12'},
@@ -401,7 +484,7 @@ const CONFIG={
     {p:'Los datos del padrón están actualizados (cambios avisados dentro de 6 días hábiles)', f:'RCG art. 7'},
     {p:'Si hay fideicomiso u otra figura jurídica, tiene su propia alta', f:'RCG art. 10 Sexies'}]},
 
-  {id:'rep', q:'Representante Encargado de Cumplimiento', desde:null,
+  {id:'rep', q:'Representante Encargado de Cumplimiento', desde:null, ord:0,
    f:'Ley art. 20 · RCG art. 10',
    puntos:[
     {p:'Hay una persona designada ante el SAT', f:'Ley art. 20'},
@@ -410,7 +493,7 @@ const CONFIG={
     {p:'Recibió capacitación en el último año', f:'Ley art. 20, párr. 3'},
     {p:'Tiene acceso real a la dirección y a la información para hacer su trabajo', f:'RCG art. 37 Bis fr. X'}]},
 
-  {id:'exp', q:'Expediente único de identificación de clientes', desde:null,
+  {id:'exp', q:'Expediente único de identificación de clientes', desde:null, ord:0,
    f:'Ley art. 18 fr. IV · RCG arts. 11 a 22',
    puntos:[
     {p:'Existe expediente para cada cliente, no solo para algunos', f:'RCG art. 12'},
@@ -422,7 +505,7 @@ const CONFIG={
     {p:'El comprobante de domicilio no rebasa tres meses de antigüedad', f:'RCG art. 21'},
     {p:'Se conservan cinco años contados desde el acto u operación', f:'Ley art. 18 fr. IV'}]},
 
-  {id:'avisos', q:'Presentación de avisos', desde:null,
+  {id:'avisos', q:'Presentación de avisos', desde:null, ord:0,
    f:'Ley art. 23 · RCG arts. 24 Bis a 27',
    puntos:[
     {p:'Se presentan a más tardar el día 17 del mes inmediato siguiente', f:'Ley art. 23'},
@@ -433,7 +516,7 @@ const CONFIG={
     {p:'Se conservan acuses y documentación soporte por diez años', f:'Regl. art. 20'}]},
 
   {id:'aviso24', q:'Aviso dentro de 24 horas por sospecha o por indicios',
-   desde:'30 de noviembre de 2026',
+   desde:'30 de noviembre de 2026', ord:1,
    f:'RCG arts. 26 Bis a 26 Bis 2',
    puntos:[
     {p:'Hay un procedimiento escrito para detectar y escalar la sospecha', f:'RCG art. 26 Bis'},
@@ -441,7 +524,7 @@ const CONFIG={
     {p:'Se entiende que procede aunque no se alcance el umbral', f:'RCG art. 26 Bis 2'},
     {p:'Se entiende que procede aunque la operación no se haya celebrado', f:'Regl. art. 7 Bis'}]},
 
-  {id:'manual', q:'Manual de Políticas Internas', desde:'1 de marzo de 2027',
+  {id:'manual', q:'Manual de Políticas Internas', desde:'1 de marzo de 2027', ord:2,
    f:'Ley art. 18 fr. VIII · RCG arts. 37 y 37 Bis',
    puntos:[
     {p:'Existe el Manual, está fechado y aprobado por la dirección', f:'RCG art. 37'},
@@ -462,7 +545,7 @@ const CONFIG={
     {p:'Si es grupo empresarial, hay manual del grupo con las particularidades de cada empresa', f:'RCG art. 37 Bis 1'}]},
 
   {id:'ebr', q:'Metodología de evaluación de riesgos de la entidad',
-   desde:'1 de marzo de 2027',
+   desde:'1 de marzo de 2027', ord:2,
    f:'Ley art. 18 fr. VII · RCG arts. 10 Septies a 10 Septies 6',
    puntos:[
     {p:'Existe una metodología escrita, no solo una matriz suelta', f:'RCG art. 10 Septies'},
@@ -477,7 +560,7 @@ const CONFIG={
     {p:'La documentación se conserva diez años', f:'10 Septies 3'}]},
 
   {id:'matriz', q:'Modelo de grado de riesgo de clientes',
-   desde:'1 de marzo de 2027',
+   desde:'1 de marzo de 2027', ord:2,
    f:'RCG arts. 23 Bis a 23 Bis 4',
    puntos:[
     {p:'Existe un modelo que clasifica a cada cliente', f:'RCG art. 23 Bis'},
@@ -490,7 +573,7 @@ const CONFIG={
     {p:'Se consulta PEP y hay debida diligencia reforzada', f:'RCG arts. 23 Quáter y 23 Ter 4'}]},
 
   {id:'bc', q:'Identificación del beneficiario controlador del cliente',
-   desde:'1 de marzo de 2027',
+   desde:'1 de marzo de 2027', ord:2,
    f:'Ley art. 18 fr. III · RCG arts. 23 Quinquies a 23 Quinquies 3',
    puntos:[
     {p:'Hay criterios escritos en el Manual para identificarlo', f:'RCG art. 23 Quinquies'},
@@ -500,7 +583,7 @@ const CONFIG={
     {p:'Se aplican las excepciones que la norma permite, sin excederse', f:'RCG art. 23 Quinquies 2'}]},
 
   {id:'sis', q:'Mecanismos automatizados de monitoreo',
-   desde:'1 de junio de 2027',
+   desde:'1 de junio de 2027', ord:3,
    f:'RCG art. 41',
    puntos:[
     {p:'Hay un sistema, no una hoja de cálculo llevada a mano', f:'RCG art. 41'},
@@ -510,7 +593,7 @@ const CONFIG={
     {p:'Los históricos se conservan diez años', f:'RCG art. 41 fr. IV'}]},
 
   {id:'cap', q:'Programa anual de capacitación',
-   desde:'Primer año calendario 2027',
+   desde:'Primer año calendario 2027', ord:4,
    f:'Ley art. 18 fr. IX · RCG arts. 39 Bis a 39 Bis 2',
    puntos:[
     {p:'Se imparte al menos una vez al año', f:'RCG art. 39 Bis fr. I'},
@@ -524,7 +607,7 @@ const CONFIG={
     {p:'Hay procedimientos documentados de selección de personal', f:'RCG art. 39 Bis 2'}]},
 
   {id:'aud', q:'Auditoría anual de cumplimiento',
-   desde:'Primer periodo 2028 · dictamen a más tardar el último día hábil de marzo de 2029',
+   desde:'Primer periodo 2028 · dictamen a más tardar el último día hábil de marzo de 2029', ord:5,
    f:'Ley art. 18 fr. XI · RCG Cap. XIV arts. 42 a 51',
    puntos:[
     {p:'Está definido si le toca auditoría interna o externa según su grado de riesgo', f:'Ley art. 18 fr. XI · RCG arts. 44 y 45'},
@@ -538,25 +621,25 @@ const CONFIG={
  ],
 
  exigibilidad:[
-  {q:'Alta en padrón y designación del Representante', desde:'Vigente hoy',
+  {q:'Alta en padrón y designación del Representante', desde:'Vigente hoy', ord:9,
    f:'Reglamento art. 12 · RCG arts. 4 y 10'},
-  {q:'Expediente único de identificación y su verificación anual', desde:'Vigente hoy',
+  {q:'Expediente único de identificación y su verificación anual', desde:'Vigente hoy', ord:9,
    f:'Ley art. 18 fr. IV · RCG arts. 12 y 21'},
-  {q:'Avisos al día 17 del mes siguiente', desde:'Vigente hoy',
+  {q:'Avisos al día 17 del mes siguiente', desde:'Vigente hoy', ord:9,
    f:'Ley art. 23 · RCG art. 24 Bis'},
-  {q:'Avisos de 24 horas por sospecha o por indicios', desde:'30 de noviembre de 2026',
+  {q:'Avisos de 24 horas por sospecha o por indicios', desde:'30 de noviembre de 2026', ord:1,
    f:'RCG arts. 26 Bis y 26 Bis 1'},
-  {q:'Manual de Políticas Internas con sus 14 contenidos', desde:'1 de marzo de 2027',
+  {q:'Manual de Políticas Internas con sus 14 contenidos', desde:'1 de marzo de 2027', ord:2,
    f:'RCG arts. 37 y 37 Bis · Transitorio Tercero'},
-  {q:'Metodología de riesgos y modelo de grado de riesgo de clientes', desde:'1 de marzo de 2027',
+  {q:'Metodología de riesgos y modelo de grado de riesgo de clientes', desde:'1 de marzo de 2027', ord:2,
    f:'RCG arts. 10 Septies y 23 Bis · Transitorios Segundo y Cuarto'},
-  {q:'Identificación del beneficiario controlador del cliente', desde:'1 de marzo de 2027',
+  {q:'Identificación del beneficiario controlador del cliente', desde:'1 de marzo de 2027', ord:2,
    f:'RCG art. 23 Quinquies · Transitorio Cuarto'},
-  {q:'Mecanismos automatizados de monitoreo', desde:'1 de junio de 2027',
+  {q:'Mecanismos automatizados de monitoreo', desde:'1 de junio de 2027', ord:3,
    f:'RCG art. 41'},
-  {q:'Programa anual de capacitación', desde:'Primer año calendario 2027',
+  {q:'Programa anual de capacitación', desde:'Primer año calendario 2027', ord:4,
    f:'RCG art. 39 Bis · Transitorio Séptimo'},
-  {q:'Auditoría anual de cumplimiento', desde:'Primer periodo 2028 · dictamen en marzo de 2029',
+  {q:'Auditoría anual de cumplimiento', desde:'Primer periodo 2028 · dictamen en marzo de 2029', ord:5,
    f:'Ley art. 18 fr. XI · RCG Cap. XIV · Transitorio Octavo'}
  ],
  iva:.16, renovacionInflacion:.05, impresion:2500,
@@ -794,7 +877,7 @@ function diagnostico(e){
        diagnóstico sirva: no dice "no cumple", dice qué exactamente. */
     const faltantes=o.puntos.filter((_,j)=>!(e.chk&&e.chk[o.id]&&e.chk[o.id][j]));
     const detalle=!!(e.det&&e.det[o.id]);
-    return {id:o.id, q:o.q, f:o.f, desde:o.desde||'Vigente hoy', futura, detalle,
+    return {id:o.id, q:o.q, f:o.f, desde:o.desde||'Vigente hoy', ord:o.ord||0, futura, detalle,
             estado:es.t, clase:es.c, pct:v, marcados, total:o.puntos.length,
             /* Solo se dice "le falta esto y esto" cuando de verdad se revisó punto
                por punto. Con la respuesta rápida no se sabe qué le falta, y afirmarlo
@@ -1426,8 +1509,7 @@ function insumosPropuesta(){
               alcance:s?.alcance||'', entregables:s?.entregables||''};});
   return {
     destinatario:$('p-dest').value.trim(),
-    descripcion:$('p-desc').value.trim(),
-    transcripcion:$('p-trans').value.trim(),
+    contexto:$('p-desc').value.trim(),
     arquetipo:$('arquetipo').innerText.trim(),
     diagnostico:ENT.filter(e=>e.actividad!=='ninguna'&&e.sabe==='si')
       .map(e=>({entidad:e.nombre||'la entidad', riesgo:riesgoDe(e,g).n,
@@ -1445,7 +1527,7 @@ async function redactar(){
   if(!USUARIO){ est.textContent='Entra con tu correo primero.'; return; }
   const ins=insumosPropuesta();
   if(!ins.servicios.length){ est.textContent='Primero cotiza: la propuesta se arma sobre los servicios y el diagnóstico.'; return; }
-  if(!ins.descripcion && !ins.transcripcion){
+  if(!ins.contexto){
     est.textContent='Cuéntale algo del cliente, aunque sean tres renglones, o pega la transcripción.'; return; }
 
   btn.disabled=true; est.textContent='Redactando. Tarda entre veinte segundos y un minuto…';
@@ -1481,6 +1563,155 @@ function descargarWord(){
   a.download=`Propuesta ${cliente||'GMC360'}.doc`;
   a.click(); URL.revokeObjectURL(a.href);
 }
+
+/* ══════════════════════════════════════════════════════════════
+   INFORME DE DIAGNÓSTICO
+
+   Es el documento que se le entrega al cliente al terminar la junta,
+   antes de que exista propuesta. Lleva folio propio.
+
+   Lo que NO lleva, a propósito: honorarios, servicios recomendados,
+   razones de venta, alertas internas y cualquier nota de mostrador.
+   Solo qué le aplica, desde cuándo, y cómo va hoy.
+   ══════════════════════════════════════════════════════════════ */
+let FOLIO_INFORME='';
+
+function armarInforme(){
+  const g=grupo();
+  const hoy=new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+  if(!FOLIO_INFORME) FOLIO_INFORME=(typeof nuevoFolio==='function'?nuevoFolio():'DX').replace('AV-','DX-');
+  const cliente=$('g-nombre').value.trim()||'[Cliente por confirmar]';
+  const contacto=$('g-contacto').value.trim();
+  const obligadas=ENT.filter(e=>e.actividad!=='ninguna'&&e.sabe==='si');
+  const otras=ENT.filter(e=>e.actividad==='ninguna'||e.sabe!=='si');
+  const pill=x=>{const m={'Cumple':'p-si','Cumple mayoritariamente':'p-may','Cumple parcialmente':'p-par',
+    'No cumple':'p-no','Por construir':'p-fut','Apenas iniciado':'p-fut'};
+    return `<span class="pill ${m[x.estado]||'p-fut'}">${x.estado}</span>`;};
+
+  const bloque=e=>{
+    const d=diagnostico(e), niv=nivelDe(e), pc=Math.round(niv.v*100);
+    const nom=e.nombre||'La entidad';
+    const act=buscar(CONFIG.actividades,e.actividad).nombre;
+    const conFalta=d.filter(x=>!x.futura&&x.pct<1).length;
+    const alDia=d.filter(x=>!x.futura).length-conFalta;
+    const porVenir=d.filter(x=>x.futura&&x.pct<1).length;
+    const pend=d.filter(x=>x.futura&&x.pct<1).sort((a,b)=>a.ord-b.ord);
+    const proxima=pend.length?pend[0].desde:'—';
+    return `<div class="ent">
+      <h2>${nom}</h2>
+      <div class="act">${act}${e.actExtra?` · y ${e.actExtra} actividad${e.actExtra>1?'es':''} vulnerable${e.actExtra>1?'s':''} más`:''}
+        · nivel de riesgo <b>${riesgoDe(e,g).n}</b></div>
+      <div class="cifras">
+        <div class="cif ${conFalta?'al':'ok'}"><div class="v">${conFalta}</div>
+          <div class="l">${conFalta===1?'obligación exigible hoy con faltantes':'obligaciones exigibles hoy con faltantes'}</div></div>
+        <div class="cif ok"><div class="v">${alDia}</div>
+          <div class="l">${alDia===1?'obligación exigible al corriente':'obligaciones exigibles al corriente'}</div></div>
+        <div class="cif pe"><div class="v">${porVenir}</div>
+          <div class="l">por construir, con fecha futura</div></div>
+        <div class="cif"><div class="v">${pc}%</div>
+          <div class="l">cumplimiento general</div>
+          <div class="barraP"><i style="width:${pc}%"></i></div></div>
+      </div>
+      <table><thead><tr><th style="width:46%">Obligación y fundamento</th>
+        <th style="width:26%">Exigible desde</th><th>Cómo se encuentra hoy</th></tr></thead><tbody>
+      ${d.map(x=>`<tr>
+        <td class="o">${x.q}<span class="fu">${x.f}</span>
+          ${x.faltantes.length&&x.faltantes.length<x.total
+            ? `<span class="pend">Pendiente: ${x.faltantes.map(z=>z.p).join(' · ')}</span>`:''}</td>
+        <td class="fecha ${x.futura?'f':'v'}">${x.desde}</td>
+        <td>${pill(x)}</td></tr>`).join('')}
+      </tbody></table>
+      ${porVenir?`<p class="act" style="margin-top:11px">La fecha más próxima que le corre a esta empresa es
+        <b>${proxima}</b>. Construir lo que falta con orden toma meses, no semanas.</p>`:''}
+    </div>`;
+  };
+
+  return `<div class="inf">
+    <div class="port">
+      <div class="marca">GMC360 · LEX-GMC · 360EDUCA</div>
+      <h1>Diagnóstico de obligaciones en prevención de lavado de dinero</h1>
+      <div class="meta">
+        <span><b>${cliente}</b>${contacto?` · At'n ${contacto}`:''}</span>
+        <span>${hoy}</span>
+        <span>Folio ${FOLIO_INFORME}</span>
+        <span class="conf">DOCUMENTO CONFIDENCIAL</span>
+      </div>
+    </div>
+
+    <p class="intro">Este documento resume qué obligaciones de la Ley Federal para la Prevención e
+      Identificación de Operaciones con Recursos de Procedencia Ilícita, de su Reglamento y de las Reglas
+      de Carácter General le aplican${obligadas.length>1?' a cada una de las empresas revisadas':''},
+      desde cuándo son exigibles y cómo se encuentra hoy. Cada renglón cita su fundamento.</p>
+
+    <div class="aclara"><b>Una aclaración que importa.</b> La reforma a las Reglas de Carácter General
+      publicada el 7 de agosto de 2026 entra en vigor el 30 de noviembre de 2026, y sus obligaciones son
+      escalonadas. Una obligación marcada con fecha futura <b>no es un incumplimiento</b>: es un pendiente
+      con plazo. Aparece aquí porque construirla bien toma meses, no porque hoy se esté en falta.</div>
+
+    ${obligadas.length?obligadas.map(bloque).join(''):
+      `<div class="nob">Ninguna de las entidades revisadas quedó confirmada como sujeto obligado.
+       Antes de cualquier trabajo de cumplimiento procede una determinación de actividad vulnerable.</div>`}
+
+    ${otras.map(e=>`<div class="ent"><h2>${e.nombre||'Entidad sin determinar'}</h2>
+       <div class="nob">${e.actividad==='ninguna'
+        ? '<b>Esta empresa no está obligada.</b> No actualiza materialmente los supuestos del artículo 17 de la Ley, por lo que no requiere alta en el padrón, ni designación de representante, ni presentación de avisos. Se hace constar aquí para que quede claro qué <em>no</em> hay que hacer.'
+        : '<b>Esta empresa requiere una determinación previa.</b> Antes de cualquier trabajo de cumplimiento hace falta un dictamen que establezca si configura actividad vulnerable y en qué fracción del artículo 17.'}</div></div>`).join('')}
+
+    <div class="cal2">
+      <h2>Calendario de exigibilidad</h2>
+      <p class="act">Aplica a todos los sujetos obligados, con independencia de este diagnóstico.</p>
+      <table><thead><tr><th style="width:46%">Obligación</th><th style="width:26%">Exigible desde</th>
+        <th>Fundamento</th></tr></thead><tbody>
+      ${CONFIG.exigibilidad.map(x=>`<tr><td class="o">${x.q}</td>
+        <td class="fecha ${x.desde==='Vigente hoy'?'v':'f'}">${x.desde}</td>
+        <td style="font-size:10.5px">${x.f}</td></tr>`).join('')}
+      </tbody></table>
+    </div>
+
+    <div class="leg">
+      <b>Alcance y limitaciones.</b> Diagnóstico preparado por GMC360 con la información proporcionada por
+      el cliente a la fecha de este documento. No constituye dictamen de auditoría en términos del
+      Capítulo XIV de las Reglas de Carácter General, ni asesoría jurídica, ni opinión sobre la
+      configuración de actividad vulnerable. Su alcance se limita a las obligaciones enunciadas y a lo
+      declarado durante la sesión de diagnóstico: no incluye verificación documental de expedientes,
+      revisión de avisos presentados ni pruebas sustantivas. Las fechas de exigibilidad corresponden a
+      las disposiciones vigentes a la fecha de emisión y pueden cambiar por reformas posteriores.
+      Documento confidencial, para uso exclusivo del destinatario.
+    </div>
+  </div>`;
+}
+
+function imprimirInforme(){
+  if(!ENT.length) return;
+  $('informe').innerHTML=armarInforme();
+  document.body.classList.add('pr-inf');
+  window.print();
+  setTimeout(()=>document.body.classList.remove('pr-inf'),400);
+}
+
+function informeWord(){
+  if(!ENT.length) return;
+  $('informe').innerHTML=armarInforme();
+  const cli=($('g-nombre').value||'diagnostico').replace(/[^\wáéíóúñÁÉÍÓÚÑ ]/g,'').trim();
+  const doc=`<!DOCTYPE html><html xmlns:w="urn:schemas-microsoft-com:office:word"><head>
+    <meta charset="utf-8"><title>Diagnóstico ${cli}</title><style>
+    body{font-family:Arial,sans-serif;font-size:10.5pt;line-height:1.55;color:#1b1b1e}
+    h1{font-size:16pt} h2{color:#64c27b;font-size:12pt}
+    table{border-collapse:collapse;width:100%} th{background:#64c27b;color:#fff;padding:5px;text-align:left;font-size:9.5pt}
+    td{border-bottom:1px solid #ddd;padding:5px;font-size:9.5pt}
+    .marca{color:#64c27b;font-weight:bold;font-size:8pt;letter-spacing:2px}
+    .res{background:#f0f9f2;border-left:3px solid #64c27b;padding:8px}
+    .fu{display:block;font-size:8pt;color:#888;font-style:italic}
+    .leg{font-size:8pt;color:#888;border-top:1px solid #ddd;padding-top:8px}
+    </style></head><body>${$('informe').innerHTML}</body></html>`;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+doc],{type:'application/msword'}));
+  a.download=`Diagnostico ${cli||'GMC360'}.doc`;
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+$('btnInforme').onclick=imprimirInforme;
+$('btnInformeWord').onclick=informeWord;
 
 $('btnPropuesta').onclick=redactar;
 $('btnWord').onclick=descargarWord;

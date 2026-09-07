@@ -61,11 +61,12 @@ exports.handler = async (event) => {
 DESTINATARIO DE LA PROPUESTA
 ${d.destinatario || '(no especificado — usa una fórmula neutra y marca [POR CONFIRMAR])'}
 
-LO QUE SABEMOS DEL CLIENTE, dicho por quien lo atendió
-${d.descripcion || '(no capturado)'}
-
-TRANSCRIPCIÓN DE LA JUNTA
-${d.transcripcion || '(no hay transcripción)'}
+CONTEXTO DEL CLIENTE
+Puede venir como notas de quien lo atendió, como transcripción cruda de la junta, o como las dos cosas
+mezcladas. Distíngue tú: si es transcripción, quédate con lo que dijo EL CLIENTE, no con lo que dijo
+quien lo atendió; si son notas, tómalas como buenas. Nunca cites la transcripción literalmente en la
+propuesta ni menciones que hubo una grabación.
+${d.contexto || '(no capturado — la propuesta va a salir genérica; márcalo con [POR CONFIRMAR] donde haga falta)'}
 
 ARQUETIPO DE PROPUESTA QUE DETERMINÓ EL MOTOR
 ${d.arquetipo || ''}
