@@ -247,6 +247,40 @@ details.ob .chk input{margin-top:3px;flex-shrink:0}
 .inf .cal2{margin-top:30px;page-break-inside:avoid}
 .inf .cal2 h2{border-bottom-color:var(--linea)}
 
+/* ── Línea de exigibilidad ──
+   Convierte las fechas en una imagen. Es el argumento comercial de la firma:
+   no es "estás en falta", es "esto te vence tal día y construirlo toma meses".
+   Tres estados, cada uno con su etiqueta escrita: el color nunca decide solo. */
+.lx{margin:18px 0 26px;page-break-inside:avoid}
+.lx .lxt{font-size:13px;font-weight:600;color:var(--negro);margin-bottom:3px}
+.lx .lxs{font-size:11px;color:#8a918c;margin-bottom:14px}
+.lx .leyenda{display:flex;gap:16px;flex-wrap:wrap;font-size:10.5px;color:var(--gris);margin-bottom:13px}
+.lx .leyenda span{display:flex;align-items:center;gap:5px}
+.lx .pt{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.lx .p-ok{background:var(--verde)} .lx .p-pd{background:#fab219} .lx .p-cr{background:#d03b3b}
+.lx .riel{position:relative;display:grid;gap:0;align-items:start}
+.lx .riel::before{content:'';position:absolute;left:0;right:0;top:5px;height:2px;background:var(--linea)}
+.lx .par{position:relative;padding:0 7px 0 0}
+.lx .nodo{width:12px;height:12px;border-radius:50%;background:#fff;
+  border:2px solid var(--linea);position:relative;z-index:1;margin-bottom:7px}
+.lx .par.hoy .nodo{border-color:var(--verde);background:var(--verde)}
+.lx .par.vence .nodo{border-color:#fab219;background:#fab219}
+.lx .par.critico .nodo{border-color:#d03b3b;background:#d03b3b}
+.lx .fch{font-size:10.5px;font-weight:600;color:var(--negro);line-height:1.3;margin-bottom:8px;padding-right:6px}
+.lx .par.hoy .fch{color:var(--verde)}
+.lx .chips{display:flex;flex-direction:column;gap:3px;padding-right:6px}
+.lx .chip{font-size:9.5px;line-height:1.3;padding:3px 6px;border-radius:4px;border:1px solid;
+  display:flex;gap:4px;align-items:flex-start}
+.lx .chip b{font-weight:700;flex-shrink:0}
+.c-ok{color:#2f7d45;border-color:#bfe3ca;background:#eef8f1}
+.c-pd{color:#8a6a2f;border-color:#e8ddc4;background:#faf6ec}
+.c-cr{color:#b03a2b;border-color:#f2cdc7;background:#fdefec}
+.lx .vacio{font-size:9.5px;color:#c2cac4;padding:3px 0}
+
+/* Medidor de cada obligación en la tabla */
+.inf .med{display:block;height:4px;background:#eef1ef;border-radius:2px;margin-top:5px;max-width:110px}
+.inf .med i{display:block;height:100%;border-radius:2px}
+
 .inf .leg{font-size:10px;color:#8a918c;border-top:1px solid var(--linea);
   margin-top:34px;padding-top:13px;line-height:1.65;max-width:700px}
 .inf .leg b{color:var(--gris)}
@@ -475,7 +509,7 @@ const CONFIG={
     está en falta de algo que aún no lo obliga es un error que se cae solo en
     cuanto lo consulta con su abogado. */
  obligaciones:[
-  {id:'padron', q:'Alta y registro en el padrón de actividades vulnerables', desde:null, ord:0,
+  {id:'padron', corto:'Padrón', q:'Alta y registro en el padrón de actividades vulnerables', desde:null, ord:0,
    f:'Reglamento art. 12 · RCG arts. 4 a 8',
    puntos:[
     {p:'Está dada de alta en el padrón del SAT', f:'Regl. art. 12'},
@@ -484,7 +518,7 @@ const CONFIG={
     {p:'Los datos del padrón están actualizados (cambios avisados dentro de 6 días hábiles)', f:'RCG art. 7'},
     {p:'Si hay fideicomiso u otra figura jurídica, tiene su propia alta', f:'RCG art. 10 Sexies'}]},
 
-  {id:'rep', q:'Representante Encargado de Cumplimiento', desde:null, ord:0,
+  {id:'rep', corto:'Representante', q:'Representante Encargado de Cumplimiento', desde:null, ord:0,
    f:'Ley art. 20 · RCG art. 10',
    puntos:[
     {p:'Hay una persona designada ante el SAT', f:'Ley art. 20'},
@@ -493,7 +527,7 @@ const CONFIG={
     {p:'Recibió capacitación en el último año', f:'Ley art. 20, párr. 3'},
     {p:'Tiene acceso real a la dirección y a la información para hacer su trabajo', f:'RCG art. 37 Bis fr. X'}]},
 
-  {id:'exp', q:'Expediente único de identificación de clientes', desde:null, ord:0,
+  {id:'exp', corto:'Expedientes', q:'Expediente único de identificación de clientes', desde:null, ord:0,
    f:'Ley art. 18 fr. IV · RCG arts. 11 a 22',
    puntos:[
     {p:'Existe expediente para cada cliente, no solo para algunos', f:'RCG art. 12'},
@@ -505,7 +539,7 @@ const CONFIG={
     {p:'El comprobante de domicilio no rebasa tres meses de antigüedad', f:'RCG art. 21'},
     {p:'Se conservan cinco años contados desde el acto u operación', f:'Ley art. 18 fr. IV'}]},
 
-  {id:'avisos', q:'Presentación de avisos', desde:null, ord:0,
+  {id:'avisos', corto:'Avisos', q:'Presentación de avisos', desde:null, ord:0,
    f:'Ley art. 23 · RCG arts. 24 Bis a 27',
    puntos:[
     {p:'Se presentan a más tardar el día 17 del mes inmediato siguiente', f:'Ley art. 23'},
@@ -515,7 +549,7 @@ const CONFIG={
     {p:'No hay ejercicios anteriores sin presentar', f:'Ley art. 53 fr. VI'},
     {p:'Se conservan acuses y documentación soporte por diez años', f:'Regl. art. 20'}]},
 
-  {id:'aviso24', q:'Aviso dentro de 24 horas por sospecha o por indicios',
+  {id:'aviso24', corto:'Aviso de 24 horas', q:'Aviso dentro de 24 horas por sospecha o por indicios',
    desde:'30 de noviembre de 2026', ord:1,
    f:'RCG arts. 26 Bis a 26 Bis 2',
    puntos:[
@@ -524,7 +558,7 @@ const CONFIG={
     {p:'Se entiende que procede aunque no se alcance el umbral', f:'RCG art. 26 Bis 2'},
     {p:'Se entiende que procede aunque la operación no se haya celebrado', f:'Regl. art. 7 Bis'}]},
 
-  {id:'manual', q:'Manual de Políticas Internas', desde:'1 de marzo de 2027', ord:2,
+  {id:'manual', corto:'Manual', q:'Manual de Políticas Internas', desde:'1 de marzo de 2027', ord:2,
    f:'Ley art. 18 fr. VIII · RCG arts. 37 y 37 Bis',
    puntos:[
     {p:'Existe el Manual, está fechado y aprobado por la dirección', f:'RCG art. 37'},
@@ -544,7 +578,7 @@ const CONFIG={
     {p:'Procedimiento de actualización del propio Manual', f:'37 Bis fr. XIV'},
     {p:'Si es grupo empresarial, hay manual del grupo con las particularidades de cada empresa', f:'RCG art. 37 Bis 1'}]},
 
-  {id:'ebr', q:'Metodología de evaluación de riesgos de la entidad',
+  {id:'ebr', corto:'Metodología de riesgos', q:'Metodología de evaluación de riesgos de la entidad',
    desde:'1 de marzo de 2027', ord:2,
    f:'Ley art. 18 fr. VII · RCG arts. 10 Septies a 10 Septies 6',
    puntos:[
@@ -559,7 +593,7 @@ const CONFIG={
     {p:'Hay mitigantes definidos para los riesgos identificados', f:'10 Septies'},
     {p:'La documentación se conserva diez años', f:'10 Septies 3'}]},
 
-  {id:'matriz', q:'Modelo de grado de riesgo de clientes',
+  {id:'matriz', corto:'Riesgo de clientes', q:'Modelo de grado de riesgo de clientes',
    desde:'1 de marzo de 2027', ord:2,
    f:'RCG arts. 23 Bis a 23 Bis 4',
    puntos:[
@@ -572,7 +606,7 @@ const CONFIG={
     {p:'Hay perfil transaccional y alertas por desviación', f:'RCG arts. 23 Ter 1 y 23 Ter 2'},
     {p:'Se consulta PEP y hay debida diligencia reforzada', f:'RCG arts. 23 Quáter y 23 Ter 4'}]},
 
-  {id:'bc', q:'Identificación del beneficiario controlador del cliente',
+  {id:'bc', corto:'Beneficiario controlador', q:'Identificación del beneficiario controlador del cliente',
    desde:'1 de marzo de 2027', ord:2,
    f:'Ley art. 18 fr. III · RCG arts. 23 Quinquies a 23 Quinquies 3',
    puntos:[
@@ -582,7 +616,7 @@ const CONFIG={
     {p:'Hay tratamiento específico para fideicomisos', f:'RCG art. 23 Quinquies 1'},
     {p:'Se aplican las excepciones que la norma permite, sin excederse', f:'RCG art. 23 Quinquies 2'}]},
 
-  {id:'sis', q:'Mecanismos automatizados de monitoreo',
+  {id:'sis', corto:'Monitoreo', q:'Mecanismos automatizados de monitoreo',
    desde:'1 de junio de 2027', ord:3,
    f:'RCG art. 41',
    puntos:[
@@ -592,7 +626,7 @@ const CONFIG={
     {p:'Genera alertas por operaciones fuera de perfil', f:'RCG art. 23 Ter 2'},
     {p:'Los históricos se conservan diez años', f:'RCG art. 41 fr. IV'}]},
 
-  {id:'cap', q:'Programa anual de capacitación',
+  {id:'cap', corto:'Capacitación', q:'Programa anual de capacitación',
    desde:'Primer año calendario 2027', ord:4,
    f:'Ley art. 18 fr. IX · RCG arts. 39 Bis a 39 Bis 2',
    puntos:[
@@ -606,7 +640,7 @@ const CONFIG={
     {p:'Se conserva la evidencia diez años: programas, listas, evaluaciones y constancias', f:'RCG art. 39 Bis 1'},
     {p:'Hay procedimientos documentados de selección de personal', f:'RCG art. 39 Bis 2'}]},
 
-  {id:'aud', q:'Auditoría anual de cumplimiento',
+  {id:'aud', corto:'Auditoría', q:'Auditoría anual de cumplimiento',
    desde:'Primer periodo 2028 · dictamen a más tardar el último día hábil de marzo de 2029', ord:5,
    f:'Ley art. 18 fr. XI · RCG Cap. XIV arts. 42 a 51',
    puntos:[
@@ -877,7 +911,7 @@ function diagnostico(e){
        diagnóstico sirva: no dice "no cumple", dice qué exactamente. */
     const faltantes=o.puntos.filter((_,j)=>!(e.chk&&e.chk[o.id]&&e.chk[o.id][j]));
     const detalle=!!(e.det&&e.det[o.id]);
-    return {id:o.id, q:o.q, f:o.f, desde:o.desde||'Vigente hoy', ord:o.ord||0, futura, detalle,
+    return {id:o.id, q:o.q, corto:o.corto||o.q, f:o.f, desde:o.desde||'Vigente hoy', ord:o.ord||0, futura, detalle,
             estado:es.t, clase:es.c, pct:v, marcados, total:o.puntos.length,
             /* Solo se dice "le falta esto y esto" cuando de verdad se revisó punto
                por punto. Con la respuesta rápida no se sabe qué le falta, y afirmarlo
@@ -1527,11 +1561,15 @@ async function redactar(){
   if(!USUARIO){ est.textContent='Entra con tu correo primero.'; return; }
   const ins=insumosPropuesta();
   if(!ins.servicios.length){ est.textContent='Primero cotiza: la propuesta se arma sobre los servicios y el diagnóstico.'; return; }
-  if(!ins.contexto){
-    est.textContent='Cuéntale algo del cliente, aunque sean tres renglones, o pega la transcripción.'; return; }
+  /* Sin contexto sí redacta: el diagnóstico, los alcances y los honorarios son
+     reales de todos modos. Lo único que sale flojo es la carta de presentación,
+     y se avisa en vez de bloquear. Quien cotiza decide. */
+  const sinContexto=!ins.contexto;
 
   btn.disabled=true; $('btnWord').style.display='none';
-  est.textContent='Redactando. La vas a ver escribirse; tarda entre treinta segundos y un minuto…';
+  est.innerHTML = sinContexto
+    ? 'Redactando <b>sin contexto del cliente</b>: el diagnóstico y los honorarios van bien, pero la carta de presentación va a salir genérica y con [POR CONFIRMAR]. Tarda entre treinta segundos y un minuto…'
+    : 'Redactando. La vas a ver escribirse; tarda entre treinta segundos y un minuto…';
   $('propuesta').innerHTML='<div class="doc" id="docVivo"></div>';
   $('propuesta').scrollIntoView({behavior:'smooth'});
 
@@ -1599,7 +1637,8 @@ async function redactar(){
     ULTIMA_PROPUESTA=marca+texto;
     caja.innerHTML=ULTIMA_PROPUESTA;
     $('btnWord').style.display='';
-    est.innerHTML='Lista. <b>Revísala completa antes de mandarla</b>: si ves un [POR CONFIRMAR], es un dato que le faltó.';
+    est.innerHTML='Lista. <b>Revísala completa antes de mandarla</b>: si ves un [POR CONFIRMAR], es un dato que le faltó.'
+      +(sinContexto?' Como no capturaste contexto, la sección 1 es la que más va a necesitar tu mano.':'');
 
   }catch(e){ est.textContent='No se pudo: '+e.message; $('propuesta').innerHTML=''; }
   btn.disabled=false;
@@ -1677,9 +1716,12 @@ function armarInforme(){
           ${x.faltantes.length&&x.faltantes.length<x.total
             ? `<span class="pend">Pendiente: ${x.faltantes.map(z=>z.p).join(' · ')}</span>`:''}</td>
         <td class="fecha ${x.futura?'f':'v'}">${x.desde}</td>
-        <td>${pill(x)}</td></tr>`).join('')}
+        <td>${pill(x)}
+          <span class="med"><i style="width:${Math.round(x.pct*100)}%;background:${
+            x.pct>=1?'var(--verde)':x.futura?'#fab219':'#d03b3b'}"></i></span></td></tr>`).join('')}
       </tbody></table>
-      ${porVenir?`<p class="act" style="margin-top:11px">La fecha más próxima que le corre a esta empresa es
+      ${lineaExigibilidad(d)}
+      ${porVenir?`<p class="act" style="margin-top:-14px">La fecha más próxima que le corre a esta empresa es
         <b>${proxima}</b>. Construir lo que falta con orden toma meses, no semanas.</p>`:''}
     </div>`;
   };
@@ -1736,6 +1778,52 @@ function armarInforme(){
       las disposiciones vigentes a la fecha de emisión y pueden cambiar por reformas posteriores.
       Documento confidencial, para uso exclusivo del destinatario.
     </div>
+  </div>`;
+}
+
+/* ── LA GRÁFICA ──
+   Un renglón de tiempo con las obligaciones colocadas en la fecha que les toca.
+   Cada obligación lleva su nombre escrito y una marca de estado: quien no
+   distingue colores lee exactamente lo mismo. */
+function lineaExigibilidad(d){
+  const paradas=[
+    {ord:0, f:'Vigente<br>hoy'},
+    {ord:1, f:'30 nov<br>2026'},
+    {ord:2, f:'1 mar<br>2027'},
+    {ord:3, f:'1 jun<br>2027'},
+    {ord:4, f:'Cierre<br>2027'},
+    {ord:5, f:'Ejercicio<br>2028'}
+  ];
+  let hayAlerta=false;
+  const cols=paradas.map(p=>{
+    const obs=d.filter(x=>(x.ord||0)===p.ord);
+    if(!obs.length) return null;
+    const chips=obs.map(x=>{
+      const listo=x.pct>=1;
+      const critico=!listo && !x.futura;
+      if(critico) hayAlerta=true;
+      const cl=listo?'c-ok':critico?'c-cr':'c-pd';
+      const marca=listo?'✓':critico?'!':'○';
+      const eti=listo?'cumple':critico?'no cumple':'por construir';
+      return `<div class="chip ${cl}" title="${x.q} · ${eti}"><b>${marca}</b><span>${x.corto}</span></div>`;
+    }).join('');
+    const pend=obs.some(x=>x.pct<1);
+    const crit=obs.some(x=>x.pct<1&&!x.futura);
+    const clase = p.ord===0 ? (crit?'critico':'hoy') : (pend?'vence':'');
+    return `<div class="par ${clase}"><div class="nodo"></div>
+      <div class="fch">${p.f}</div><div class="chips">${chips}</div></div>`;
+  }).filter(Boolean);
+
+  return `<div class="lx">
+    <div class="lxt">Qué le vence, y cuándo</div>
+    <div class="lxs">Cada obligación colocada en la fecha desde la que es exigible.
+      Lo que aparece a la derecha todavía no obliga: es tiempo para construirlo.</div>
+    <div class="leyenda">
+      <span><i class="pt p-ok"></i> ✓ Cumple</span>
+      <span><i class="pt p-pd"></i> ○ Por construir, con fecha futura</span>
+      ${hayAlerta?'<span><i class="pt p-cr"></i> ! Exigible hoy, sin cumplir</span>':''}
+    </div>
+    <div class="riel" style="grid-template-columns:repeat(${cols.length},1fr)">${cols.join('')}</div>
   </div>`;
 }
 
