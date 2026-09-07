@@ -136,6 +136,34 @@ button{padding:9px 16px;border:none;border-radius:6px;font-size:14px;font-weight
 .diag td.ob{color:var(--negro)}
 .diag .est{white-space:nowrap;font-weight:600;font-size:11.5px}
 .e-si{color:var(--verde)} .e-no{color:#c0392b} .e-fut{color:#b26a00} .e-nose{color:#7a6a00}
+.e-may{color:#4a9d5f} .e-par{color:#b26a00}
+.diag .pt{display:block;font-size:11px;color:#8a918c;font-weight:400}
+details.ob{border:1px solid var(--linea);border-radius:7px;margin-bottom:7px;background:#fff}
+details.ob summary{cursor:pointer;padding:9px 12px;display:flex;align-items:center;gap:10px;
+  list-style:none;font-size:13px;flex-wrap:wrap}
+details.ob summary::-webkit-details-marker{display:none}
+details.ob summary::before{content:'▸';color:var(--verde);font-size:14px}
+details.ob[open] summary::before{content:'▾'}
+details.ob .obn{font-weight:600;color:var(--negro);flex:1;min-width:180px}
+details.ob .obc{font-size:11.5px;color:#8a918c;font-variant-numeric:tabular-nums}
+details.ob .est{font-size:11.5px;font-weight:600;white-space:nowrap}
+details.ob .obp{padding:2px 12px 11px 30px;display:grid;gap:7px}
+details.ob .chk{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--gris);cursor:pointer}
+details.ob .chk input{margin-top:3px;flex-shrink:0}
+.fu2{display:block;font-size:10.5px;color:#8a918c;font-style:italic;margin-top:1px}
+.ejeq{font-weight:400;font-size:11.5px;color:#8a918c;font-style:italic;margin-left:8px}
+.obq{border:1px solid var(--linea);border-radius:7px;margin-bottom:7px;background:#fff;padding:9px 12px}
+.obqh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.obq .obn{font-weight:600;font-size:13px;color:var(--negro);flex:1;min-width:170px}
+.obq .est{font-size:11.5px;font-weight:600;white-space:nowrap}
+.obqr{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.rd{display:flex;gap:5px;align-items:center;font-size:12.5px;color:var(--gris);cursor:pointer}
+.verDet{background:none;border:0;color:var(--verde);font-size:11.5px;font-family:inherit;
+  cursor:pointer;text-decoration:underline;padding:2px;margin-left:auto}
+.detOn{font-size:12px;color:var(--verde);font-weight:600}
+.obq .obp{display:grid;gap:7px;margin-top:10px;padding-top:10px;border-top:1px solid var(--linea)}
+.obq .chk{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--gris);cursor:pointer}
+.obq .chk input{margin-top:3px;flex-shrink:0}
 .diag .fu{font-size:11px;color:#8a918c;font-style:italic;display:block;margin-top:3px}
 .diag .nt{font-size:11.5px;color:#b26a00;display:block;margin-top:4px}
 .prop textarea{width:100%;font-family:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--linea);
@@ -189,14 +217,17 @@ button{padding:9px 16px;border:none;border-radius:6px;font-size:14px;font-weight
 </div>
 
 <!-- 1 · GRUPO -->
-<h2><span class="n">1</span>Grupo y contexto</h2>
+<h2><span class="n">1</span>El cliente</h2>
+<p class="hint">Quién es y en qué situación llega. Las condiciones comerciales van hasta abajo,
+cuando ya sepamos qué se le va a vender.</p>
 <div class="card">
   <div class="grid">
     <div><label>Grupo o razón social principal</label><input type="text" id="g-nombre"></div>
     <div><label>Contacto</label><input type="text" id="g-contacto"></div>
     <div><label>Ejecutivo que cotiza</label><input type="text" id="g-ejecutivo"></div>
   </div>
-  <div class="grupo-tit">Postura y capacidad</div>
+  <div class="grupo-tit">Eje C · Postura y capacidad
+    <span class="ejeq">Decide qué clase de propuesta van a leer</span></div>
   <div class="grid">
     <div><label>¿Quién lleva el tema hoy?<span class="fund">Decide qué línea de servicio aplica</span></label>
       <select id="g-quien">
@@ -215,7 +246,58 @@ button{padding:9px 16px;border:none;border-radius:6px;font-size:14px;font-weight
     <div><label>¿Divisas, comercio exterior o activos virtuales?</label><select id="g-riesgoBanc">
       <option value="no">No</option><option value="si">Sí</option>
       <option value="bloqueo">Sí, y ya hay cuentas bloqueadas</option></select></div>
+    <div><label>¿El Representante tiene tiempo asignado al tema?
+      <span class="fund">O es nombramiento nominal</span></label>
+      <select id="g-repTiempo">
+        <option value="nose">No sé todavía</option>
+        <option value="nominal">Es nominal · firmó y ahí quedó</option>
+        <option value="parcial">Le dedica ratos entre sus otras funciones</option>
+        <option value="dedicado">Tiene tiempo asignado de verdad</option></select></div>
+    <div><label>¿Hay presupuesto anual para cumplimiento?</label>
+      <select id="g-presupuesto">
+        <option value="nose">No sé todavía</option>
+        <option value="no">No · se autoriza gasto por gasto</option>
+        <option value="si">Sí · hay partida</option></select></div>
+    <div><label>¿La dirección pregunta por el tema?</label>
+      <select id="g-atencion">
+        <option value="nose">No sé todavía</option>
+        <option value="problema">Se entera cuando hay un problema</option>
+        <option value="regular">Pregunta con regularidad</option></select></div>
+    <div><label>¿Han hecho algo por decisión propia?
+      <span class="fund">Sin que nadie se lo exigiera</span></label>
+      <select id="g-iniciativa">
+        <option value="nose">No sé todavía</option>
+        <option value="no">No · solo lo que les han exigido</option>
+        <option value="si">Sí · auditoría, capacitación, sistema o manual voluntarios</option></select></div>
   </div>
+</div>
+
+<!-- 2 · ENTIDADES -->
+<h2><span class="n">2</span>Entidades</h2>
+<p class="hint">Cada entidad se diagnostica por separado: pueden estar en situaciones muy distintas aunque sean del mismo dueño <em>(R1)</em>.
+Arriba va el <b>Eje B</b>, que dimensiona el trabajo; abajo el <b>Eje A</b>, que mide la brecha.</p>
+<div id="entidades"></div>
+<div class="btns noprint" style="margin-top:0">
+  <button class="b2" onclick="agregar()">+ Agregar otra entidad</button>
+</div>
+
+<!-- 3 · DIAGNÓSTICO DE OBLIGACIONES -->
+<h2><span class="n">3</span>Diagnóstico de obligaciones</h2>
+<p class="hint">Esto es lo que se le entrega al cliente. Cada obligación con su fundamento y su fecha.
+Lo que falta pero todavía no es exigible no se llama incumplimiento: se llama pendiente con fecha.</p>
+<div id="diagnostico"></div>
+
+<!-- 4 · RECOMENDACIÓN -->
+<h2><span class="n">4</span>Lo que recomienda la herramienta</h2>
+<div id="alertas"></div>
+<div id="arquetipo"></div>
+<div id="recos"></div>
+
+<!-- 5 · CONDICIONES COMERCIALES -->
+<h2 class="noprint"><span class="n">5</span>Condiciones comerciales</h2>
+<p class="hint noprint">Hasta aquí se decide cómo se entrega y en qué condiciones. Antes no,
+porque antes no sabíamos qué se iba a vender.</p>
+<div class="card noprint">
   <div class="grupo-tit">Condiciones comerciales</div>
   <div class="grid">
     <div><label>Modalidad<span class="fund">Híbrida hasta 3 sesiones presenciales</span></label>
@@ -236,28 +318,8 @@ button{padding:9px 16px;border:none;border-radius:6px;font-size:14px;font-weight
   </div>
 </div>
 
-<!-- 2 · ENTIDADES -->
-<h2><span class="n">2</span>Entidades</h2>
-<p class="hint">Cada entidad se diagnostica por separado: pueden estar en situaciones muy distintas aunque sean del mismo dueño.</p>
-<div id="entidades"></div>
-<div class="btns noprint" style="margin-top:0">
-  <button class="b2" onclick="agregar()">+ Agregar otra entidad</button>
-</div>
-
-<!-- 3 · DIAGNÓSTICO DE OBLIGACIONES -->
-<h2><span class="n">3</span>Diagnóstico de obligaciones</h2>
-<p class="hint">Esto es lo que se le entrega al cliente. Cada obligación con su fundamento y su fecha.
-Lo que falta pero todavía no es exigible no se llama incumplimiento: se llama pendiente con fecha.</p>
-<div id="diagnostico"></div>
-
-<!-- 4 · RECOMENDACIÓN -->
-<h2><span class="n">4</span>Lo que recomienda la herramienta</h2>
-<div id="alertas"></div>
-<div id="arquetipo"></div>
-<div id="recos"></div>
-
 <!-- 4 · HONORARIOS -->
-<h2><span class="n">5</span>Desglose de honorarios</h2>
+<h2><span class="n">6</span>Desglose de honorarios</h2>
 <div class="card">
   <div class="scroll"><table>
     <thead><tr><th style="width:46%">Concepto</th><th>Sello</th><th>Base de cálculo</th><th class="num">Honorario</th></tr></thead>
@@ -273,7 +335,7 @@ Lo que falta pero todavía no es exigible no se llama incumplimiento: se llama p
 </div>
 
 <!-- 6 · PROPUESTA -->
-<h2 class="noprint"><span class="n">6</span>Redactar la propuesta</h2>
+<h2 class="noprint"><span class="n">7</span>Redactar la propuesta</h2>
 <p class="hint noprint">Cuéntale de qué se trató. Los números, el diagnóstico y los alcances ya los tiene:
 esos no se inventan. Lo que redacta es el texto que los une.</p>
 <div class="card prop noprint">
@@ -330,66 +392,149 @@ const CONFIG={
     está en falta de algo que aún no lo obliga es un error que se cae solo en
     cuanto lo consulta con su abogado. */
  obligaciones:[
-  {q:'Alta y registro en el padrón de actividades vulnerables',
-   f:'Reglamento art. 12 · RCG art. 4 · e.firma propia de la entidad',
-   desde:null, ev:e=>e.padron==='si'?'si':e.padron==='nose'?'nose':'no',
-   nota:e=>e.padron==='desact'?'Está de alta pero con datos sin actualizar. La actualización tiene 6 días hábiles (RCG art. 7).':''},
+  {id:'padron', q:'Alta y registro en el padrón de actividades vulnerables', desde:null,
+   f:'Reglamento art. 12 · RCG arts. 4 a 8',
+   puntos:[
+    {p:'Está dada de alta en el padrón del SAT', f:'Regl. art. 12'},
+    {p:'El alta se hizo con la e.firma de la propia entidad, no con la del representante legal', f:'RCG art. 4'},
+    {p:'Están dadas de alta TODAS las actividades vulnerables que realiza, no solo una', f:'RCG art. 4'},
+    {p:'Los datos del padrón están actualizados (cambios avisados dentro de 6 días hábiles)', f:'RCG art. 7'},
+    {p:'Si hay fideicomiso u otra figura jurídica, tiene su propia alta', f:'RCG art. 10 Sexies'}]},
 
-  {q:'Designación del Representante Encargado y su aceptación con e.firma',
-   f:'Ley art. 20 · RCG art. 10 · solo puede designarse a una persona física',
-   desde:null, ev:e=>e.rep?'si':'no', nota:()=>''},
+  {id:'rep', q:'Representante Encargado de Cumplimiento', desde:null,
+   f:'Ley art. 20 · RCG art. 10',
+   puntos:[
+    {p:'Hay una persona designada ante el SAT', f:'Ley art. 20'},
+    {p:'La persona designada ACEPTÓ el cargo en el Portal con su e.firma', f:'RCG art. 10'},
+    {p:'Es persona física (no se puede designar a una moral ni a un despacho)', f:'RCG art. 10, párrafo final'},
+    {p:'Recibió capacitación en el último año', f:'Ley art. 20, párr. 3'},
+    {p:'Tiene acceso real a la dirección y a la información para hacer su trabajo', f:'RCG art. 37 Bis fr. X'}]},
 
-  {q:'Expediente único de identificación de cada cliente',
-   f:'Ley art. 18 fr. IV · RCG art. 12 · conservación 5 años',
-   desde:null, ev:e=>e.exp?'si':'no', nota:()=>''},
+  {id:'exp', q:'Expediente único de identificación de clientes', desde:null,
+   f:'Ley art. 18 fr. IV · RCG arts. 11 a 22',
+   puntos:[
+    {p:'Existe expediente para cada cliente, no solo para algunos', f:'RCG art. 12'},
+    {p:'Se integra ANTES o AL MOMENTO del acto u operación, no después', f:'RCG art. 12'},
+    {p:'Se usa el Anexo que corresponde al tipo de cliente (3 a 8)', f:'RCG art. 12'},
+    {p:'Los documentos están cotejados contra original', f:'RCG art. 12'},
+    {p:'Se pregunta y documenta si el cliente actúa por cuenta de un tercero', f:'RCG art. 22'},
+    {p:'Se verifican al menos una vez al año que estén completos y actualizados', f:'RCG art. 21'},
+    {p:'El comprobante de domicilio no rebasa tres meses de antigüedad', f:'RCG art. 21'},
+    {p:'Se conservan cinco años contados desde el acto u operación', f:'Ley art. 18 fr. IV'}]},
 
-  {q:'Verificación anual de que los expedientes estén completos',
-   f:'RCG art. 21 · el comprobante de domicilio no puede exceder 3 meses',
-   desde:null, ev:e=>e.exp?'si':'no', nota:()=>''},
+  {id:'avisos', q:'Presentación de avisos', desde:null,
+   f:'Ley art. 23 · RCG arts. 24 Bis a 27',
+   puntos:[
+    {p:'Se presentan a más tardar el día 17 del mes inmediato siguiente', f:'Ley art. 23'},
+    {p:'Se presenta un aviso por cada acto u operación, no uno acumulado', f:'RCG art. 24 Bis 1'},
+    {p:'Se acumulan correctamente las operaciones fraccionadas en seis meses', f:'Regl. art. 7'},
+    {p:'Se presenta informe en ceros cuando no hubo operaciones que reportar', f:'RCG art. 25'},
+    {p:'No hay ejercicios anteriores sin presentar', f:'Ley art. 53 fr. VI'},
+    {p:'Se conservan acuses y documentación soporte por diez años', f:'Regl. art. 20'}]},
 
-  {q:'Presentación de avisos a más tardar el día 17 del mes siguiente',
-   f:'Ley art. 23 · RCG art. 24 Bis',
-   desde:null,
-   ev:e=>['ok'].includes(e.avisos)?'si':e.avisos==='nose'?'nose':'no',
-   nota:e=>e.avisos==='tarde30m'
-     ?'Pasados 30 días la extemporaneidad se sanciona como omisión: de 10,000 a 65,000 UMA, o del 10% al 100% del valor de la operación, la que resulte mayor (Ley art. 53 fr. III y art. 54 fr. III).'
-     :e.avisos==='ceros'?'Presentar en ceros habiendo operado no subsana: la obligación se tiene por incumplida.':''},
+  {id:'aviso24', q:'Aviso dentro de 24 horas por sospecha o por indicios',
+   desde:'30 de noviembre de 2026',
+   f:'RCG arts. 26 Bis a 26 Bis 2',
+   puntos:[
+    {p:'Hay un procedimiento escrito para detectar y escalar la sospecha', f:'RCG art. 26 Bis'},
+    {p:'El personal de trato directo sabe qué hacer y a quién avisar', f:'RCG art. 26 Bis'},
+    {p:'Se entiende que procede aunque no se alcance el umbral', f:'RCG art. 26 Bis 2'},
+    {p:'Se entiende que procede aunque la operación no se haya celebrado', f:'Regl. art. 7 Bis'}]},
 
-  {q:'Aviso dentro de 24 horas por sospecha o por hechos e indicios',
-   f:'RCG arts. 26 Bis y 26 Bis 1 · procede aun sin alcanzar umbral y aunque la operación no se celebre',
-   desde:'30 de noviembre de 2026', ev:()=>'no', nota:()=>''},
+  {id:'manual', q:'Manual de Políticas Internas', desde:'1 de marzo de 2027',
+   f:'Ley art. 18 fr. VIII · RCG arts. 37 y 37 Bis',
+   puntos:[
+    {p:'Existe el Manual, está fechado y aprobado por la dirección', f:'RCG art. 37'},
+    {p:'Criterios de identificación y conocimiento de clientes', f:'37 Bis fr. I'},
+    {p:'Clasificación de clientes por grado de riesgo', f:'37 Bis fr. II'},
+    {p:'Debida diligencia diferenciada según el grado de riesgo', f:'37 Bis fr. III'},
+    {p:'Tratamiento de Personas Políticamente Expuestas', f:'37 Bis fr. IV'},
+    {p:'Perfil transaccional de los clientes', f:'37 Bis fr. V'},
+    {p:'Procedimiento de presentación de avisos', f:'37 Bis fr. VI'},
+    {p:'Criterios de conservación de la información', f:'37 Bis fr. VII'},
+    {p:'Acumulación de operaciones para umbrales', f:'37 Bis fr. VIII'},
+    {p:'Consulta de listas de personas bloqueadas', f:'37 Bis fr. IX'},
+    {p:'Funciones y responsabilidades del Representante', f:'37 Bis fr. X'},
+    {p:'Programas de capacitación', f:'37 Bis fr. XI'},
+    {p:'Control interno y auditoría', f:'37 Bis fr. XII'},
+    {p:'Confidencialidad y prohibición de avisar al cliente', f:'37 Bis fr. XIII'},
+    {p:'Procedimiento de actualización del propio Manual', f:'37 Bis fr. XIV'},
+    {p:'Si es grupo empresarial, hay manual del grupo con las particularidades de cada empresa', f:'RCG art. 37 Bis 1'}]},
 
-  {q:'Manual de Políticas Internas con sus 14 contenidos mínimos',
-   f:'Ley art. 18 fr. VIII · RCG arts. 37 y 37 Bis · a los 90 días naturales del alta',
-   desde:'1 de marzo de 2027', ev:e=>e.manual?'si':'no', nota:()=>''},
+  {id:'ebr', q:'Metodología de evaluación de riesgos de la entidad',
+   desde:'1 de marzo de 2027',
+   f:'Ley art. 18 fr. VII · RCG arts. 10 Septies a 10 Septies 6',
+   puntos:[
+    {p:'Existe una metodología escrita, no solo una matriz suelta', f:'RCG art. 10 Septies'},
+    {p:'Considera los actos u operaciones que realiza', f:'10 Septies 1'},
+    {p:'Considera el tipo de clientes', f:'10 Septies 1'},
+    {p:'Considera países y áreas geográficas', f:'10 Septies 1'},
+    {p:'Considera los canales de contratación y entrega', f:'10 Septies 1'},
+    {p:'Tiene un método explícito de medición del riesgo', f:'10 Septies 1'},
+    {p:'Se alimenta de una base de datos de al menos doce meses', f:'10 Septies 2 fr. II'},
+    {p:'Se revisa y actualiza al menos cada doce meses', f:'10 Septies 3'},
+    {p:'Hay mitigantes definidos para los riesgos identificados', f:'10 Septies'},
+    {p:'La documentación se conserva diez años', f:'10 Septies 3'}]},
 
-  {q:'Metodología de evaluación de riesgos de la entidad',
-   f:'Ley art. 18 fr. VII · RCG art. 10 Septies · base de 12 meses, revisión anual, conservación 10 años',
-   desde:'1 de marzo de 2027', ev:e=>e.ebr?'si':'no', nota:()=>''},
+  {id:'matriz', q:'Modelo de grado de riesgo de clientes',
+   desde:'1 de marzo de 2027',
+   f:'RCG arts. 23 Bis a 23 Bis 4',
+   puntos:[
+    {p:'Existe un modelo que clasifica a cada cliente', f:'RCG art. 23 Bis'},
+    {p:'Es coherente con la metodología de riesgos de la entidad', f:'RCG art. 23 Bis'},
+    {p:'Tiene al menos tres grados: bajo, medio y alto', f:'RCG art. 23 Bis, párr. 2'},
+    {p:'Está escrito dentro del Manual de Políticas Internas', f:'RCG art. 23 Bis'},
+    {p:'Los clientes se reevalúan al menos cada seis meses', f:'RCG art. 23 Bis 1'},
+    {p:'Considera factores inherentes y transaccionales', f:'RCG art. 23 Bis 2'},
+    {p:'Hay perfil transaccional y alertas por desviación', f:'RCG arts. 23 Ter 1 y 23 Ter 2'},
+    {p:'Se consulta PEP y hay debida diligencia reforzada', f:'RCG arts. 23 Quáter y 23 Ter 4'}]},
 
-  {q:'Modelo de grado de riesgo de clientes',
-   f:'RCG art. 23 Bis · mínimo tres grados, reevaluación cada 6 meses, debe estar en el Manual',
-   desde:'1 de marzo de 2027', ev:e=>e.matriz?'si':'no', nota:()=>''},
+  {id:'bc', q:'Identificación del beneficiario controlador del cliente',
+   desde:'1 de marzo de 2027',
+   f:'Ley art. 18 fr. III · RCG arts. 23 Quinquies a 23 Quinquies 3',
+   puntos:[
+    {p:'Hay criterios escritos en el Manual para identificarlo', f:'RCG art. 23 Quinquies'},
+    {p:'Se aplica la prelación: 25% o más del capital, luego control por otros medios, luego alta dirección', f:'RCG art. 23 Quinquies fr. I a III'},
+    {p:'A las personas físicas se les pide la declaración de si conocen a un beneficiario controlador', f:'Ley art. 18 fr. III'},
+    {p:'Hay tratamiento específico para fideicomisos', f:'RCG art. 23 Quinquies 1'},
+    {p:'Se aplican las excepciones que la norma permite, sin excederse', f:'RCG art. 23 Quinquies 2'}]},
 
-  {q:'Identificación del beneficiario controlador del cliente',
-   f:'Ley art. 18 fr. III · RCG art. 23 Quinquies · prelación 25%, control por otros medios, alta dirección',
-   desde:'1 de marzo de 2027', ev:e=>e.bc?'si':'no',
-   nota:()=>'El beneficiario controlador de la PROPIA entidad es obligación fiscal (CFF art. 32-B Ter), no de esta Ley.'},
+  {id:'sis', q:'Mecanismos automatizados de monitoreo',
+   desde:'1 de junio de 2027',
+   f:'RCG art. 41',
+   puntos:[
+    {p:'Hay un sistema, no una hoja de cálculo llevada a mano', f:'RCG art. 41'},
+    {p:'Conserva el histórico del grado de riesgo de cada cliente', f:'RCG art. 41 fr. IV'},
+    {p:'Conserva el histórico del perfil transaccional', f:'RCG art. 41 fr. IV'},
+    {p:'Genera alertas por operaciones fuera de perfil', f:'RCG art. 23 Ter 2'},
+    {p:'Los históricos se conservan diez años', f:'RCG art. 41 fr. IV'}]},
 
-  {q:'Mecanismos automatizados de monitoreo y alertas',
-   f:'RCG art. 41 · históricos de grado de riesgo y perfil transaccional por 10 años',
-   desde:'1 de junio de 2027', ev:e=>e.sis?'si':'no', nota:()=>''},
+  {id:'cap', q:'Programa anual de capacitación',
+   desde:'Primer año calendario 2027',
+   f:'Ley art. 18 fr. IX · RCG arts. 39 Bis a 39 Bis 2',
+   puntos:[
+    {p:'Se imparte al menos una vez al año', f:'RCG art. 39 Bis fr. I'},
+    {p:'Alcanza al consejo o administrador único y a la dirección', f:'RCG art. 39 Bis fr. I'},
+    {p:'Alcanza al Representante Encargado de Cumplimiento', f:'RCG art. 39 Bis fr. I'},
+    {p:'Alcanza a quien atiende clientes, identifica o envía avisos', f:'RCG art. 39 Bis fr. I'},
+    {p:'Quien la imparte acredita cinco años de experiencia en PLD/FT', f:'RCG art. 39 Bis fr. III'},
+    {p:'Hay evaluación y se expide constancia', f:'RCG art. 39 Bis 1'},
+    {p:'El personal nuevo se capacita antes o al ingresar a esas áreas', f:'RCG art. 39 Bis 1'},
+    {p:'Se conserva la evidencia diez años: programas, listas, evaluaciones y constancias', f:'RCG art. 39 Bis 1'},
+    {p:'Hay procedimientos documentados de selección de personal', f:'RCG art. 39 Bis 2'}]},
 
-  {q:'Programa anual de capacitación',
-   f:'Ley art. 18 fr. IX · RCG art. 39 Bis · quien la imparte necesita 5 años de experiencia acreditable',
-   desde:'Primer año calendario 2027', ev:e=>e.cap?'si':'no',
-   nota:()=>'Hay que conservar programas, listas, evaluaciones y constancias por 10 años (RCG art. 39 Bis 1).'},
-
-  {q:'Auditoría anual de cumplimiento con dictamen',
-   f:'Ley art. 18 fr. XI · RCG Cap. XIV arts. 42 a 51 · externa solo si el riesgo es alto',
+  {id:'aud', q:'Auditoría anual de cumplimiento',
    desde:'Primer periodo 2028 · dictamen a más tardar el último día hábil de marzo de 2029',
-   ev:()=>'no',
-   nota:()=>'El dictamen debe incluir una proyección económica del monto de las multas (RCG art. 49).'}
+   f:'Ley art. 18 fr. XI · RCG Cap. XIV arts. 42 a 51',
+   puntos:[
+    {p:'Está definido si le toca auditoría interna o externa según su grado de riesgo', f:'Ley art. 18 fr. XI · RCG arts. 44 y 45'},
+    {p:'Si es riesgo alto, el auditor es externo e independiente', f:'RCG art. 45'},
+    {p:'El auditor tiene título, cédula y tres años de experiencia', f:'RCG art. 45'},
+    {p:'El auditor tiene certificación vigente de la UIF', f:'RCG art. 45 · Ley art. 34 Bis'},
+    {p:'El auditor no fue Representante del auditado en el periodo ni en los dos años siguientes', f:'RCG art. 45'},
+    {p:'El dictamen cubre del 1 de enero al 31 de diciembre', f:'RCG art. 42'},
+    {p:'El dictamen incluye la proyección económica del monto de las multas', f:'RCG art. 49'},
+    {p:'El dictamen se conserva cinco años', f:'RCG art. 51'}]}
  ],
 
  exigibilidad:[
@@ -557,13 +702,67 @@ const sc=s=>s==='GMC360'?'s-gmc':s==='LEX-GMC'?'s-lex':'s-edu';
 const escalon=(tabla,v)=>{for(const e of tabla){if(v<=e.h)return e.s}return tabla[tabla.length-1].s};
 
 let ENT=[], OV={};
-const nuevaEnt=()=>({nombre:'',sabe:'si',actividad:'arrendamiento',actExtra:0,padron:'si',
- avisos:'ok',avisosAnio:0,avisosReg:0,ejercicios:0,clientes:0,nivel:'inicial',
- tipoClientes:'terceros',manual:false,rep:false,exp:false,ebr:false,matriz:false,cap:false,sis:false,bc:false});
+const nuevaEnt=()=>{
+  /* Dos niveles de captura:
+     'niv' es la respuesta rápida, una por obligación. Es lo que se contesta en
+     una junta: no tiene / tiene a medias / completo. Doce preguntas.
+     'chk' es el detalle punto por punto. Solo se abre cuando alguien tiene la
+     información —una biopsia, una auditoría— y entonces manda sobre la rápida.
+     El ejecutivo comercial nunca tiene que abrirlo. */
+  const chk={}, niv={}, det={};
+  CONFIG.obligaciones.forEach(o=>{chk[o.id]=o.puntos.map(()=>false); niv[o.id]='no'; det[o.id]=false;});
+  return {nombre:'',sabe:'si',actividad:'arrendamiento',actExtra:0,padron:'si',
+   avisos:'ok',avisosAnio:0,avisosReg:0,ejercicios:0,clientes:0,
+   opsUmbral:'a',estados:1,control:'hoja',efectivo:'no',
+   tipoClientes:'terceros', chk, niv, det,
+   /* Estas banderas ya no se capturan: las calcula sincronizar() a partir del
+      checklist. Siguen existiendo porque el motor de recomendación las usa. */
+   manual:false,rep:false,exp:false,ebr:false,matriz:false,cap:false,sis:false,bc:false,nivel:'arranque'};};
+
+/* Qué tan cubierta está una obligación, de 0 a 1.
+   Si se abrió el detalle, manda el detalle. Si no, la respuesta rápida. */
+const pct=(e,id)=>{
+  if(e.det&&e.det[id]){const a=(e.chk&&e.chk[id])||[]; return a.length?a.filter(Boolean).length/a.length:0;}
+  const v=(e.niv&&e.niv[id])||'no';
+  return v==='si'?1:v==='parcial'?.5:0;
+};
+
+/* La escala es la del propio RCG art. 48, la que usa el dictamen de auditoría. */
+function escalaDe(v,futura){
+  if(v>=1) return {t:'Cumple',c:'e-si'};
+  if(v>=.7) return {t:'Cumple mayoritariamente',c:'e-may'};
+  if(v>=.3) return {t:'Cumple parcialmente',c:'e-par'};
+  if(v>0)   return {t:futura?'Apenas iniciado':'No cumple',c:futura?'e-fut':'e-no'};
+  return futura?{t:'Por construir',c:'e-fut'}:{t:'No cumple',c:'e-no'};
+}
+
+/* Nivel global de la entidad. Antes lo adivinaba el ejecutivo; ahora se calcula
+   sobre los 89 puntos de verificación y de ahí sale el tamaño de la muestra. */
+function nivelDe(e){
+  const obs=CONFIG.obligaciones;
+  const v=obs.length?obs.reduce((a,o)=>a+pct(e,o.id),0)/obs.length:0;
+  const id = v>=.8?'avanzado' : v>=.55?'construccion' : v>=.30?'inicial' : 'arranque';
+  return {v, id, n:buscar(CONFIG.muestra.niveles,id)};
+}
+
+/* El motor de recomendación sigue leyendo banderas sí/no. Se las damos, pero
+   ahora salen del checklist: "lo tiene" significa 70% o más de sus puntos. */
+function sincronizar(e){
+  ['manual','rep','exp','ebr','matriz','cap','sis','bc'].forEach(k=>{ e[k]=pct(e,k)>=.7; });
+  e.nivel=nivelDe(e).id;
+  if(pct(e,'padron')===0) e.padron='no';
+  else if(pct(e,'padron')<1) e.padron='desact';
+  else e.padron='si';
+  const a=pct(e,'avisos');
+  if(a>=1) e.avisos='ok'; else if(a>=.5) e.avisos='parcial'; else e.avisos='tarde30m';
+  return e;
+}
 
 function grupo(){return{
  quien:$('g-quien').value, postura:$('g-postura').value, conting:$('g-conting').value,
  fideicomiso:$('g-fideicomiso').value, riesgoBanc:$('g-riesgoBanc').value,
+ repTiempo:$('g-repTiempo').value, presupuesto:$('g-presupuesto').value,
+ atencion:$('g-atencion').value, iniciativa:$('g-iniciativa').value,
  modalidad:buscar(CONFIG.modalidad,$('g-modalidad').value),
  urgente:$('g-urgencia').value==='urgente',
  descuento:buscar(CONFIG.descuentos,$('g-descuento').value),
@@ -589,14 +788,18 @@ function riesgoDe(e,g){
    dice a un cliente que está en falta por eso. */
 function diagnostico(e){
   return CONFIG.obligaciones.map(o=>{
-    const v=o.ev(e), futura=!!o.desde;
-    let estado, clase;
-    if(v==='si'){ estado='Cumple'; clase='e-si'; }
-    else if(v==='nose'){ estado='Falta confirmar'; clase='e-nose'; }
-    else if(futura){ estado='Por construir'; clase='e-fut'; }
-    else { estado='No cumple'; clase='e-no'; }
-    return {q:o.q, f:o.f, desde:o.desde||'Vigente hoy', futura,
-            estado, clase, nota:(o.nota?o.nota(e):'')};
+    const futura=!!o.desde, v=pct(e,o.id), es=escalaDe(v,futura);
+    const marcados=(e.chk&&e.chk[o.id]||[]).filter(Boolean).length;
+    /* Lo que le falta, dicho punto por punto. Esto es lo que hace que el
+       diagnóstico sirva: no dice "no cumple", dice qué exactamente. */
+    const faltantes=o.puntos.filter((_,j)=>!(e.chk&&e.chk[o.id]&&e.chk[o.id][j]));
+    const detalle=!!(e.det&&e.det[o.id]);
+    return {id:o.id, q:o.q, f:o.f, desde:o.desde||'Vigente hoy', futura, detalle,
+            estado:es.t, clase:es.c, pct:v, marcados, total:o.puntos.length,
+            /* Solo se dice "le falta esto y esto" cuando de verdad se revisó punto
+               por punto. Con la respuesta rápida no se sabe qué le falta, y afirmarlo
+               sería inventar. */
+            faltantes: detalle?faltantes:[]};
   });
 }
 
@@ -608,28 +811,36 @@ function pintarDiagnostico(){
       return `<div class="diag"><div class="dh"><span class="tit">${nom}</span></div>
         <div class="resumen">Esta entidad no se diagnostica todavía: o no actualiza supuestos de actividad
         vulnerable, o está pendiente de determinación. Ese dictamen va primero.</div></div>`;
-    const d=diagnostico(e);
-    const incumple=d.filter(x=>x.estado==='No cumple').length;
-    const porConstruir=d.filter(x=>x.estado==='Por construir').length;
-    const confirmar=d.filter(x=>x.estado==='Falta confirmar').length;
-    const cumple=d.filter(x=>x.estado==='Cumple').length;
-    let resumen;
-    if(incumple===0&&confirmar===0)
-      resumen=`Al día en las <b>${cumple}</b> obligaciones que ya son exigibles. Le quedan
-        <b>${porConstruir}</b> por construir, todas con fecha futura.`;
-    else
-      resumen=`<b>${incumple}</b> ${incumple===1?'obligación exigible hoy sin cumplir':'obligaciones exigibles hoy sin cumplir'}${
-        confirmar?`, <b>${confirmar}</b> por confirmar`:''}, y <b>${porConstruir}</b> por construir con fecha futura.`;
+    const d=diagnostico(e), niv=nivelDe(e);
+    const hoy=d.filter(x=>!x.futura), fut=d.filter(x=>x.futura&&x.pct<1);
+    const malHoy=hoy.filter(x=>x.pct<1).length;
+    const general=Math.round(niv.v*100);
+    const conDetalle=d.filter(x=>x.detalle).length;
+    const comoSeMidio = conDetalle
+      ? ` · ${conDetalle} ${conDetalle===1?'obligación revisada':'obligaciones revisadas'} punto por punto`
+      : '';
+    const resumen = malHoy===0
+      ? (fut.length===0
+        ? `Al corriente en las <b>${hoy.length}</b> obligaciones exigibles y con lo que viene ya construido.
+           Aquí ya no hay brecha: lo que sigue es verificación, no construcción.`
+        : `Al corriente en las <b>${hoy.length}</b> obligaciones que ya son exigibles.
+           Le faltan <b>${fut.length}</b> por construir, todas con fecha futura.
+           Cumplimiento general: <b>${general}%</b>${comoSeMidio}.`)
+      : `${malHoy===1?'<b>1</b> de las <b>'+hoy.length+'</b> obligaciones exigibles hoy tiene faltantes'
+                     :'<b>'+malHoy+'</b> de las <b>'+hoy.length+'</b> obligaciones exigibles hoy tienen faltantes'},
+         y ${fut.length===1?'queda <b>1</b> por construir con fecha futura':'quedan <b>'+fut.length+'</b> por construir con fecha futura'}.
+         Cumplimiento general: <b>${general}%</b> · nivel <b>${niv.n.nombre.split('·').pop().trim()}</b>${comoSeMidio}.`;
     return `<div class="diag">
       <div class="dh"><span class="tit">${nom}</span>
         <span class="riesgo ${riesgoDe(e,g).c}">Nivel de riesgo: ${riesgoDe(e,g).n}</span></div>
       <div class="resumen">${resumen}</div>
-      <table><thead><tr><th style="width:52%">Obligación y fundamento</th>
-        <th style="width:26%">Exigible desde</th><th>Estado</th></tr></thead><tbody>
+      <table><thead><tr><th style="width:50%">Obligación, fundamento y qué falta</th>
+        <th style="width:24%">Exigible desde</th><th>Estado</th></tr></thead><tbody>
       ${d.map(x=>`<tr><td class="ob">${x.q}<span class="fu">${x.f}</span>
-        ${x.nota?`<span class="nt">${x.nota}</span>`:''}</td>
+        ${x.faltantes.length&&x.faltantes.length<x.total
+          ? `<span class="nt">Le falta: ${x.faltantes.map(z=>z.p).join(' · ')}</span>`:''}</td>
         <td class="${x.futura?'':'e-si'}">${x.desde}</td>
-        <td class="est ${x.clase}">${x.estado}</td></tr>`).join('')}
+        <td class="est ${x.clase}"><span class="pt">${x.detalle?x.marcados+'/'+x.total:'respuesta rápida'}</span>${x.estado}</td></tr>`).join('')}
       </tbody></table></div>`;
   }).join('');
 }
@@ -842,8 +1053,23 @@ function pintarEntidades(){
         <input type="number" min="0" step="10" data-i="${i}" data-k="avisosAnio" value="${e.avisosAnio}"></div>
       <div><label>Clientes activos<span class="fund">Escalón de la auditoría</span></label>
         <input type="number" min="0" step="10" data-i="${i}" data-k="clientes" value="${e.clientes}"></div>
-      <div><label>Nivel de cumplimiento del autodiagnóstico<span class="fund">Define el tamaño de la muestra</span></label>
-        <select data-i="${i}" data-k="nivel">${opts(CONFIG.muestra.niveles,e.nivel)}</select></div>
+      <div><label>Operaciones sobre umbral al mes</label>
+        <select data-i="${i}" data-k="opsUmbral">
+          <option value="a"${e.opsUmbral==='a'?' selected':''}>1 a 10</option>
+          <option value="b"${e.opsUmbral==='b'?' selected':''}>11 a 100</option>
+          <option value="c"${e.opsUmbral==='c'?' selected':''}>101 a 1,000</option>
+          <option value="d"${e.opsUmbral==='d'?' selected':''}>Más de 1,000</option></select></div>
+      <div><label>¿En cuántos estados opera?<span class="fund">Afecta viáticos y modalidad</span></label>
+        <input type="number" min="1" max="32" data-i="${i}" data-k="estados" value="${e.estados}"></div>
+      <div><label>¿Cómo lleva el control?</label>
+        <select data-i="${i}" data-k="control">
+          <option value="hoja"${e.control==='hoja'?' selected':''}>Hoja de cálculo</option>
+          <option value="sistema"${e.control==='sistema'?' selected':''}>Un sistema</option>
+          <option value="nada"${e.control==='nada'?' selected':''}>No lleva control</option></select></div>
+      <div><label>¿Efectivo, divisas o activos virtuales?</label>
+        <select data-i="${i}" data-k="efectivo">
+          <option value="no"${e.efectivo==='no'?' selected':''}>No</option>
+          <option value="si"${e.efectivo==='si'?' selected':''}>Sí</option></select></div>
       <div><label>Ejercicios sin revisar</label><input type="number" min="0" max="5" data-i="${i}" data-k="ejercicios" value="${e.ejercicios}"></div>
       <div><label>Avisos por regularizar</label><input type="number" min="0" step="100" data-i="${i}" data-k="avisosReg" value="${e.avisosReg}"></div>
       <div><label>¿A quién le vende o le renta?</label>
@@ -852,14 +1078,32 @@ function pintarEntidades(){
           <option value="ambos"${e.tipoClientes==='ambos'?' selected':''}>A terceros y a su grupo</option>
           <option value="grupo"${e.tipoClientes==='grupo'?' selected':''}>Solo a su grupo</option></select></div>
     </div>
-    <div class="grupo-tit">Qué tiene armado</div>
-    <div class="chks">
-      ${[['manual','Manual'],['rep','Representante con aceptación'],['exp','Expedientes integrados'],
-         ['ebr','Metodología de riesgos'],['matriz','Matriz de riesgo de clientes'],
-         ['cap','Capacitación documentada'],['sis','Sistema'],['bc','Beneficiario controlador']]
-        .map(([k,t])=>`<label class="chk"><input type="checkbox" data-i="${i}" data-k="${k}"${e[k]?' checked':''}><span>${t}</span></label>`).join('')}
-    </div>
-    <div class="nota">Muestra que se revisaría: <b>${muestraDe(e)} expedientes</b> · piso ${CONFIG.muestra.piso}, tope ${CONFIG.muestra.tope}</div>
+    <div class="grupo-tit">Eje A · Brecha normativa
+      <span class="ejeq">Doce preguntas. Se contestan en una junta.</span></div>
+    <p class="hint" style="margin:-4px 0 10px">Contesta lo que sepas hoy. Si algo está a medias, ponlo a medias:
+       eso ya cambia el diagnóstico. El detalle punto por punto solo se abre cuando hay biopsia o auditoría de por medio,
+       y entonces manda sobre la respuesta rápida.</p>
+    ${CONFIG.obligaciones.map(o=>{
+      const v=pct(e,o.id), es=escalaDe(v,!!o.desde), abierto=e.det[o.id];
+      const m=(e.chk[o.id]||[]).filter(Boolean).length;
+      return `<div class="obq">
+        <div class="obqh">
+          <span class="obn">${o.q}</span>
+          <span class="est ${es.c}">${es.t}${abierto?` · ${m} de ${o.puntos.length}`:''}</span>
+        </div>
+        <div class="obqr">
+          ${abierto?`<span class="detOn">Contestado a detalle</span>`:
+            [['no','No tiene'],['parcial','A medias'],['si','Completo']].map(([k,t])=>
+            `<label class="rd"><input type="radio" name="n${i}-${o.id}" data-i="${i}" data-n="${o.id}" value="${k}"${
+              e.niv[o.id]===k?' checked':''}><span>${t}</span></label>`).join('')}
+          <button class="verDet" data-i="${i}" data-d="${o.id}">${abierto?'Volver a la respuesta rápida':`Ver los ${o.puntos.length} puntos`}</button>
+        </div>
+        ${abierto?`<div class="obp">${o.puntos.map((pt,j)=>`<label class="chk"><input type="checkbox"
+            data-i="${i}" data-c="${o.id}" data-j="${j}"${e.chk[o.id][j]?' checked':''}>
+            <span>${pt.p}<em class="fu2">${pt.f}</em></span></label>`).join('')}</div>`:''}
+      </div>`;}).join('')}
+    <div class="nota">Nivel de cumplimiento calculado: <b>${nivelDe(e).n.nombre}</b> ·
+      muestra que se revisaría: <b>${muestraDe(e)} expedientes</b> (piso ${CONFIG.muestra.piso}, tope ${CONFIG.muestra.tope})</div>
   </div>`).join('');
 }
 function agregar(){ENT.push(nuevaEnt());pintarEntidades();render();}
@@ -887,6 +1131,7 @@ function render(){
   const g=grupo();
   const ob=ENT.filter(e=>e.actividad!=='ninguna'&&e.sabe==='si');
   const actExtraGrupo=ob.reduce((a,e)=>Math.max(a,e.actExtra||0),0);
+  ENT.forEach(sincronizar);
   const porEnt=ENT.map(e=>({e,r:recEntidad(e,g)}));
   const rg=recGrupo(ENT,g);
   const alertas=[...rg.A,...porEnt.flatMap(x=>x.r.A)];
@@ -983,6 +1228,14 @@ function render(){
 const handler=ev=>{
   const t=ev.target;
   if(t.dataset.ov!==undefined){OV[t.dataset.ov]=t.checked;render();return;}
+  if(t.dataset.n!==undefined){
+    const i=+t.dataset.i; ENT[i].niv[t.dataset.n]=t.value;
+    sincronizar(ENT[i]); pintarEntidades(); render(); return;
+  }
+  if(t.dataset.c!==undefined){
+    const i=+t.dataset.i; ENT[i].chk[t.dataset.c][+t.dataset.j]=t.checked;
+    sincronizar(ENT[i]); pintarEntidades(); render(); return;
+  }
   if(t.dataset.i!==undefined){
     const i=+t.dataset.i,k=t.dataset.k;
     ENT[i][k]=t.type==='checkbox'?t.checked:(t.type==='number'?+t.value:t.value);
@@ -990,6 +1243,16 @@ const handler=ev=>{
   }
   render();
 };
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('.verDet'); if(!b) return;
+  const i=+b.dataset.i, id=b.dataset.d;
+  const e=ENT[i];
+  /* Al abrir el detalle por primera vez, se precarga con la respuesta rápida:
+     "completo" marca todo, "a medias" no marca nada y hay que ir punto por punto. */
+  if(!e.det[id] && e.niv[id]==='si') e.chk[id]=e.chk[id].map(()=>true);
+  e.det[id]=!e.det[id];
+  sincronizar(e); pintarEntidades(); render();
+});
 document.addEventListener('input',handler);
 document.addEventListener('change',handler);
 /* El calendario se pinta una vez: no depende de lo que capture el ejecutivo. */
