@@ -343,9 +343,24 @@ label.ns input{margin:0}
 .inf .leg b{color:var(--gris)}
 
 @media print{
+  /* Al imprimir el informe o la propuesta se oculta todo menos esa caja.
+     Hay que abrir el camino nivel por nivel: #informe vive DENTRO de
+     #t-cotizar, y un hijo de un elemento oculto no se ve aunque tenga
+     display:block. Sin estos dos renglones la hoja sale en blanco. */
   body.pr-inf .wrap > *{display:none !important}
+  body.pr-inf #t-cotizar{display:block !important}
+  body.pr-inf #t-cotizar > *{display:none !important}
   body.pr-inf #informe{display:block !important}
   body.pr-inf{background:#fff}
+  /* La guía se imprime sola, igual que el informe. Aquí no hace falta
+     abrir camino: #t-guia sí es hijo directo de .wrap. */
+  body.pr-guia .wrap > *{display:none !important}
+  body.pr-guia #t-guia{display:block !important}
+  body.pr-guia{background:#fff}
+  body.pr-guia .guia th,body.pr-guia .guia .regla,body.pr-guia .guia .nunca{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.pr-guia .guia h2{page-break-after:avoid}
+  body.pr-guia .guia table,body.pr-guia .guia .bloque{page-break-inside:avoid}
   .inf .ent{page-break-inside:auto}
   .inf h2{page-break-after:avoid}
   .inf tr{page-break-inside:avoid}
@@ -384,6 +399,7 @@ label.ns input{margin:0}
   <button class="tab on" data-t="cotizar">Cotizar</button>
   <button class="tab" data-t="guion">Guion de la junta</button>
   <button class="tab" data-t="consejos">Cómo se conduce</button>
+  <button class="tab" data-t="guia">Guía de uso</button>
 </nav>
 <div id="t-cotizar">
 
@@ -561,6 +577,7 @@ esos no se inventan. Lo que redacta es el texto que los une.</p>
 </div><!-- fin t-cotizar -->
 <div id="t-guion" hidden class="guia"></div>
 <div id="t-consejos" hidden class="guia"></div>
+<div id="t-guia" hidden class="guia"></div>
 </div>
 
 <!-- Firebase. Si no carga, el cotizador sigue calculando; solo no guarda. -->
@@ -1148,7 +1165,7 @@ function pintarDiagnostico(){
       <div class="resumen">${resumen}</div>
       <table><thead><tr><th style="width:60%">Obligación, fundamento y qué falta</th>
         <th style="width:16%">Exigible desde</th><th style="width:24%">Estado</th></tr></thead><tbody>
-      ${d.map(x=>`<tr><td class="ob">${x.q}<span class="fu">${x.f}</span>
+      ${d.map(x=>`<tr><td class="ob">${x.q}<div class="fu">${x.f}</div>
         ${x.faltantes.length&&x.faltantes.length<x.total
           ? `<span class="nt">Le falta: ${x.faltantes.map(z=>z.p).join(' · ')}</span>`:''}</td>
         <td class="${x.futura?'':'e-si'}">${x.desde}</td>
@@ -1818,13 +1835,123 @@ function pintarGuion(){
      <li>Se cede la palabra al equipo, por nombre.</li>
     </ul>
    </div>`;
+
+  /* ══ GUÍA DE USO · la misma que está en Word, aquí adentro ══
+     Vive en la herramienta a propósito: cotiza gente que no tiene acceso
+     a las carpetas de dirección, y una guía que hay que ir a buscar no se
+     lee. El botón de arriba la guarda en PDF. */
+  $('t-guia').innerHTML = `
+   <h2>Guía de uso del cotizador</h2>
+   <p class="eje">Cómo se usa, de principio a fin. Es la misma guía que está en Word;
+     está aquí para no tener que ir a buscarla.</p>
+   <p class="noprint" style="margin:0 0 22px">
+     <button class="b1" onclick="imprimirGuia()">Guardar esta guía en PDF</button></p>
+
+   <h2>Qué es y qué no es</h2>
+   <p class="eje">Herramienta interna que convierte una junta de diagnóstico en tres documentos:
+     el informe de obligaciones para el cliente, la cotización con folio y la propuesta redactada.</p>
+   <div class="regla"><b>El consultor captura la situación; la herramienta decide qué servicios
+     aplican y cuáles no.</b> No hay lista de servicios para palomear: el criterio de dirección está
+     en el motor para que una propuesta salga igual la arme quien la arme.</div>
+   <p class="eje">No es asesoría jurídica ni dictamen, y su resultado no se entrega al cliente antes
+     de la sesión cliente/consultor360.</p>
+
+   <h2>Entrar</h2>
+   <p class="eje">Por la dirección de internet, con correo @gmc360.com.mx. Si se abre desde un archivo
+     guardado en la computadora sale un letrero ámbar: calcula, pero no guarda. Y si no se guarda,
+     esa cotización no existe para nadie más.</p>
+
+   <h2>Las cuatro pestañas</h2>
+   <table><thead><tr><th style="width:26%">Pestaña</th><th style="width:42%">Para qué</th><th>Cuándo</th></tr></thead><tbody>
+    <tr><td class="a">Cotizar</td><td>El formulario y los tres documentos</td><td>Después de la junta</td></tr>
+    <tr><td class="a">Guion de la junta</td><td>Las preguntas con su porqué y qué escuchar</td><td>Antes y durante la junta</td></tr>
+    <tr><td class="a">Cómo se conduce</td><td>Criterio de dirección: qué se ofrece y qué NO</td><td>Antes de mandar cualquier propuesta</td></tr>
+    <tr><td class="a">Guía de uso</td><td>Esta hoja</td><td>La primera vez, y cuando haya duda</td></tr>
+   </tbody></table>
+
+   <h2>El flujo de captura</h2>
+   <div class="bloque">
+    <div class="preg">1 · El cliente</div>
+    <p class="porq">Datos y Eje C, ocho preguntas de postura y capacidad. «Quién lleva el tema hoy»
+      decide sola qué línea de servicio aplica. Requerimiento, visita, procedimiento o cuentas
+      bloqueadas escalan a dirección.</p>
+    <div class="preg">2 · Entidades</div>
+    <p class="porq">Una tarjeta por empresa. Eje B, la dimensión, arriba; Eje A, la brecha, con sus
+      doce preguntas, abajo.</p>
+    <div class="preg">3 · Diagnóstico</div>
+    <p class="porq">Se llena solo. De aquí sale el informe para el cliente.</p>
+    <div class="preg">4 · Recomendación</div>
+    <p class="porq">Los servicios salen en tres bloques. Los tres llevan casilla; forzar uno
+      «no recomendado» deja advertencia y queda registrado en la cotización.</p>
+    <div class="preg">5 · Condiciones comerciales</div>
+    <p class="porq">Hasta el final, a propósito.</p>
+    <div class="preg">6 · Honorarios</div>
+    <p class="porq">La cotización, en PDF.</p>
+    <div class="preg">7 · Propuesta</div>
+    <p class="porq">Con las notas o la transcripción de la junta.</p>
+   </div>
+
+   <h2>Las tres reglas de captura del Eje A</h2>
+   <div class="regla">
+    <ul>
+     <li>«A medias» es respuesta válida y cambia el diagnóstico. No se redondea a sí ni a no.</li>
+     <li>El detalle punto por punto solo se abre con biopsia o auditoría de por medio.</li>
+     <li>Las casillas de «No sé todavía» se usan. Un cero por desconocimiento hace que la cotización
+         salga en firme cuando no debería.</li>
+    </ul>
+   </div>
+
+   <h2>Guardar, estados y versiones</h2>
+   <p class="eje">Una cotización guardada <b>no se puede editar ni borrar, por nadie</b>. Eso protege la
+     calibración: si se pudiera corregir después, nunca sabrías si el número que ves es el que se
+     cotizó. Lo que sí cambia es su estado.</p>
+   <table><thead><tr><th style="width:34%">Estado</th><th>Quién lo mueve</th></tr></thead><tbody>
+    <tr><td class="a">Borrador</td><td>El equipo</td></tr>
+    <tr><td class="a">En revisión de dirección</td><td>El equipo</td></tr>
+    <tr><td class="a">Autorizada por dirección</td><td><b>Solo dirección</b></td></tr>
+    <tr><td class="a">Enviada al cliente</td><td>El equipo</td></tr>
+    <tr><td class="a">Aceptada por el cliente</td><td>El equipo</td></tr>
+    <tr><td class="a">Cancelada</td><td>El equipo</td></tr>
+   </tbody></table>
+   <div class="regla"><b>Regla de la casa:</b> nada sale al cliente sin que dirección lo revise.
+     El equipo mueve sus estados libremente; lo único reservado es autorizar.</div>
+   <p class="eje">Para cambiar una cotización ya guardada se usa «Usar como base»: la duplica con folio
+     nuevo, la original no se toca y la copia se recalcula con los precios de hoy.</p>
+
+   <h2>Diez cosas que no se hacen</h2>
+   <div class="nunca">
+    <ul>
+     <li>No se entrega un número antes de la sesión cliente/consultor360.</li>
+     <li>No se le dice a un cliente que está en falta de algo que aún no lo obliga.</li>
+     <li>No se estima un dato que se puede pedir.</li>
+     <li>No se vende implementación antes del diagnóstico.</li>
+     <li>No se compite contra el despacho que ya atiende al cliente: se complementa.</li>
+     <li>No se menciona a otro cliente en una propuesta.</li>
+     <li>No se manda la propuesta de cinco fases a un cliente de postura mínima.</li>
+     <li>No se cotizan de rutina los casos con contingencia: se escalan.</li>
+     <li>No se manda nada sin el estado «Autorizada por dirección».</li>
+     <li>No se comparte el desglose de honorarios ni la estructura de costos.</li>
+    </ul>
+   </div>
+
+   <h2>Quién hace qué con la herramienta</h2>
+   <table><thead><tr><th style="width:30%">Quién</th><th>Qué le toca</th></tr></thead><tbody>
+    <tr><td class="a">Quien cotiza</td>
+        <td>Captura, genera los tres documentos y mueve el estado hasta «En revisión». Si un número
+            se ve mal, avisa a dirección; no se corrige a mano.</td></tr>
+    <tr><td class="a">Dirección</td>
+        <td>Autoriza precios y autoriza cada cotización antes de que salga.</td></tr>
+    <tr><td class="a">Quien actualiza</td>
+        <td>Una sola persona designada por dirección cambia el layout de precios, lo refleja en el
+            bloque CONFIG y vuelve a publicar. Los dos números tienen que quedar iguales.</td></tr>
+   </tbody></table>`;
 }
 pintarGuion();
 
 document.querySelectorAll('.tab').forEach(b=>{
   b.onclick=()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
-    ['cotizar','guion','consejos'].forEach(t=>$('t-'+t).hidden = (t!==b.dataset.t));
+    ['cotizar','guion','consejos','guia'].forEach(t=>$('t-'+t).hidden = (t!==b.dataset.t));
     window.scrollTo({top:0,behavior:'smooth'});
   };
 });
@@ -2259,6 +2386,42 @@ function aHtml(t){
     .replace(/(?<![*\w])\*([^*\n]+)\*(?!\*)/g,'<em>$1</em>');
 }
 
+/* ── LAS GRÁFICAS TIENEN DOS VERSIONES ──
+   La de pantalla, con barras, que se lee mejor; y la de tabla, que es la
+   que entiende Word. Cada generador arma las dos y guarda el par aquí.
+   Al bajar un .doc se cambia una por la otra, texto por texto. */
+let PAR_CRONO=null;   // el cronograma de la propuesta
+let PAR_LX=[];        // una línea de exigibilidad por entidad
+
+/* Los cuatro números de arriba del informe. En pantalla son tarjetas
+   lado a lado; Word no las acomoda y las apila como texto suelto, así
+   que para el .doc se arman como una tabla de cuatro columnas. */
+let PAR_CIF=[];
+function cifras(datos, pc){
+  const col={al:'#c0392b', ok:'#64c27b', pe:'#b26a00', '':'#1b1b1e'};
+  const pantalla=`<div class="cifras">${datos.map(([v,l,c],i)=>
+    `<div class="cif ${c}"><div class="v">${v}</div><div class="l">${l}</div>${
+      i===3?`<div class="barraP"><i style="width:${pc}%"></i></div>`:''}</div>`).join('')}</div>`;
+
+  const word=`<table border="0" cellspacing="0" cellpadding="0"
+      style="border-collapse:collapse;width:100%;margin:6px 0 14px"><tr>${
+    datos.map(([v,l,c])=>`<td width="25%" valign="top"
+      style="border:1px solid #e3e8e4;padding:9px 11px">
+      <div style="font-size:17pt;font-weight:bold;color:${col[c]};line-height:1.1">${v}</div>
+      <div style="font-size:8.5pt;color:#8a918c;line-height:1.35">${l}</div></td>`).join('')}</tr></table>`;
+
+  PAR_CIF.push({p:pantalla, w:word});
+  return pantalla;
+}
+
+function paraWord(html){
+  let h=html;
+  if(PAR_CRONO && PAR_CRONO.p) h=h.split(PAR_CRONO.p).join(PAR_CRONO.w);
+  PAR_LX.forEach(x=>{ if(x.p) h=h.split(x.p).join(x.w); });
+  PAR_CIF.forEach(x=>{ if(x.p) h=h.split(x.p).join(x.w); });
+  return h;
+}
+
 /* ── EL CRONOGRAMA ──
    Barras de fases contra meses. Solo aparecen las fases que de verdad tienen
    servicios cotizados: si no se vendió auditoría, no hay renglón de auditoría. */
@@ -2289,13 +2452,46 @@ function cronograma(){
     </div>`;
   }).join('');
 
-  return `<div class="gantt">
+  const nota=`<p class="nota">Meses contados a partir de la firma. El cronograma se ajusta a las fechas de
+       exigibilidad: lo que vence el 1 de marzo de 2027 tiene que estar terminado antes de esa fecha,
+       no ese día.</p>`;
+
+  const pantalla=`<div class="gantt">
     <div class="enc"><div class="et">Fase</div><div class="ms">${enc}</div></div>
     ${filas}
-    <p class="nota">Meses contados a partir de la firma. El cronograma se ajusta a las fechas de
-       exigibilidad: lo que vence el 1 de marzo de 2027 tiene que estar terminado antes de esa fecha,
-       no ese día.</p>
+    ${nota}
   </div>`;
+
+  /* ── LA MISMA GRÁFICA, EN TABLA, PARA WORD ──
+     Word no entiende las barras: son cajas colocadas por porcentaje, y él
+     las apila como texto suelto. Una tabla con las celdas pintadas dice
+     exactamente lo mismo y Word sí la respeta, en pantalla y al imprimir.
+     Es la que se manda en el .doc; en el navegador se sigue viendo la de
+     barras, que se lee mejor. */
+  const anchoMes=(66/meses).toFixed(2);
+  let encW='<tr><th width="34%" style="background:#64c27b;color:#fff;padding:5px;text-align:left">Fase</th>';
+  for(let m=1;m<=meses;m++)
+    encW+=`<th width="${anchoMes}%" style="background:#64c27b;color:#fff;padding:5px;text-align:center;font-size:9pt">${m}</th>`;
+  encW+='</tr>';
+
+  const filasW=activas.map(f=>{
+    const ini=f.ini, fin=Math.min(f.ini+f.dur-1, meses);
+    const color=f.id==='f7'?'#87d895':'#64c27b';
+    let tds='';
+    for(let m=1;m<=meses;m++){
+      const dentro = m>=ini && m<=fin;
+      tds+= dentro
+        ? `<td bgcolor="${color}" style="background:${color};border:1px solid #fff;padding:5px">&nbsp;</td>`
+        : `<td style="border:1px solid #eef2ef;padding:5px">&nbsp;</td>`;
+    }
+    return `<tr><td style="padding:5px;font-size:9.5pt;border-bottom:1px solid #eee">${f.n}</td>${tds}</tr>`;
+  }).join('');
+
+  const word=`<table border="0" cellspacing="0" cellpadding="0"
+      style="border-collapse:collapse;width:100%;margin:10px 0">${encW}${filasW}</table>${nota}`;
+
+  PAR_CRONO={p:pantalla, w:word};
+  return pantalla;
 }
 
 /* Descarga en un formato que Word abre y deja editar, sin librerías. */
@@ -2308,7 +2504,7 @@ function descargarWord(){
     h1{color:#64c27b;font-size:18pt} h2{color:#64c27b;font-size:13pt}
     table{border-collapse:collapse;width:100%} th{background:#64c27b;color:#fff;padding:6px;text-align:left}
     td{border-bottom:1px solid #ddd;padding:6px}
-    </style></head><body>${ULTIMA_PROPUESTA}</body></html>`;
+    </style></head><body>${paraWord(ULTIMA_PROPUESTA)}</body></html>`;
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\ufeff'+doc],{type:'application/msword'}));
   a.download=`Propuesta ${cliente||'GMC360'}.doc`;
@@ -2328,6 +2524,7 @@ function descargarWord(){
 let FOLIO_INFORME='';
 
 function armarInforme(){
+  PAR_LX=[]; PAR_CIF=[];   // se rearman en cada informe, para no cargar los de antes
   const g=grupo();
   const hoy=new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
   if(!FOLIO_INFORME) FOLIO_INFORME=(typeof nuevoFolio==='function'?nuevoFolio():'DX').replace('AV-','DX-');
@@ -2352,21 +2549,16 @@ function armarInforme(){
       <h2>${nom}</h2>
       <div class="act">${act}${e.actExtra?` · y ${e.actExtra} actividad${e.actExtra>1?'es':''} vulnerable${e.actExtra>1?'s':''} más`:''}
         · nivel de riesgo <b>${riesgoDe(e,g).n}</b></div>
-      <div class="cifras">
-        <div class="cif ${conFalta?'al':'ok'}"><div class="v">${conFalta}</div>
-          <div class="l">${conFalta===1?'obligación exigible hoy con faltantes':'obligaciones exigibles hoy con faltantes'}</div></div>
-        <div class="cif ok"><div class="v">${alDia}</div>
-          <div class="l">${alDia===1?'obligación exigible al corriente':'obligaciones exigibles al corriente'}</div></div>
-        <div class="cif pe"><div class="v">${porVenir}</div>
-          <div class="l">por construir, con fecha futura</div></div>
-        <div class="cif"><div class="v">${pc}%</div>
-          <div class="l">cumplimiento general</div>
-          <div class="barraP"><i style="width:${pc}%"></i></div></div>
-      </div>
+      ${cifras([
+        [conFalta, conFalta===1?'obligación exigible hoy con faltantes':'obligaciones exigibles hoy con faltantes', conFalta?'al':'ok'],
+        [alDia,    alDia===1?'obligación exigible al corriente':'obligaciones exigibles al corriente', 'ok'],
+        [porVenir, 'por construir, con fecha futura', 'pe'],
+        [pc+'%',   'cumplimiento general', '']
+      ], pc)}
       <table><thead><tr><th style="width:62%">Obligación y fundamento</th>
         <th style="width:16%">Exigible desde</th><th style="width:22%">Cómo se encuentra hoy</th></tr></thead><tbody>
       ${d.map(x=>`<tr>
-        <td class="o">${x.q}<span class="fu">${x.f}</span>
+        <td class="o">${x.q}<div class="fu">${x.f}</div>
           ${x.faltantes.length&&x.faltantes.length<x.total
             ? `<span class="pend">Pendiente: ${x.faltantes.map(z=>z.p).join(' · ')}</span>`:''}</td>
         <td class="fecha ${x.futura?'f':'v'}">${x.desde}</td>
@@ -2468,10 +2660,11 @@ function lineaExigibilidad(d){
       <div class="fch">${p.f}</div><div class="chips">${chips}</div></div>`;
   }).filter(Boolean);
 
-  return `<div class="lx">
-    <div class="lxt">Qué le vence, y cuándo</div>
+  const enca=`<div class="lxt">Qué le vence, y cuándo</div>
     <div class="lxs">Cada obligación colocada en la fecha desde la que es exigible.
-      Lo que aparece a la derecha todavía no obliga: es tiempo para construirlo.</div>
+      Lo que aparece a la derecha todavía no obliga: es tiempo para construirlo.</div>`;
+
+  const pantalla=`<div class="lx">${enca}
     <div class="leyenda">
       <span><i class="pt p-ok"></i> ✓ Cumple</span>
       <span><i class="pt p-pd"></i> ○ Por construir, con fecha futura</span>
@@ -2479,14 +2672,64 @@ function lineaExigibilidad(d){
     </div>
     <div class="riel" style="grid-template-columns:repeat(${cols.length},1fr)">${cols.join('')}</div>
   </div>`;
+
+  /* La misma línea, de arriba abajo y en tabla, para Word. Word no arma
+     rejillas: pondría las seis paradas una debajo de otra sin fecha que
+     las ordene. En columna se lee igual de bien y no se descuadra. */
+  const filasW=paradas.map(pa=>{
+    const obs=d.filter(x=>(x.ord||0)===pa.ord);
+    if(!obs.length) return '';
+    const lista=obs.map(x=>{
+      const listo=x.pct>=1, critico=!listo&&!x.futura;
+      const marca=listo?'&#10003;':critico?'!':'&#9675;';
+      const col=listo?'#64c27b':critico?'#d03b3b':'#b07a10';
+      return `<span style="color:${col};font-weight:bold">${marca}</span> ${x.corto}`;
+    }).join('<br>');
+    return `<tr><td width="26%" style="padding:6px;border-bottom:1px solid #eee;font-size:9.5pt;font-weight:bold">
+        ${pa.f.replace('<br>',' ')}</td>
+      <td style="padding:6px;border-bottom:1px solid #eee;font-size:9.5pt">${lista}</td></tr>`;
+  }).join('');
+
+  const encaW=`<div style="font-size:12pt;font-weight:bold;color:#1b1b1e;margin-top:14px">Qué le vence, y cuándo</div>
+    <div style="font-size:9pt;color:#8a918c;margin-bottom:6px">Cada obligación colocada en la fecha desde la que
+      es exigible. Lo que aparece más abajo todavía no obliga: es tiempo para construirlo.</div>`;
+  const word=`<div>${encaW}
+    <p style="font-size:9pt;color:#666"><span style="color:#64c27b;font-weight:bold">&#10003;</span> cumple &nbsp;
+      <span style="color:#b07a10;font-weight:bold">&#9675;</span> por construir, con fecha futura
+      ${hayAlerta?'&nbsp; <span style="color:#d03b3b;font-weight:bold">!</span> exigible hoy, sin cumplir':''}</p>
+    <table border="0" cellspacing="0" cellpadding="0"
+      style="border-collapse:collapse;width:100%;margin:8px 0">${filasW}</table></div>`;
+
+  PAR_LX.push({p:pantalla, w:word});
+  return pantalla;
+}
+
+/* Imprime dejando la marca puesta hasta que el navegador avisa que
+   terminó. Con un cronómetro fijo se quitaba antes de tiempo en las
+   máquinas lentas y salía la página completa en vez del informe. */
+function imprimirCon(quitar){
+  const limpia=()=>{ document.body.classList.remove('pr-inf');
+    window.removeEventListener('afterprint',limpia); if(quitar) quitar(); };
+  window.addEventListener('afterprint',limpia);
+  document.body.classList.add('pr-inf');
+  window.print();
+  setTimeout(limpia,60000);   // red de seguridad, por si nunca avisa
+}
+
+/* La guía de uso en PDF. Misma mecánica que el informe: se marca el body,
+   se imprime y el evento afterprint deshace la marca. */
+function imprimirGuia(){
+  const limpia=()=>{ document.body.classList.remove('pr-guia');
+    window.removeEventListener('afterprint',limpia); };
+  window.addEventListener('afterprint',limpia);
+  document.body.classList.add('pr-guia');
+  window.print();
 }
 
 function imprimirInforme(){
   if(!ENT.length) return;
   $('informe').innerHTML=armarInforme();
-  document.body.classList.add('pr-inf');
-  window.print();
-  setTimeout(()=>document.body.classList.remove('pr-inf'),400);
+  imprimirCon();
 }
 
 function informeWord(){
@@ -2503,7 +2746,7 @@ function informeWord(){
     .res{background:#f0f9f2;border-left:3px solid #64c27b;padding:8px}
     .fu{display:block;font-size:8pt;color:#888;font-style:italic}
     .leg{font-size:8pt;color:#888;border-top:1px solid #ddd;padding-top:8px}
-    </style></head><body>${$('informe').innerHTML}</body></html>`;
+    </style></head><body>${paraWord($('informe').innerHTML)}</body></html>`;
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\ufeff'+doc],{type:'application/msword'}));
   a.download=`Diagnostico ${cli||'GMC360'}.doc`;
@@ -2516,9 +2759,7 @@ $('btnInformeWord').onclick=informeWord;
 function propuestaPdf(){
   if(!ULTIMA_PROPUESTA) return;
   $('informe').innerHTML='<div class="inf">'+ULTIMA_PROPUESTA+'</div>';
-  document.body.classList.add('pr-inf');
-  window.print();
-  setTimeout(()=>{document.body.classList.remove('pr-inf'); $('informe').innerHTML='';},400);
+  imprimirCon(()=>{ $('informe').innerHTML=''; });
 }
 $('btnPropPdf').onclick=propuestaPdf;
 $('btnPropuesta').onclick=redactar;
