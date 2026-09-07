@@ -125,6 +125,19 @@ button{padding:9px 16px;border:none;border-radius:6px;font-size:14px;font-weight
 .cal td.hoy{color:var(--verde);font-weight:600;white-space:nowrap}
 .cal td.luego{color:#b26a00;font-weight:600;white-space:nowrap}
 .cal td.fund{font-size:11px;color:#8a918c;font-style:italic}
+.diag{border:1px solid var(--linea);border-radius:8px;background:#fff;margin-bottom:14px;overflow:hidden}
+.diag .dh{background:var(--verde-bg);border-bottom:1px solid var(--linea);padding:10px 14px;
+  display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.diag .dh .tit{font-weight:600;font-size:15px;color:var(--negro)}
+.diag .resumen{font-size:12.5px;color:var(--gris);padding:9px 14px;border-bottom:1px solid var(--linea);line-height:1.6}
+.diag table{width:100%;border-collapse:collapse;font-size:12.5px}
+.diag th{background:var(--verde);color:#fff;text-align:left;padding:8px 10px;font-weight:600}
+.diag td{border-bottom:1px solid var(--linea);padding:8px 10px;vertical-align:top;color:var(--gris)}
+.diag td.ob{color:var(--negro)}
+.diag .est{white-space:nowrap;font-weight:600;font-size:11.5px}
+.e-si{color:var(--verde)} .e-no{color:#c0392b} .e-fut{color:#b26a00} .e-nose{color:#7a6a00}
+.diag .fu{font-size:11px;color:#8a918c;font-style:italic;display:block;margin-top:3px}
+.diag .nt{font-size:11.5px;color:#b26a00;display:block;margin-top:4px}
 @media print{body{background:#fff}.wrap{max-width:none;padding:0}.noprint{display:none!important}.card{border:none;padding:0}}
 </style>
 </head>
@@ -150,6 +163,7 @@ button{padding:9px 16px;border:none;border-radius:6px;font-size:14px;font-weight
 
 <div class="barra noprint" id="barra"></div>
 <div id="calendario" class="noprint"></div>
+<div id="guardadas" class="noprint"></div>
 
 <div class="aviso noprint">
   <b>Cómo se usa.</b> Captura el diagnóstico de cada entidad y no marques servicios: la herramienta
@@ -213,14 +227,20 @@ button{padding:9px 16px;border:none;border-radius:6px;font-size:14px;font-weight
   <button class="b2" onclick="agregar()">+ Agregar otra entidad</button>
 </div>
 
-<!-- 3 · RECOMENDACIÓN -->
-<h2><span class="n">3</span>Lo que recomienda la herramienta</h2>
+<!-- 3 · DIAGNÓSTICO DE OBLIGACIONES -->
+<h2><span class="n">3</span>Diagnóstico de obligaciones</h2>
+<p class="hint">Esto es lo que se le entrega al cliente. Cada obligación con su fundamento y su fecha.
+Lo que falta pero todavía no es exigible no se llama incumplimiento: se llama pendiente con fecha.</p>
+<div id="diagnostico"></div>
+
+<!-- 4 · RECOMENDACIÓN -->
+<h2><span class="n">4</span>Lo que recomienda la herramienta</h2>
 <div id="alertas"></div>
 <div id="arquetipo"></div>
 <div id="recos"></div>
 
 <!-- 4 · HONORARIOS -->
-<h2><span class="n">4</span>Desglose de honorarios</h2>
+<h2><span class="n">5</span>Desglose de honorarios</h2>
 <div class="card">
   <div class="scroll"><table>
     <thead><tr><th style="width:46%">Concepto</th><th>Sello</th><th>Base de cálculo</th><th class="num">Honorario</th></tr></thead>
@@ -259,6 +279,78 @@ const CONFIG={
     Esto cambia cómo se vende: no es "estás en falta", es "tienes hasta tal
     fecha". Es más honesto y se cierra mejor. Verificado contra la Ley, el
     Reglamento y las RCG el 7 de septiembre de 2026. */
+ /* ── CATÁLOGO DE OBLIGACIONES ──
+    De aquí sale el diagnóstico que se le entrega al cliente. Cada renglón trae
+    su fundamento verificado contra la Ley, el Reglamento y las RCG el 7-sep-2026,
+    y la fecha desde la que es exigible.
+
+    Regla de oro del diagnóstico: algo que falta pero TODAVÍA NO ES EXIGIBLE no
+    es un incumplimiento. Es un pendiente con fecha. Decirle a un cliente que
+    está en falta de algo que aún no lo obliga es un error que se cae solo en
+    cuanto lo consulta con su abogado. */
+ obligaciones:[
+  {q:'Alta y registro en el padrón de actividades vulnerables',
+   f:'Reglamento art. 12 · RCG art. 4 · e.firma propia de la entidad',
+   desde:null, ev:e=>e.padron==='si'?'si':e.padron==='nose'?'nose':'no',
+   nota:e=>e.padron==='desact'?'Está de alta pero con datos sin actualizar. La actualización tiene 6 días hábiles (RCG art. 7).':''},
+
+  {q:'Designación del Representante Encargado y su aceptación con e.firma',
+   f:'Ley art. 20 · RCG art. 10 · solo puede designarse a una persona física',
+   desde:null, ev:e=>e.rep?'si':'no', nota:()=>''},
+
+  {q:'Expediente único de identificación de cada cliente',
+   f:'Ley art. 18 fr. IV · RCG art. 12 · conservación 5 años',
+   desde:null, ev:e=>e.exp?'si':'no', nota:()=>''},
+
+  {q:'Verificación anual de que los expedientes estén completos',
+   f:'RCG art. 21 · el comprobante de domicilio no puede exceder 3 meses',
+   desde:null, ev:e=>e.exp?'si':'no', nota:()=>''},
+
+  {q:'Presentación de avisos a más tardar el día 17 del mes siguiente',
+   f:'Ley art. 23 · RCG art. 24 Bis',
+   desde:null,
+   ev:e=>['ok'].includes(e.avisos)?'si':e.avisos==='nose'?'nose':'no',
+   nota:e=>e.avisos==='tarde30m'
+     ?'Pasados 30 días la extemporaneidad se sanciona como omisión: de 10,000 a 65,000 UMA, o del 10% al 100% del valor de la operación, la que resulte mayor (Ley art. 53 fr. III y art. 54 fr. III).'
+     :e.avisos==='ceros'?'Presentar en ceros habiendo operado no subsana: la obligación se tiene por incumplida.':''},
+
+  {q:'Aviso dentro de 24 horas por sospecha o por hechos e indicios',
+   f:'RCG arts. 26 Bis y 26 Bis 1 · procede aun sin alcanzar umbral y aunque la operación no se celebre',
+   desde:'30 de noviembre de 2026', ev:()=>'no', nota:()=>''},
+
+  {q:'Manual de Políticas Internas con sus 14 contenidos mínimos',
+   f:'Ley art. 18 fr. VIII · RCG arts. 37 y 37 Bis · a los 90 días naturales del alta',
+   desde:'1 de marzo de 2027', ev:e=>e.manual?'si':'no', nota:()=>''},
+
+  {q:'Metodología de evaluación de riesgos de la entidad',
+   f:'Ley art. 18 fr. VII · RCG art. 10 Septies · base de 12 meses, revisión anual, conservación 10 años',
+   desde:'1 de marzo de 2027', ev:e=>e.ebr?'si':'no', nota:()=>''},
+
+  {q:'Modelo de grado de riesgo de clientes',
+   f:'RCG art. 23 Bis · mínimo tres grados, reevaluación cada 6 meses, debe estar en el Manual',
+   desde:'1 de marzo de 2027', ev:e=>e.matriz?'si':'no', nota:()=>''},
+
+  {q:'Identificación del beneficiario controlador del cliente',
+   f:'Ley art. 18 fr. III · RCG art. 23 Quinquies · prelación 25%, control por otros medios, alta dirección',
+   desde:'1 de marzo de 2027', ev:e=>e.bc?'si':'no',
+   nota:()=>'El beneficiario controlador de la PROPIA entidad es obligación fiscal (CFF art. 32-B Ter), no de esta Ley.'},
+
+  {q:'Mecanismos automatizados de monitoreo y alertas',
+   f:'RCG art. 41 · históricos de grado de riesgo y perfil transaccional por 10 años',
+   desde:'1 de junio de 2027', ev:e=>e.sis?'si':'no', nota:()=>''},
+
+  {q:'Programa anual de capacitación',
+   f:'Ley art. 18 fr. IX · RCG art. 39 Bis · quien la imparte necesita 5 años de experiencia acreditable',
+   desde:'Primer año calendario 2027', ev:e=>e.cap?'si':'no',
+   nota:()=>'Hay que conservar programas, listas, evaluaciones y constancias por 10 años (RCG art. 39 Bis 1).'},
+
+  {q:'Auditoría anual de cumplimiento con dictamen',
+   f:'Ley art. 18 fr. XI · RCG Cap. XIV arts. 42 a 51 · externa solo si el riesgo es alto',
+   desde:'Primer periodo 2028 · dictamen a más tardar el último día hábil de marzo de 2029',
+   ev:()=>'no',
+   nota:()=>'El dictamen debe incluir una proyección económica del monto de las multas (RCG art. 49).'}
+ ],
+
  exigibilidad:[
   {q:'Alta en padrón y designación del Representante', desde:'Vigente hoy',
    f:'Reglamento art. 12 · RCG arts. 4 y 10'},
@@ -408,6 +500,57 @@ function riesgoDe(e,g){
   if(['ceros','ninguno','tarde30m'].includes(e.avisos)||e.padron==='no'||g.conting!=='c0') return{n:'ALTO',c:'r-alto'};
   if(['parcial','nose'].includes(e.avisos)||e.padron==='desact'||!e.rep||!e.manual) return{n:'MEDIO',c:'r-medio'};
   return{n:'BAJO',c:'r-bajo'};
+}
+
+/* ══ DIAGNÓSTICO DE OBLIGACIONES ══
+   Devuelve un renglón por obligación con su estado. La distinción que importa:
+   'no' es incumplimiento real; 'futura' es un pendiente con fecha, y no se le
+   dice a un cliente que está en falta por eso. */
+function diagnostico(e){
+  return CONFIG.obligaciones.map(o=>{
+    const v=o.ev(e), futura=!!o.desde;
+    let estado, clase;
+    if(v==='si'){ estado='Cumple'; clase='e-si'; }
+    else if(v==='nose'){ estado='Falta confirmar'; clase='e-nose'; }
+    else if(futura){ estado='Por construir'; clase='e-fut'; }
+    else { estado='No cumple'; clase='e-no'; }
+    return {q:o.q, f:o.f, desde:o.desde||'Vigente hoy', futura,
+            estado, clase, nota:(o.nota?o.nota(e):'')};
+  });
+}
+
+function pintarDiagnostico(){
+  const g=grupo();
+  $('diagnostico').innerHTML=ENT.map((e,i)=>{
+    const nom=e.nombre||('Entidad '+(i+1));
+    if(e.actividad==='ninguna'||e.sabe!=='si')
+      return `<div class="diag"><div class="dh"><span class="tit">${nom}</span></div>
+        <div class="resumen">Esta entidad no se diagnostica todavía: o no actualiza supuestos de actividad
+        vulnerable, o está pendiente de determinación. Ese dictamen va primero.</div></div>`;
+    const d=diagnostico(e);
+    const incumple=d.filter(x=>x.estado==='No cumple').length;
+    const porConstruir=d.filter(x=>x.estado==='Por construir').length;
+    const confirmar=d.filter(x=>x.estado==='Falta confirmar').length;
+    const cumple=d.filter(x=>x.estado==='Cumple').length;
+    let resumen;
+    if(incumple===0&&confirmar===0)
+      resumen=`Al día en las <b>${cumple}</b> obligaciones que ya son exigibles. Le quedan
+        <b>${porConstruir}</b> por construir, todas con fecha futura.`;
+    else
+      resumen=`<b>${incumple}</b> ${incumple===1?'obligación exigible hoy sin cumplir':'obligaciones exigibles hoy sin cumplir'}${
+        confirmar?`, <b>${confirmar}</b> por confirmar`:''}, y <b>${porConstruir}</b> por construir con fecha futura.`;
+    return `<div class="diag">
+      <div class="dh"><span class="tit">${nom}</span>
+        <span class="riesgo ${riesgoDe(e,g).c}">Nivel de riesgo: ${riesgoDe(e,g).n}</span></div>
+      <div class="resumen">${resumen}</div>
+      <table><thead><tr><th style="width:52%">Obligación y fundamento</th>
+        <th style="width:26%">Exigible desde</th><th>Estado</th></tr></thead><tbody>
+      ${d.map(x=>`<tr><td class="ob">${x.q}<span class="fu">${x.f}</span>
+        ${x.nota?`<span class="nt">${x.nota}</span>`:''}</td>
+        <td class="${x.futura?'':'e-si'}">${x.desde}</td>
+        <td class="est ${x.clase}">${x.estado}</td></tr>`).join('')}
+      </tbody></table></div>`;
+  }).join('');
 }
 
 /* ══ MOTOR DE RECOMENDACIÓN ══ */
@@ -667,6 +810,7 @@ function render(){
   const rg=recGrupo(ENT,g);
   const alertas=[...rg.A,...porEnt.flatMap(x=>x.r.A)];
   $('alertas').innerHTML=alertas.map(a=>`<div class="alerta"><b>${a.t}.</b> ${a.d}</div>`).join('');
+  pintarDiagnostico();
 
   let arq;
   const brecha=ob.some(e=>!e.manual||!e.ebr||e.padron==='no');
@@ -827,10 +971,36 @@ function pintarBarra(){
   b.innerHTML=`<span>Cotiza <span class="quien">${USUARIO.displayName||USUARIO.email}</span></span>
     <span class="sep"></span>
     <span id="estadoGuardado"></span>
+    <button class="salir" id="btnLista">Ver cotizaciones guardadas</button>
     <button id="btnGuardar">Guardar cotización</button>
     <button class="salir" id="btnSalir">Salir</button>`;
   $('btnGuardar').onclick=guardar;
+  $('btnLista').onclick=listar;
   $('btnSalir').onclick=()=>firebase.auth().signOut();
+}
+
+/* Lista las cotizaciones guardadas. Las reglas solo dejan leerlas a quien
+   tenga correo de gmc360, así que esto no expone nada de más. */
+async function listar(){
+  const caja=$('guardadas');
+  if(caja.innerHTML){ caja.innerHTML=''; return; }
+  caja.innerHTML='<div class="cal"><div class="cuerpo"><p>Cargando…</p></div></div>';
+  try{
+    const q=await db.collection('cotizaciones').orderBy('capturadaEl','desc').limit(50).get();
+    if(q.empty){ caja.innerHTML='<div class="cal"><div class="cuerpo"><p>Todavía no hay ninguna cotización guardada.</p></div></div>'; return; }
+    const f=d=>d?.toDate?d.toDate().toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}):'—';
+    caja.innerHTML=`<details class="cal" open><summary>Cotizaciones guardadas · las ${q.size} más recientes</summary>
+      <div class="cuerpo"><table><thead><tr><th>Folio</th><th>Fecha</th><th>Cliente</th><th>Cotizó</th><th>Precios</th><th class="num">Total</th></tr></thead>
+      <tbody>${q.docs.map(d=>{const x=d.data();
+        return `<tr><td>${x.folio||d.id}</td><td>${f(x.capturadaEl)}</td>
+          <td>${(x.cliente&&x.cliente.grupo)||'—'}</td>
+          <td>${(x.capturadaPor||'').replace('@gmc360.com.mx','')}</td>
+          <td class="fund">${x.versionPrecios||'—'}</td>
+          <td class="num">${((x.totales&&x.totales.texto)||'').split('\n').pop()||'—'}</td></tr>`;}).join('')}
+      </tbody></table></div></details>`;
+  }catch(e){
+    caja.innerHTML=`<div class="cal"><div class="cuerpo"><p>No se pudieron cargar: ${e.code||e.message}</p></div></div>`;
+  }
 }
 
 /* Arma el expediente de la cotización tal como quedó en pantalla. */
@@ -858,6 +1028,8 @@ function armarRegistro(){
       horas:g.horas, impresion:g.impresion
     },
     arquetipo:$('arquetipo').innerText.trim(),
+    diagnostico:ENT.map(e=>({entidad:e.nombre||'', obligaciones:diagnostico(e)
+      .map(x=>({obligacion:x.q, exigibleDesde:x.desde, estado:x.estado}))})),
     entidades:ENT.map(e=>({...e, riesgo:riesgoDe(e,g).n, muestra:muestraDe(e)})),
     /* Lo que el ejecutivo cambió a mano contra lo que el motor recomendaba.
        Es la señal más valiosa para calibrar: dice dónde el motor se equivoca. */
