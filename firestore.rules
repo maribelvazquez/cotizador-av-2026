@@ -1,0 +1,31 @@
+rules_version = '2';
+
+// ══════════════════════════════════════════════════════════════
+// REGLAS DE SEGURIDAD · COTIZADOR DE ACTIVIDADES VULNERABLES
+// Solo entra quien tenga correo @gmc360.com.mx verificado.
+// Nadie puede borrar ni modificar una cotización ya guardada:
+// se crean y se leen, punto. Eso protege la calibración.
+// ══════════════════════════════════════════════════════════════
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function esDelEquipo() {
+      return request.auth != null
+          && request.auth.token.email_verified == true
+          && request.auth.token.email.matches('.*@gmc360[.]com[.]mx$');
+    }
+
+    match /cotizaciones/{folio} {
+      allow read:   if esDelEquipo();
+      allow create: if esDelEquipo()
+                    && request.resource.data.capturadaPor == request.auth.token.email;
+      allow update, delete: if false;   // una cotización guardada no se toca
+    }
+
+    // Todo lo demás, cerrado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

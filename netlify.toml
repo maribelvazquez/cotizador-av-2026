@@ -1,9 +1,16 @@
-# Configuración de Netlify · cotizador de actividades vulnerables
-# El sitio es un solo archivo estático en la raíz del repositorio.
+# ══════════════════════════════════════════════════════════════
+# CONFIGURACIÓN DE NETLIFY · Cotizador de Actividades Vulnerables
+#
+# Dos carpetas, separadas a propósito:
+#   sitio/      lo que ve el navegador. Aquí vive el cotizador.
+#   funciones/  lo que corre en el servidor. Aquí vive el redactor
+#               de propuestas, el único que toca la llave de Claude.
+#
+# Van separadas porque si la función estuviera dentro de la carpeta
+# publicada, Netlify la trataría como un archivo más del sitio y no
+# la registraría como función.
+# ══════════════════════════════════════════════════════════════
 
 [build]
-  publish = "."
-  functions = "netlify/functions"
-
-[functions]
-  node_bundler = "esbuild"
+  publish = "sitio"
+  functions = "funciones"
