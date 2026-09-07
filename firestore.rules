@@ -2,9 +2,22 @@ rules_version = '2';
 
 // ══════════════════════════════════════════════════════════════
 // REGLAS DE SEGURIDAD · COTIZADOR DE ACTIVIDADES VULNERABLES
-// Solo entra quien tenga correo @gmc360.com.mx verificado.
-// Nadie puede borrar ni modificar una cotización ya guardada:
-// se crean y se leen, punto. Eso protege la calibración.
+//
+// Dos colecciones, con reglas distintas a propósito:
+//
+//   cotizaciones/   lo que se cotizó. Se crea y se lee, NUNCA se
+//                   modifica ni se borra. Si se pudiera editar, la
+//                   calibración no valdría nada: nunca sabrías si
+//                   el número que ves es el que se cotizó o uno
+//                   corregido después.
+//
+//   autorizaciones/ el control de salida. Aquí sí se escribe varias
+//                   veces —revisada, luego autorizada— porque es un
+//                   expediente de firmas, no el precio. Solo puede
+//                   escribir quien esté en la lista de dirección.
+//
+// Para agregar a alguien que pueda autorizar, se agrega su correo a
+// la lista de abajo y se vuelve a publicar. Nada más.
 // ══════════════════════════════════════════════════════════════
 
 service cloud.firestore {
@@ -16,11 +29,24 @@ service cloud.firestore {
           && request.auth.token.email.matches('.*@gmc360[.]com[.]mx$');
     }
 
+    function esDireccion() {
+      return esDelEquipo()
+          && request.auth.token.email in [
+               'mvazquez@gmc360.com.mx'
+             ];
+    }
+
     match /cotizaciones/{folio} {
       allow read:   if esDelEquipo();
       allow create: if esDelEquipo()
                     && request.resource.data.capturadaPor == request.auth.token.email;
       allow update, delete: if false;   // una cotización guardada no se toca
+    }
+
+    match /autorizaciones/{folio} {
+      allow read:           if esDelEquipo();
+      allow create, update: if esDireccion();
+      allow delete:         if false;   // una firma no se borra
     }
 
     // Todo lo demás, cerrado.

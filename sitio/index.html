@@ -63,7 +63,8 @@ border-radius:6px;background:#fff;cursor:pointer;font-size:13.5px}
 .rec .nom{font-weight:600;font-size:14px}
 .rec .por{font-size:12.5px;color:var(--gris);margin-top:3px}
 .rec .regla{font-size:11px;color:#8a918c;margin-top:3px;font-style:italic}
-.rec .imp{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;font-size:14px}
+.rec .imp{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;font-size:14px;text-align:right}
+.rec .siSola{display:block;font-size:9.5px;color:#8a918c;font-weight:400;font-style:italic}
 .rec.no .imp{color:#8a918c;font-weight:500}
 .rec .forzado{font-size:11.5px;color:#b26a00;font-weight:600;margin-top:5px}
 .sello{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:1px}
@@ -125,6 +126,11 @@ button{padding:9px 16px;border:none;border-radius:6px;font-size:14px;font-weight
 .cal td.hoy{color:var(--verde);font-weight:600;white-space:nowrap}
 .cal td.luego{color:#b26a00;font-weight:600;white-space:nowrap}
 .cal td.fund{font-size:11px;color:#8a918c;font-style:italic}
+.cal .fund{font-size:11px;color:#8a918c;font-style:italic}
+.cal .est{font-weight:600;font-size:11.5px;white-space:nowrap}
+select.mueve{border:1px solid var(--linea);border-radius:5px;padding:4px 7px;font-size:11.5px;
+  font-family:inherit;cursor:pointer;background:#fff;color:var(--gris)}
+select.mueve:focus{outline:none;border-color:var(--verde)}
 .diag{border:1px solid var(--linea);border-radius:8px;background:#fff;margin-bottom:14px;overflow:hidden}
 .diag .dh{background:var(--verde-bg);border-bottom:1px solid var(--linea);padding:10px 14px;
   display:flex;align-items:center;gap:11px;flex-wrap:wrap}
@@ -152,6 +158,9 @@ details.ob .chk{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;col
 details.ob .chk input{margin-top:3px;flex-shrink:0}
 .fu2{display:block;font-size:10.5px;color:#8a918c;font-style:italic;margin-top:1px}
 .ejeq{font-weight:400;font-size:11.5px;color:#8a918c;font-style:italic;margin-left:8px}
+label.ns{display:flex;gap:5px;align-items:center;font-size:11px;color:#8a918c;margin-top:5px;
+  font-weight:400;cursor:pointer}
+label.ns input{margin:0}
 .obq{border:1px solid var(--linea);border-radius:7px;margin-bottom:7px;background:#fff;padding:9px 12px}
 .obqh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
 .obq .obn{font-weight:600;font-size:13px;color:var(--negro);flex:1;min-width:170px}
@@ -183,6 +192,27 @@ details.ob .chk input{margin-top:3px;flex-shrink:0}
 .doc th{background:var(--verde);color:#fff;text-align:left;padding:7px 9px}
 .doc td{border-bottom:1px solid var(--linea);padding:7px 9px}
 .estadoIA{font-size:12.5px;color:var(--gris);margin-top:9px}
+/* ── Cronograma de barras ──
+   Lo calcula el motor, no lo escribe el redactor: una fecha inventada en una
+   propuesta es un compromiso que alguien va a tener que cumplir. */
+.gantt{margin:16px 0 10px;page-break-inside:avoid}
+/* La barra de cada fase es UNA sola pieza colocada por porcentaje, no una
+   celda por mes: así una fase continua se ve continua, sin cortes. */
+.gantt .enc{display:flex;background:var(--verde);color:#fff;border-radius:5px 5px 0 0;
+  font-size:10.5px;font-weight:600;overflow:hidden}
+.gantt .enc .et{width:190px;flex-shrink:0;padding:6px 9px}
+.gantt .enc .ms{flex:1;display:flex}
+.gantt .enc .ms span{flex:1;text-align:center;padding:6px 0}
+.gantt .fila{display:flex;align-items:stretch;border-bottom:1px solid var(--linea)}
+.gantt .fila .et{width:190px;flex-shrink:0;padding:8px 9px;font-size:11.5px;
+  color:var(--negro);font-weight:500;border-right:1px solid var(--linea);display:flex;align-items:center}
+.gantt .via{flex:1;position:relative;min-height:32px}
+.gantt .rej{position:absolute;inset:0;display:flex}
+.gantt .rej i{flex:1;border-right:1px solid #f3f6f4}
+.gantt .rej i:last-child{border:0}
+.gantt .barra{position:absolute;top:9px;bottom:9px;background:var(--verde);border-radius:3px}
+.gantt .barra.op{background:var(--verde-claro)}
+.gantt .nota{font-size:10.5px;color:#8a918c;margin-top:7px;font-style:normal}
 #informe{display:none}
 .inf{font-size:12.5px;line-height:1.65;color:var(--negro);max-width:900px;margin:0 auto}
 
@@ -302,7 +332,7 @@ details.ob .chk input{margin-top:3px;flex-shrink:0}
 
 <!-- Pantalla de acceso. Se quita sola cuando entra un correo de gmc360. -->
 <div id="gate" class="noprint">
-  <div class="g-marca">GMC360 · LEX-GMC · 360EDUCA</div>
+  <div class="g-marca">GMC360 · LEX-QUO · 360EDUCA</div>
   <h2>Cotizador de Actividades Vulnerables</h2>
   <p>Herramienta interna. Entra con tu correo de GMC360 para que cada cotización
      quede guardada a tu nombre.</p>
@@ -313,7 +343,7 @@ details.ob .chk input{margin-top:3px;flex-shrink:0}
 <div class="wrap">
 
 <header>
-  <div class="marca">GMC360 · LEX-GMC · 360EDUCA</div>
+  <div class="marca">GMC360 · LEX-QUO · 360EDUCA</div>
   <h1>Cotizador de Actividades Vulnerables</h1>
   <div class="sub">Vista interna · v4.0 · precios autorizados por dirección</div>
 </header>
@@ -441,7 +471,7 @@ porque antes no sabíamos qué se iba a vender.</p>
 <h2><span class="n">6</span>Desglose de honorarios</h2>
 <div class="card">
   <div class="scroll"><table>
-    <thead><tr><th style="width:46%">Concepto</th><th>Sello</th><th>Base de cálculo</th><th class="num">Honorario</th></tr></thead>
+    <thead><tr><th style="width:58%">Concepto</th><th>Base de cálculo</th><th class="num">Honorario</th></tr></thead>
     <tbody id="tbody"></tbody><tfoot id="tfoot"></tfoot></table></div>
   <div class="kpis" id="kpis"></div>
   <div id="notaInterna"></div>
@@ -451,6 +481,9 @@ porque antes no sabíamos qué se iba a vender.</p>
   </div>
   <p class="nota" style="margin-bottom:0">Importes sin IVA salvo donde se indique. Vigencia sugerida: 30 días naturales.
   Los viáticos se cotizan aparte cuando la sede es fuera de CDMX.</p>
+  <p class="nota">Este cotizador es una herramienta interna de GMC360 para entender mejor lo que necesita
+  cada cliente. No constituye asesoría jurídica, dictamen ni opinión sobre la configuración de actividad
+  vulnerable, y su resultado no se entrega al cliente antes de la sesión cliente/consultor360.</p>
 </div>
 
 <!-- 6 · PROPUESTA -->
@@ -470,6 +503,7 @@ esos no se inventan. Lo que redacta es el texto que los une.</p>
   <div class="btns" style="margin:0">
     <button class="b1" id="btnPropuesta">Redactar propuesta</button>
     <button class="b2" id="btnWord" style="display:none">Descargar para Word</button>
+    <button class="b2" id="btnPropPdf" style="display:none">Guardar en PDF</button>
   </div>
   <div class="estadoIA" id="estadoIA"></div>
 </div>
@@ -491,6 +525,45 @@ const CONFIG={
     Cámbiala cada vez que dirección autorice un precio nuevo. Sin esto, en
     enero no vas a poder saber con qué números se cotizó en octubre. */
  versionPrecios:'2026-09-07',
+
+ /* ── QUIÉN PUEDE AUTORIZAR ──
+    Debe coincidir con la lista de esDireccion() en firestore.rules.
+    Si se cambia aquí y no allá, el botón aparece pero la base lo rechaza. */
+ autorizadores:['mvazquez@gmc360.com.mx'],
+
+ /* ── ESTADOS DE UNA COTIZACIÓN ──
+    El equipo mueve los suyos; dirección es la única que autoriza.
+    La regla de la casa: nada sale al cliente sin pasar por dirección. */
+ estados:[
+  {id:'borrador',  n:'Borrador',              c:'e-par', quien:'equipo'},
+  {id:'revision',  n:'En revisión de dirección', c:'e-may', quien:'equipo'},
+  {id:'autorizada',n:'Autorizada por dirección', c:'e-si',  quien:'direccion'},
+  {id:'enviada',   n:'Enviada al cliente',     c:'e-si',  quien:'equipo'},
+  {id:'aceptada',  n:'Aceptada por el cliente',c:'e-si',  quien:'equipo'},
+  {id:'cancelada', n:'Cancelada',              c:'e-no',  quien:'equipo'}
+ ],
+
+ /* ── FASES DEL CRONOGRAMA ──
+    Cada servicio cae en una fase, y cada fase tiene mes de inicio y duración.
+    De aquí sale el diagrama de barras de la propuesta. El orden es el de la
+    ejecución real: primero se ve, luego se corrige el pasado, luego se
+    construye, y la operación corre en paralelo desde el arranque. */
+ fases:[
+  {id:'f1', n:'Diagnóstico y determinación', ini:1, dur:1,
+   serv:['biopsia','determinacion']},
+  {id:'f2', n:'Corrección del pasado', ini:1, dur:3,
+   serv:['reconstruccion','avisosExt','art55']},
+  {id:'f3', n:'Alta y estructura mínima', ini:2, dur:2,
+   serv:['padron','expedientes','bc']},
+  {id:'f4', n:'Construcción del marco', ini:2, dur:4,
+   serv:['paqueteMarco','manual','mebr','manualVol','programaCap']},
+  {id:'f5', n:'Capacitación', ini:4, dur:2,
+   serv:['capacitacion']},
+  {id:'f6', n:'Auditoría y verificación', ini:6, dur:2,
+   serv:['auditoria','auditoriaAvisos','auditoriaExterna']},
+  {id:'f7', n:'Operación y acompañamiento', ini:1, dur:12,
+   serv:['iguala','igualaArranque','acompanamiento']}
+ ],
 
  /* ── CALENDARIO DE EXIGIBILIDAD ──
     La reforma a las RCG (DOF 07-ago-2026) entra en vigor el 30-nov-2026 y sus
@@ -606,15 +679,35 @@ const CONFIG={
     {p:'Hay perfil transaccional y alertas por desviación', f:'RCG arts. 23 Ter 1 y 23 Ter 2'},
     {p:'Se consulta PEP y hay debida diligencia reforzada', f:'RCG arts. 23 Quáter y 23 Ter 4'}]},
 
-  {id:'bc', corto:'Beneficiario controlador', q:'Identificación del beneficiario controlador del cliente',
+  {id:'bc', corto:'BC del cliente', q:'Identificación del beneficiario controlador del CLIENTE',
    desde:'1 de marzo de 2027', ord:2,
-   f:'Ley art. 18 fr. III · RCG arts. 23 Quinquies a 23 Quinquies 3',
+   f:'Ley art. 18 fr. III · RCG Cap. III Quinquies arts. 23 Quinquies a 23 Quinquies 3 · umbral 25% · multa 200 a 2,000 UMA',
    puntos:[
     {p:'Hay criterios escritos en el Manual para identificarlo', f:'RCG art. 23 Quinquies'},
     {p:'Se aplica la prelación: 25% o más del capital, luego control por otros medios, luego alta dirección', f:'RCG art. 23 Quinquies fr. I a III'},
-    {p:'A las personas físicas se les pide la declaración de si conocen a un beneficiario controlador', f:'Ley art. 18 fr. III'},
+    {p:'A las personas físicas se les recaba declaración firmada de si conocen a un beneficiario controlador', f:'Ley art. 18 fr. III'},
     {p:'Hay tratamiento específico para fideicomisos', f:'RCG art. 23 Quinquies 1'},
-    {p:'Se aplican las excepciones que la norma permite, sin excederse', f:'RCG art. 23 Quinquies 2'}]},
+    {p:'Se aplican las excepciones que la norma permite, sin excederse', f:'RCG art. 23 Quinquies 2'},
+    {p:'El soporte se conserva diez años y se actualiza durante la relación de negocios', f:'Ley art. 18 fr. IV'}]},
+
+  {id:'bcPropio', corto:'BC propio · fiscal', q:'Beneficiario controlador DE LA PROPIA EMPRESA · obligación fiscal',
+   desde:null, ord:0,
+   f:'CFF arts. 32-B Ter, Quáter y Quinquies · RMF 2.8.1.20 a 2.8.1.23 · umbral MÁS DEL 15% · NO es LFPIORPI',
+   puntos:[
+    {p:'Tiene identificado a su propio beneficiario controlador', f:'CFF art. 32-B Ter'},
+    {p:'La información forma parte de su contabilidad, no de un archivo suelto', f:'CFF art. 32-B Ter'},
+    {p:'Usó el umbral fiscal de MÁS DEL 15%, no el 25% de PLD', f:'CFF art. 32-B Quáter fr. II b'},
+    {p:'Se actualiza dentro de los 15 días naturales siguientes a cualquier cambio', f:'CFF art. 32-B Quinquies'},
+    {p:'Puede entregarla al SAT dentro de 15 días hábiles si se la requieren', f:'CFF art. 32-B Ter'}]},
+
+  {id:'bcRegistro', corto:'Registro ante Economía', q:'Registro del beneficiario controlador ante el sistema de la Secretaría de Economía',
+   desde:null, ord:0,
+   f:'Ley Cap. IV Bis arts. 33 Bis y 33 Ter · obliga a TODA sociedad mercantil, sea o no sujeto obligado · multa 2,000 a 10,000 UMA',
+   puntos:[
+    {p:'Sabe que esta obligación le aplica por ser sociedad mercantil, aunque no realizara actividad vulnerable', f:'Ley art. 3 fr. III, párrafo adicionado'},
+    {p:'Puede atender un requerimiento de autoridad sobre quién es su beneficiario controlador', f:'Ley art. 33 Bis, primer párrafo'},
+    {p:'Tiene identificadas las transmisiones de acciones o partes sociales que detonan aviso', f:'Ley art. 33 Bis, segundo párrafo'},
+    {p:'Tiene el expediente armado y fechado, listo para el día que abra el sistema', f:'Ley art. 33 Ter · lineamientos aún no publicados'}]},
 
   {id:'sis', corto:'Monitoreo', q:'Mecanismos automatizados de monitoreo',
    desde:'1 de junio de 2027', ord:3,
@@ -830,7 +923,15 @@ const nuevaEnt=()=>{
   CONFIG.obligaciones.forEach(o=>{chk[o.id]=o.puntos.map(()=>false); niv[o.id]='no'; det[o.id]=false;});
   return {nombre:'',sabe:'si',actividad:'arrendamiento',actExtra:0,padron:'si',
    avisos:'ok',avisosAnio:0,avisosReg:0,ejercicios:0,clientes:0,
-   opsUmbral:'a',estados:1,control:'hoja',efectivo:'no',
+   opsUmbral:'a',estados:1,control:'hoja',
+   /* Riesgos que se marcan por separado porque cada uno pesa distinto:
+      el efectivo por restricciones de umbral, las divisas y los activos
+      virtuales por riesgo. Antes era un sí/no y no decía cuál. */
+   rEfectivo:false,rDivisas:false,rVirtuales:false,
+   /* "No sé" es una respuesta legítima en una junta. Sin esto, un cero
+      capturado por desconocimiento se lee como un cero real y la
+      cotización sale firme cuando no debería. */
+   nsAvisos:false,nsEjercicios:false,nsAvisosReg:false,
    tipoClientes:'terceros', chk, niv, det,
    /* Estas banderas ya no se capturan: las calcula sincronizar() a partir del
       checklist. Siguen existiendo porque el motor de recomendación las usa. */
@@ -951,8 +1052,8 @@ function pintarDiagnostico(){
       <div class="dh"><span class="tit">${nom}</span>
         <span class="riesgo ${riesgoDe(e,g).c}">Nivel de riesgo: ${riesgoDe(e,g).n}</span></div>
       <div class="resumen">${resumen}</div>
-      <table><thead><tr><th style="width:50%">Obligación, fundamento y qué falta</th>
-        <th style="width:24%">Exigible desde</th><th>Estado</th></tr></thead><tbody>
+      <table><thead><tr><th style="width:60%">Obligación, fundamento y qué falta</th>
+        <th style="width:16%">Exigible desde</th><th style="width:24%">Estado</th></tr></thead><tbody>
       ${d.map(x=>`<tr><td class="ob">${x.q}<span class="fu">${x.f}</span>
         ${x.faltantes.length&&x.faltantes.length<x.total
           ? `<span class="nt">Le falta: ${x.faltantes.map(z=>z.p).join(' · ')}</span>`:''}</td>
@@ -965,6 +1066,21 @@ function pintarDiagnostico(){
 /* ══ MOTOR DE RECOMENDACIÓN ══ */
 function recEntidad(e,g){
   const R=[],O=[],N=[],A=[];
+  const nom=e.nombre||'esta entidad';
+  /* Un dato que no se sabe no es un cero. Si falta, el renglón que depende de
+     él no es firme, y se dice antes de que la propuesta salga. */
+  if(e.nsAvisos) A.push({t:'Falta el volumen de avisos',
+    d:`No se sabe cuántos avisos al año presenta ${nom}. La auditoría se cotiza por escalón de avisos: ese renglón no es firme hasta tener el dato.`});
+  if(e.nsEjercicios) A.push({t:'Faltan los ejercicios sin revisar',
+    d:`No se sabe cuántos ejercicios trae ${nom} sin revisar. La reconstrucción retroactiva se cotiza por ejercicio: sin el dato es una estimación.`});
+  if(e.nsAvisosReg) A.push({t:'Faltan los avisos por regularizar',
+    d:`No se sabe cuántos avisos hay que regularizar en ${nom}. La carga de extemporáneos se cobra por bloque de mil: sin el dato no es firme.`});
+  if(e.rEfectivo) A.push({t:'Hay operaciones en efectivo',
+    d:`${nom} opera en efectivo. Además del umbral de aviso hay restricciones de monto propias: revisa el artículo 32 antes de cerrar el alcance.`});
+  if(e.rVirtuales) A.push({t:'Hay activos virtuales',
+    d:`${nom} opera con activos virtuales. Es fracción propia del artículo 17, con su capítulo de alta específico en las RCG. Escala a dirección: no se cotiza de rutina.`});
+  if(e.rDivisas) A.push({t:'Hay divisas o comercio exterior',
+    d:`${nom} maneja divisas o comercio exterior. Es señal de riesgo bancario: se siembra en la conversación, no se empuja, salvo que ya haya cuentas bloqueadas.`});
   const si=(id,por,regla)=>R.push({id,por,regla}), op=(id,por,regla)=>O.push({id,por,regla}), no=(id,por,regla)=>N.push({id,por,regla});
 
   if(e.actividad==='ninguna'){
@@ -1167,7 +1283,8 @@ function pintarEntidades(){
           <option value="ceros"${e.avisos==='ceros'?' selected':''}>En ceros, operando sobre umbral</option>
           <option value="nose"${e.avisos==='nose'?' selected':''}>No sé</option></select></div>
       <div><label>Avisos al año<span class="fund">Escalón de la auditoría</span></label>
-        <input type="number" min="0" step="10" data-i="${i}" data-k="avisosAnio" value="${e.avisosAnio}"></div>
+        <input type="number" min="0" step="10" data-i="${i}" data-k="avisosAnio" value="${e.avisosAnio}"${e.nsAvisos?' disabled':''}>
+        <label class="ns"><input type="checkbox" data-i="${i}" data-k="nsAvisos"${e.nsAvisos?' checked':''}> No sé todavía</label></div>
       <div><label>Clientes activos<span class="fund">Escalón de la auditoría</span></label>
         <input type="number" min="0" step="10" data-i="${i}" data-k="clientes" value="${e.clientes}"></div>
       <div><label>Operaciones sobre umbral al mes</label>
@@ -1183,12 +1300,19 @@ function pintarEntidades(){
           <option value="hoja"${e.control==='hoja'?' selected':''}>Hoja de cálculo</option>
           <option value="sistema"${e.control==='sistema'?' selected':''}>Un sistema</option>
           <option value="nada"${e.control==='nada'?' selected':''}>No lleva control</option></select></div>
-      <div><label>¿Efectivo, divisas o activos virtuales?</label>
-        <select data-i="${i}" data-k="efectivo">
-          <option value="no"${e.efectivo==='no'?' selected':''}>No</option>
-          <option value="si"${e.efectivo==='si'?' selected':''}>Sí</option></select></div>
-      <div><label>Ejercicios sin revisar</label><input type="number" min="0" max="5" data-i="${i}" data-k="ejercicios" value="${e.ejercicios}"></div>
-      <div><label>Avisos por regularizar</label><input type="number" min="0" step="100" data-i="${i}" data-k="avisosReg" value="${e.avisosReg}"></div>
+      <div style="grid-column:1/-1"><label>¿Cuál de estos hay en la operación?
+        <span class="fund">El efectivo restringe umbrales; las divisas y los activos virtuales suben el riesgo</span></label>
+        <div class="chks">
+          <label class="chk"><input type="checkbox" data-i="${i}" data-k="rEfectivo"${e.rEfectivo?' checked':''}><span>Efectivo</span></label>
+          <label class="chk"><input type="checkbox" data-i="${i}" data-k="rDivisas"${e.rDivisas?' checked':''}><span>Divisas o comercio exterior</span></label>
+          <label class="chk"><input type="checkbox" data-i="${i}" data-k="rVirtuales"${e.rVirtuales?' checked':''}><span>Activos virtuales</span></label>
+        </div></div>
+      <div><label>Ejercicios sin revisar</label>
+        <input type="number" min="0" max="5" data-i="${i}" data-k="ejercicios" value="${e.ejercicios}"${e.nsEjercicios?' disabled':''}>
+        <label class="ns"><input type="checkbox" data-i="${i}" data-k="nsEjercicios"${e.nsEjercicios?' checked':''}> No sé todavía</label></div>
+      <div><label>Avisos por regularizar</label>
+        <input type="number" min="0" step="100" data-i="${i}" data-k="avisosReg" value="${e.avisosReg}"${e.nsAvisosReg?' disabled':''}>
+        <label class="ns"><input type="checkbox" data-i="${i}" data-k="nsAvisosReg"${e.nsAvisosReg?' checked':''}> No sé todavía</label></div>
       <div><label>¿A quién le vende o le renta?</label>
         <select data-i="${i}" data-k="tipoClientes">
           <option value="terceros"${e.tipoClientes==='terceros'?' selected':''}>A terceros</option>
@@ -1241,7 +1365,7 @@ function filaRec(r,clase,ctx,g,pref,idx,tot){
       ${s.propuesto?'<span class="flag"> ◆ propuesto, sin autorizar</span>':''}</div>
       <div class="por">${r.por}</div>${r.regla?`<div class="regla">${r.regla}</div>`:''}
       ${clase==='no'&&on?'<div class="forzado">Agregado a mano contra la recomendación del motor. Justifícalo con dirección antes de mandarla.</div>':''}</div>
-    ${c?`<div class="imp">${mx(c.imp)}</div>`:''}</div>`;
+    ${c?`<div class="imp">${clase==='no'?'<span class="siSola">si se cotizara sola</span>':''}${mx(c.imp)}</div>`:''}</div>`;
 }
 
 function render(){
@@ -1292,33 +1416,31 @@ function render(){
     const lista=[...x.r.R.map(r=>({r,def:true})),...x.r.O.map(r=>({r,def:false})),...x.r.N.map(r=>({r,def:false}))]
       .filter(o=>o.r.id!=='*'&&activo('e'+i,o.r,o.def));
     if(!lista.length) return;
-    filas.push(`<tr class="sec"><td colspan="4">${x.e.nombre||('Entidad '+(i+1))} — riesgo ${x.r.riesgo.n}</td></tr>`);
+    filas.push(`<tr class="sec"><td colspan="3">${x.e.nombre||('Entidad '+(i+1))} — riesgo ${x.r.riesgo.n}</td></tr>`);
     const v=new Set();
     lista.forEach(({r})=>{if(v.has(r.id))return; v.add(r.id);
       const c=calcular(r.id,ctx,g,i,ENT.length); if(!c)return; sub+=c.imp;
-      filas.push(`<tr><td>${c.s.nombre}</td><td><span class="sello ${sc(c.s.sello)}">${c.s.sello}</span></td>
-        <td>${c.txt}</td><td class="num">${mx(c.imp)}</td></tr>`);});
+      filas.push(`<tr><td>${c.s.nombre}</td><td>${c.txt}</td><td class="num">${mx(c.imp)}</td></tr>`);});
   });
   const listaG=[...rg.R.map(r=>({r,def:true})),...rg.O.map(r=>({r,def:false})),...rg.N.map(r=>({r,def:false}))]
     .filter(o=>o.r.id!=='*'&&activo('g',o.r,o.def));
   if(listaG.length){
-    filas.push('<tr class="sec"><td colspan="4">Comunes al grupo</td></tr>');
+    filas.push('<tr class="sec"><td colspan="3">Comunes al grupo</td></tr>');
     const v=new Set();
     listaG.forEach(({r})=>{if(v.has(r.id))return; v.add(r.id);
       const c=calcular(r.id,ctxG,g,0,ENT.length); if(!c)return; sub+=c.imp;
       if(r.id==='iguala'||r.id==='igualaArranque') hayIguala=true;
       if(r.id==='acompanamiento') hayAcomp=true;
-      filas.push(`<tr><td>${c.s.nombre}</td><td><span class="sello ${sc(c.s.sello)}">${c.s.sello}</span></td>
-        <td>${c.txt}</td><td class="num">${mx(c.imp)}</td></tr>`);});
+      filas.push(`<tr><td>${c.s.nombre}</td><td>${c.txt}</td><td class="num">${mx(c.imp)}</td></tr>`);});
   }
   if(g.impresion&&filas.length){sub+=CONFIG.impresion;
-    filas.push(`<tr><td>Informe impreso</td><td></td><td>importe fijo</td><td class="num">${mx(CONFIG.impresion)}</td></tr>`);}
+    filas.push(`<tr><td>Informe impreso</td><td>importe fijo</td><td class="num">${mx(CONFIG.impresion)}</td></tr>`);}
 
-  $('tbody').innerHTML=filas.length?filas.join(''):'<tr><td colspan="4" style="text-align:center;color:#8a918c;padding:20px">Sin servicios activos.</td></tr>';
+  $('tbody').innerHTML=filas.length?filas.join(''):'<tr><td colspan="3" style="text-align:center;color:#8a918c;padding:20px">Sin servicios activos.</td></tr>';
   const iva=sub*CONFIG.iva;
-  $('tfoot').innerHTML=filas.length?`<tr><td colspan="3">Subtotal</td><td class="num">${mx(sub)}</td></tr>
-    <tr><td colspan="3">IVA 16%</td><td class="num">${mx(iva)}</td></tr>
-    <tr class="total"><td colspan="3">Total</td><td class="num">${mx(sub+iva)}</td></tr>`:'';
+  $('tfoot').innerHTML=filas.length?`<tr><td colspan="2">Subtotal</td><td class="num">${mx(sub)}</td></tr>
+    <tr><td colspan="2">IVA 16%</td><td class="num">${mx(iva)}</td></tr>
+    <tr class="total"><td colspan="2">Total</td><td class="num">${mx(sub+iva)}</td></tr>`:'';
   $('kpis').innerHTML=filas.length?`
     <div class="kpi"><div class="v">${mx(sub)}</div><div class="l">Honorarios sin IVA</div></div>
     <div class="kpi"><div class="v">${ENT.length}</div><div class="l">Entidades cotizadas</div></div>
@@ -1379,7 +1501,7 @@ $('calendario').innerHTML=`<details class="cal"><summary>Qué ya es exigible y q
      Hoy, buena parte de lo que esta herramienta detecta como faltante <b>todavía no es exigible</b>.
      Eso no quita la venta: la cambia. No es «estás en falta», es «tienes hasta tal fecha y construirlo
      bien toma meses». Es más honesto y cierra mejor.</p>
-  <table><thead><tr><th style="width:44%">Obligación</th><th style="width:26%">Exigible desde</th><th>Fundamento</th></tr></thead>
+  <table><thead><tr><th style="width:38%">Obligación</th><th style="width:18%">Exigible desde</th><th style="width:44%">Fundamento</th></tr></thead>
   <tbody>${CONFIG.exigibilidad.map(x=>`<tr><td>${x.q}</td>
     <td class="${x.desde==='Vigente hoy'?'hoy':'luego'}">${x.desde}</td>
     <td class="fund">${x.f}</td></tr>`).join('')}</tbody></table>
@@ -1442,23 +1564,77 @@ function pintarBarra(){
 
 /* Lista las cotizaciones guardadas. Las reglas solo dejan leerlas a quien
    tenga correo de gmc360, así que esto no expone nada de más. */
-async function listar(){
+const esDireccion=()=>!!USUARIO && CONFIG.autorizadores.includes((USUARIO.email||'').toLowerCase());
+
+/* Mueve una cotización de estado. La cotización en sí no se toca nunca: su
+   expediente de salida vive en otra colección, y ahí sí se escribe varias veces.
+   Solo dirección puede poner "autorizada"; el resto lo mueve quien la lleva. */
+async function mover(folio, estado){
+  const st=CONFIG.estados.find(x=>x.id===estado);
+  if(!st) return;
+  if(st.quien==='direccion' && !esDireccion()){ alert('Solo dirección autoriza.'); return; }
+  if(estado==='enviada'){
+    const ok=confirm('¿Ya la revisó dirección?\n\nLa regla de la casa es que nada sale al cliente sin que dirección lo vea. Si todavía no la revisa, cancela y márcala primero como "En revisión de dirección".');
+    if(!ok) return;
+  }
+  try{
+    await db.collection('autorizaciones').doc(folio).set({
+      folio, estado,
+      historial: firebase.firestore.FieldValue.arrayUnion(
+        {estado, por:USUARIO.email, cuando:new Date().toISOString()})
+    },{merge:true});
+    await listar(true);
+  }catch(e){ alert('No se pudo mover: '+(e.code||e.message)); }
+}
+
+async function listar(forzar){
   const caja=$('guardadas');
-  if(caja.innerHTML){ caja.innerHTML=''; return; }
+  if(caja.innerHTML && !forzar){ caja.innerHTML=''; return; }
   caja.innerHTML='<div class="cal"><div class="cuerpo"><p>Cargando…</p></div></div>';
   try{
-    const q=await db.collection('cotizaciones').orderBy('capturadaEl','desc').limit(50).get();
+    const [q,a]=await Promise.all([
+      db.collection('cotizaciones').orderBy('capturadaEl','desc').limit(50).get(),
+      db.collection('autorizaciones').limit(200).get()
+    ]);
     if(q.empty){ caja.innerHTML='<div class="cal"><div class="cuerpo"><p>Todavía no hay ninguna cotización guardada.</p></div></div>'; return; }
-    const f=d=>d?.toDate?d.toDate().toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}):'—';
+    const firmas={}; a.forEach(d=>firmas[d.id]=d.data());
+    const f=d=>d&&d.toDate?d.toDate().toLocaleDateString('es-MX',{day:'2-digit',month:'short'}):'—';
+    const quien=c=>c?c.replace('@gmc360.com.mx',''):'';
+    const dir=esDireccion();
+
+    const filas=q.docs.map(d=>{
+      const x=d.data(), folio=x.folio||d.id, fi=firmas[folio]||{};
+      const st=CONFIG.estados.find(e=>e.id===(fi.estado||'borrador'))||CONFIG.estados[0];
+      const ult=(fi.historial||[]).slice(-1)[0];
+      const opciones=CONFIG.estados
+        .filter(e=>e.id!==st.id)
+        .filter(e=>e.quien!=='direccion'||dir)
+        .map(e=>`<option value="${e.id}">${e.n}</option>`).join('');
+      return `<tr>
+        <td>${folio}</td>
+        <td>${f(x.capturadaEl)}</td>
+        <td>${(x.cliente&&x.cliente.grupo)||'—'}</td>
+        <td>${quien(x.capturadaPor)}</td>
+        <td class="num">${((x.totales&&x.totales.texto)||'').split('\n').pop()||'—'}</td>
+        <td class="est ${st.c}">${st.n}${ult?`<span class="fund"> ${quien(ult.por)}</span>`:''}</td>
+        <td><select class="mueve" data-folio="${folio}">
+              <option value="">Cambiar a…</option>${opciones}</select></td></tr>`;
+    }).join('');
+
     caja.innerHTML=`<details class="cal" open><summary>Cotizaciones guardadas · las ${q.size} más recientes</summary>
-      <div class="cuerpo"><table><thead><tr><th>Folio</th><th>Fecha</th><th>Cliente</th><th>Cotizó</th><th>Precios</th><th class="num">Total</th></tr></thead>
-      <tbody>${q.docs.map(d=>{const x=d.data();
-        return `<tr><td>${x.folio||d.id}</td><td>${f(x.capturadaEl)}</td>
-          <td>${(x.cliente&&x.cliente.grupo)||'—'}</td>
-          <td>${(x.capturadaPor||'').replace('@gmc360.com.mx','')}</td>
-          <td class="fund">${x.versionPrecios||'—'}</td>
-          <td class="num">${((x.totales&&x.totales.texto)||'').split('\n').pop()||'—'}</td></tr>`;}).join('')}
-      </tbody></table></div></details>`;
+      <div class="cuerpo">
+      <p><b>La regla de la casa:</b> nada sale al cliente sin que dirección lo revise. Haz tus ajustes de
+         forma en el Word, márcala <b>En revisión de dirección</b>, y hasta que esté <b>Autorizada</b> la mandas.
+         ${dir?'Tú eres la única que puede autorizar.':'Autorizar solo lo puede hacer dirección.'}</p>
+      <p class="fund">Una cotización guardada no se puede editar: eso protege la calibración.
+         Lo que cambia aquí es su estado, que vive aparte.</p>
+      <table><thead><tr><th>Folio</th><th>Fecha</th><th>Cliente</th><th>Cotizó</th>
+        <th class="num">Total</th><th>Estado</th><th>Mover</th></tr></thead>
+      <tbody>${filas}</tbody></table></div></details>`;
+
+    caja.querySelectorAll('select.mueve').forEach(sel=>{
+      sel.onchange=()=>{ if(sel.value) mover(sel.dataset.folio, sel.value); };
+    });
   }catch(e){
     caja.innerHTML=`<div class="cal"><div class="cuerpo"><p>No se pudieron cargar: ${e.code||e.message}</p></div></div>`;
   }
@@ -1620,9 +1796,10 @@ async function redactar(){
           if(ev.type==='error'&&ev.error) throw new Error(ev.error.message||'error de la API');
         }catch(e){ if(e instanceof SyntaxError) continue; throw e; }
       }
-      caja.innerHTML=texto;
+      caja.innerHTML=aHtml(texto);
       caja.scrollIntoView({behavior:'smooth',block:'end'});
     }
+    texto=aHtml(texto);
     if(truncada) texto+='<p><strong>[LA PROPUESTA SE CORTÓ AQUÍ POR LARGO. Vuelve a generarla, '
       +'o pártela en dos: primero el diagnóstico y el alcance, después el cronograma y las condiciones.]</strong></p>';
 
@@ -1634,14 +1811,108 @@ async function redactar(){
     /* Toda propuesta nace como borrador. La marca solo la quita dirección. */
     const marca=`<p><strong>BORRADOR · no se envía al cliente hasta que dirección lo autorice.</strong><br>
       Capturó: ${USUARIO.email} · Revisó: [PENDIENTE] · Autorizó: [PENDIENTE]</p><hr>`;
+    /* El cronograma lo pone el motor, no el redactor: se inserta donde el
+       documento habla del cronograma, o al final si no encontró el lugar. */
+    const g=cronograma();
+    if(g){
+      const re=/<h2[^>]*>\s*(?:4\s*[.·)-]?\s*)?cronograma[^<]*<\/h2>/i;
+      texto = re.test(texto) ? texto.replace(re, m=>m+g)
+        : texto+`<h2>Cronograma</h2>`+g;
+    }
     ULTIMA_PROPUESTA=marca+texto;
     caja.innerHTML=ULTIMA_PROPUESTA;
-    $('btnWord').style.display='';
+    $('btnWord').style.display=''; $('btnPropPdf').style.display='';
     est.innerHTML='Lista. <b>Revísala completa antes de mandarla</b>: si ves un [POR CONFIRMAR], es un dato que le faltó.'
       +(sinContexto?' Como no capturaste contexto, la sección 1 es la que más va a necesitar tu mano.':'');
 
   }catch(e){ est.textContent='No se pudo: '+e.message; $('propuesta').innerHTML=''; }
   btn.disabled=false;
+}
+
+/* ── RED CONTRA EL DESORDEN DE FORMATO ──
+   Al redactor se le pide HTML, pero a veces contesta en markdown y entonces la
+   propuesta sale con asteriscos y palotes en pantalla. En vez de pelearme con
+   la instrucción, se convierte aquí. Solo toca lo que claramente es markdown:
+   si ya venía en HTML, no lo altera. */
+function aHtml(t){
+  if(/<(h1|h2|h3|p|ul|ol|table)[ >]/i.test(t) && !/^\s*#{1,3}\s/m.test(t) && t.indexOf('|--')<0) return t;
+  const esc=x=>x;
+  const lineas=t.split('\n');
+  const salida=[]; let tabla=[], lista=[];
+  const cierraLista=()=>{ if(lista.length){ salida.push('<ul>'+lista.map(x=>`<li>${x}</li>`).join('')+'</ul>'); lista=[]; } };
+  const cierraTabla=()=>{
+    if(!tabla.length) return;
+    const filas=tabla.filter(r=>!/^\s*\|[\s:|-]+\|\s*$/.test(r))
+      .map(r=>r.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split('|').map(c=>c.trim()));
+    if(filas.length){
+      const enc=filas.shift();
+      salida.push('<table><thead><tr>'+enc.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>'
+        +filas.map(r=>'<tr>'+r.map(c=>`<td>${c}</td>`).join('')+'</tr>').join('')+'</tbody></table>');
+    }
+    tabla=[];
+  };
+  for(let i=0;i<lineas.length;i++){
+    const l=lineas[i], sig=lineas[i+1]||'';
+    /* Un renglón de tabla puede venir sin palote al inicio. Se reconoce porque
+       el siguiente renglón es la línea de guiones que separa el encabezado. */
+    const esSep=r=>/^[\s|:-]+$/.test(r) && r.indexOf('-')>-1 && r.indexOf('|')>-1;
+    if(/^\s*\|/.test(l) || tabla.length && l.indexOf('|')>-1 || (l.indexOf('|')>-1 && esSep(sig))){
+      cierraLista(); tabla.push(l.trim().startsWith('|')?l:'|'+l+'|'); continue; }
+    cierraTabla();
+    const li=l.match(/^\s*[-*+]\s+(.*)$/);
+    if(li){ lista.push(li[1]); continue; }
+    cierraLista();
+    if(/^\s*#{4,}\s/.test(l)) salida.push(`<h3>${l.replace(/^\s*#+\s*/,'')}</h3>`);
+    else if(/^\s*###\s/.test(l)) salida.push(`<h3>${l.replace(/^\s*#+\s*/,'')}</h3>`);
+    else if(/^\s*##\s/.test(l))  salida.push(`<h2>${l.replace(/^\s*#+\s*/,'')}</h2>`);
+    else if(/^\s*#\s/.test(l))   salida.push(`<h1>${l.replace(/^\s*#+\s*/,'')}</h1>`);
+    else if(/^\s*---+\s*$/.test(l)) salida.push('');
+    else if(l.trim()==='') salida.push('');
+    else salida.push(`<p>${esc(l)}</p>`);
+  }
+  cierraLista(); cierraTabla();
+  return salida.join('\n')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/(?<![*\w])\*([^*\n]+)\*(?!\*)/g,'<em>$1</em>');
+}
+
+/* ── EL CRONOGRAMA ──
+   Barras de fases contra meses. Solo aparecen las fases que de verdad tienen
+   servicios cotizados: si no se vendió auditoría, no hay renglón de auditoría. */
+function cronograma(){
+  const ids=new Set([...document.querySelectorAll('#tbody tr')]
+    .filter(t=>!t.classList.contains('sec'))
+    .map(t=>{const nom=t.querySelectorAll('td')[0]?.innerText||'';
+      const e=Object.entries(CONFIG.servicios).find(([,v])=>v.nombre===nom);
+      return e?e[0]:null;}).filter(Boolean));
+  if(!ids.size) return '';
+
+  const activas=CONFIG.fases.filter(f=>f.serv.some(x=>ids.has(x)));
+  if(!activas.length) return '';
+  const tope=Math.max(...activas.map(f=>f.ini+f.dur-1));
+  const meses=Math.min(Math.max(tope,6),12);
+
+  let enc=''; let rej='';
+  for(let m=1;m<=meses;m++){ enc+=`<span>${m}</span>`; rej+='<i></i>'; }
+
+  const filas=activas.map(f=>{
+    const nombres=f.serv.filter(x=>ids.has(x)).map(x=>CONFIG.servicios[x].nombre);
+    const izq=((f.ini-1)/meses*100).toFixed(4);
+    const ancho=(Math.min(f.dur, meses-f.ini+1)/meses*100).toFixed(4);
+    return `<div class="fila">
+      <div class="et" title="${nombres.join(' · ')}">${f.n}</div>
+      <div class="via"><div class="rej">${rej}</div>
+        <div class="barra ${f.id==='f7'?'op':''}" style="left:${izq}%;width:${ancho}%"></div></div>
+    </div>`;
+  }).join('');
+
+  return `<div class="gantt">
+    <div class="enc"><div class="et">Fase</div><div class="ms">${enc}</div></div>
+    ${filas}
+    <p class="nota">Meses contados a partir de la firma. El cronograma se ajusta a las fechas de
+       exigibilidad: lo que vence el 1 de marzo de 2027 tiene que estar terminado antes de esa fecha,
+       no ese día.</p>
+  </div>`;
 }
 
 /* Descarga en un formato que Word abre y deja editar, sin librerías. */
@@ -1709,8 +1980,8 @@ function armarInforme(){
           <div class="l">cumplimiento general</div>
           <div class="barraP"><i style="width:${pc}%"></i></div></div>
       </div>
-      <table><thead><tr><th style="width:46%">Obligación y fundamento</th>
-        <th style="width:26%">Exigible desde</th><th>Cómo se encuentra hoy</th></tr></thead><tbody>
+      <table><thead><tr><th style="width:62%">Obligación y fundamento</th>
+        <th style="width:16%">Exigible desde</th><th style="width:22%">Cómo se encuentra hoy</th></tr></thead><tbody>
       ${d.map(x=>`<tr>
         <td class="o">${x.q}<span class="fu">${x.f}</span>
           ${x.faltantes.length&&x.faltantes.length<x.total
@@ -1728,7 +1999,7 @@ function armarInforme(){
 
   return `<div class="inf">
     <div class="port">
-      <div class="marca">GMC360 · LEX-GMC · 360EDUCA</div>
+      <div class="marca">GMC360 · LEX-QUO · 360EDUCA</div>
       <h1>Diagnóstico de obligaciones en prevención de lavado de dinero</h1>
       <div class="meta">
         <span><b>${cliente}</b>${contacto?` · At'n ${contacto}`:''}</span>
@@ -1760,8 +2031,8 @@ function armarInforme(){
     <div class="cal2">
       <h2>Calendario de exigibilidad</h2>
       <p class="act">Aplica a todos los sujetos obligados, con independencia de este diagnóstico.</p>
-      <table><thead><tr><th style="width:46%">Obligación</th><th style="width:26%">Exigible desde</th>
-        <th>Fundamento</th></tr></thead><tbody>
+      <table><thead><tr><th style="width:38%">Obligación</th><th style="width:18%">Exigible desde</th>
+        <th style="width:44%">Fundamento</th></tr></thead><tbody>
       ${CONFIG.exigibilidad.map(x=>`<tr><td class="o">${x.q}</td>
         <td class="fecha ${x.desde==='Vigente hoy'?'v':'f'}">${x.desde}</td>
         <td style="font-size:10.5px">${x.f}</td></tr>`).join('')}
@@ -1859,6 +2130,14 @@ function informeWord(){
 $('btnInforme').onclick=imprimirInforme;
 $('btnInformeWord').onclick=informeWord;
 
+function propuestaPdf(){
+  if(!ULTIMA_PROPUESTA) return;
+  $('informe').innerHTML='<div class="inf">'+ULTIMA_PROPUESTA+'</div>';
+  document.body.classList.add('pr-inf');
+  window.print();
+  setTimeout(()=>{document.body.classList.remove('pr-inf'); $('informe').innerHTML='';},400);
+}
+$('btnPropPdf').onclick=propuestaPdf;
 $('btnPropuesta').onclick=redactar;
 $('btnWord').onclick=descargarWord;
 
