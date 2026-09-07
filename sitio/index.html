@@ -493,12 +493,27 @@ porque antes no sabíamos qué se iba a vender.</p>
     <div><label>¿Es renovación?</label><select id="g-renovacion">
       <option value="0">Cliente nuevo</option><option value="1">Renovación · +5%</option></select></div>
     <div><label>Meses de iguala</label><input type="number" id="g-meses" min="0" max="36" value="12"></div>
-    <div><label>Sesiones de capacitación</label><input type="number" id="g-sesiones" min="0" max="12" value="2"></div>
+    <div><label>Sesiones a la medida<span class="fund">En la empresa, por sesión</span></label>
+      <input type="number" id="g-sesiones" min="0" max="12" value="0"></div>
     <div><label>Horas de acompañamiento al mes<span class="fund">12, 20 o 40 · 6 meses</span></label>
       <select id="g-horas"><option value="0">No aplica</option><option value="12">12 horas</option>
       <option value="20">20 horas</option><option value="40">40 horas</option></select></div>
     <div><label>¿Informe impreso?</label><select id="g-impresion">
       <option value="0">No</option><option value="1">Sí · $2,500</option></select></div>
+  </div>
+  <div class="grupo-tit">Capacitación · cuántas personas
+    <span class="ejeq">El RCG art. 39 Bis exige capacitar por perfil, no a todos igual</span></div>
+  <div class="grid">
+    <div><label>Todo el personal<span class="fund">Curso general</span></label>
+      <input type="number" id="g-nPersonal" min="0" value="0"></div>
+    <div><label>Área de cumplimiento<span class="fund">Con el Representante</span></label>
+      <input type="number" id="g-nCumplimiento" min="0" value="0"></div>
+    <div><label>Consejo y dirección<span class="fund">Alta dirección</span></label>
+      <input type="number" id="g-nDireccion" min="0" value="0"></div>
+    <div><label>Personal de nuevo ingreso<span class="fund">Inducción al año</span></label>
+      <input type="number" id="g-nIngreso" min="0" value="0"></div>
+    <div><label>Van a certificarse ante la UIF<span class="fund">Membresía 360 UIF</span></label>
+      <input type="number" id="g-nCertUIF" min="0" value="0"></div>
   </div>
 </div>
 
@@ -814,6 +829,21 @@ const CONFIG={
    factorAvisos:0.60          // la auditoría de avisos es el 60% de la integral
  },
 
+ /* ── CAPACITACIÓN ──
+    Precios de lista publicados en 360educa.com, por persona.
+    El desglose por perfil no es comercial: es el que pide el RCG art. 39 Bis fr. I,
+    que exige capacitar al consejo y la dirección, al Representante y al área de
+    cumplimiento, y a quien atiende clientes, identifica o envía avisos.
+    La sesión a la medida es distinta: se cobra por sesión, no por persona. */
+ capacitacion:{
+   general:1619,        // Anual PLD/FT General · todo el personal
+   especializada:3469,  // Anual PLD/FT Especializada · área de cumplimiento
+   altaDireccion:3019,  // Anual PLD/FT Alta Dirección
+   induccion:638,       // Inducción · personal de nuevo ingreso
+   membresiaUIF:14599,  // Membresía 360 UIF · certificación ante la UIF
+   sesionMedida:40000   // Sesión en la empresa, a la medida · por sesión
+ },
+
  /* ── MARCO NORMATIVO ── */
  marco:{ manual:70000, mebr:60000, paquete:110000, porActividadExtra:20000 },
 
@@ -890,9 +920,15 @@ const CONFIG={
   expedientes:{sello:'GMC360',ambito:'entidad',nombre:'Integración de expedientes de identificación',
     alcance:'Por expediente de cliente con operaciones sobre umbral',
     entregables:'Expedientes integrados · índice · constancias',base:'muestra',importe:600},
-  bc:{sello:'GMC360',ambito:'entidad',nombre:'Beneficiario controlador de la entidad y de clientes',
-    alcance:'Desdoblamiento hasta persona física de control efectivo y campaña con clientes',
-    entregables:'Expediente de BC · formato de declaración · campaña ejecutada',base:'fijo',importe:103000},
+  /* El BC del CLIENTE no es servicio aparte: sus criterios van dentro del Manual.
+     Lo que sí se vende solo es el expediente para el registro del Capítulo IV Bis,
+     que obliga a toda sociedad mercantil aunque no sea sujeto obligado.
+     Precio autorizado por dirección: bajó de 103,000 a 60,000. */
+  bcRegistro:{sello:'GMC360',ambito:'entidad',
+    nombre:'Expediente de beneficiario controlador para el registro (Ley Cap. IV Bis)',
+    alcance:'Desdoblamiento de la estructura accionaria hasta la persona física de control efectivo, con la prelación de la Ley: 25% o más del capital, control por otros medios, o alta dirección. Integración del expediente documental fechado y del acta que deja constancia de que el sistema de registro aún no está habilitado',
+    entregables:'Expediente de beneficiario controlador · desdoblamiento accionario documentado · constancia fechada de imposibilidad de registro · procedimiento de actualización ante transmisión de acciones',
+    base:'fijo',importe:60000},
   manualVol:{sello:'GMC360',ambito:'entidad',nombre:'Manual de cumplimiento voluntario',
     alcance:'Manual para entidad que no actualiza los supuestos, con su justificación',
     entregables:'Manual voluntario · memo de no configuración',base:'fijo',importe:70000},
@@ -908,7 +944,34 @@ const CONFIG={
   programaCap:{sello:'GMC360',ambito:'grupo',nombre:'Diseño del programa anual de capacitación',
     alcance:'Cuatro niveles, calendario, evaluación y formato de constancias',
     entregables:'Programa anual · materiales por nivel · formatos',base:'fijo',importe:18000},
-  capacitacion:{sello:'360educa',ambito:'grupo',nombre:'Capacitación a la medida',
+  /* Gratuito. Se cotiza en cero a propósito: aparece en la propuesta como
+     cortesía y es el gancho natural con el Representante recién nombrado.
+     Mientras se desarrolla el curso de oficio, este hace su papel. */
+  cursoRepresentante:{sello:'360educa',ambito:'grupo',nombre:'El Representante de Cumplimiento · cortesía de GMC360',
+    alcance:'Curso en línea sin costo para la persona designada como Representante Encargado. Diez lecciones que explican pantalla por pantalla cómo se opera el Portal, dónde cae su operación en el artículo 17, y qué le toca hacer cada día, cada mes y cada año',
+    entregables:'Grabación de la sesión en vivo · acceso al Portal del Representante · cuatro plantillas descargables · materiales imprimibles · bibliografía',
+    base:'fijo',importe:0},
+  capGeneral:{sello:'360educa',ambito:'grupo',nombre:'Capacitación anual PLD/FT · General',
+    alcance:'Curso en línea de capacitación anual para todo el personal, sin importar el área. Cubre el marco de la LFPIORPI, las obligaciones de la empresa y qué debe hacer cada colaborador',
+    entregables:'Acceso al curso por persona · evaluación · constancia individual · reporte de avance del grupo',
+    base:'personas',campo:'nPersonal',precio:'general'},
+  capEspecializada:{sello:'360educa',ambito:'grupo',nombre:'Capacitación anual PLD/FT · Especializada',
+    alcance:'Curso en línea para el Representante Encargado y el área de cumplimiento. Operación de avisos, expedientes, grado de riesgo y monitoreo',
+    entregables:'Acceso al curso por persona · evaluación · constancia individual · reporte de avance',
+    base:'personas',campo:'nCumplimiento',precio:'especializada'},
+  capDireccion:{sello:'360educa',ambito:'grupo',nombre:'Capacitación anual PLD/FT · Alta Dirección',
+    alcance:'Curso en línea para consejo de administración, administrador único y directivos. Responsabilidad de la dirección, sanciones y gobierno del cumplimiento',
+    entregables:'Acceso al curso por persona · evaluación · constancia individual',
+    base:'personas',campo:'nDireccion',precio:'altaDireccion'},
+  capInduccion:{sello:'360educa',ambito:'grupo',nombre:'Inducción PLD/FT · personal de nuevo ingreso',
+    alcance:'Curso corto para quien entra a áreas de atención al público, identificación de clientes o envío de avisos. Se imparte antes o al momento del ingreso, como pide la norma',
+    entregables:'Acceso al curso por persona · evaluación · constancia individual',
+    base:'personas',campo:'nIngreso',precio:'induccion'},
+  certUIF:{sello:'360educa',ambito:'grupo',nombre:'Membresía 360 UIF · certificación ante la UIF',
+    alcance:'Programa de un año para presentar la certificación de actividades vulnerables ante la UIF: 117 lecciones, 70 horas de video, sesiones en vivo, dos simuladores de examen actualizados dos veces al año y taller intensivo de repaso de cuatro días',
+    entregables:'Acceso por un año · cuatro libros digitales de consulta · simuladores · reportes de desempeño por tema · constancia',
+    base:'personas',campo:'nCertUIF',precio:'membresiaUIF'},
+  capacitacion:{sello:'360educa',ambito:'grupo',nombre:'Sesión de capacitación a la medida, en la empresa',
     alcance:'Sesión de dos horas con material propio, apoyo en plataforma, examen, constancia y seguimiento del grupo',
     entregables:'Sesión · material · examen · constancias · seguimiento',base:'sesiones',importe:40000,modalidad:true},
   acompanamiento:{sello:'GMC360',ambito:'grupo',nombre:'Bolsa de horas de acompañamiento',
@@ -1014,7 +1077,10 @@ function grupo(){return{
  descuento:buscar(CONFIG.descuentos,$('g-descuento').value),
  renovacion:$('g-renovacion').value==='1',
  meses:+$('g-meses').value||0, sesiones:+$('g-sesiones').value||0,
- horas:+$('g-horas').value||0, impresion:$('g-impresion').value==='1'};}
+ horas:+$('g-horas').value||0, impresion:$('g-impresion').value==='1',
+ nPersonal:+$('g-nPersonal').value||0, nCumplimiento:+$('g-nCumplimiento').value||0,
+ nDireccion:+$('g-nDireccion').value||0, nIngreso:+$('g-nIngreso').value||0,
+ nCertUIF:+$('g-nCertUIF').value||0};}
 
 const muestraDe=e=>{
   const n=buscar(CONFIG.muestra.niveles,e.nivel);
@@ -1148,7 +1214,13 @@ function recEntidad(e,g){
 
   if(!e.exp&&terceros) si('expedientes','Hay clientes terceros sin expediente integrado.','RCG art. 12 (expediente único) y art. 21 (verificación anual) · Ley art. 18 fr. IV · conservación 5 años');
   else if(!terceros) no('expedientes','Padrón intragrupo: no hay expedientes de terceros que integrar.','R5');
-  if(!e.bc) si('bc','Falta identificar al beneficiario controlador, de la entidad y de sus clientes persona moral.','RCG art. 23 Quinquies · Ley art. 18 fr. III · es el del CLIENTE; el de la entidad se funda en CFF 32-B Ter, no en LFPIORPI');
+  /* El del cliente no se cotiza aparte: va dentro del Manual. El del registro sí,
+     y obliga aunque la empresa no sea sujeto obligado. */
+  if(pct(e,'bcRegistro')<1)
+    si('bcRegistro','No tienen armado el expediente de beneficiario controlador que pide el Capítulo IV Bis. Obliga a toda sociedad mercantil, sea o no sujeto obligado, y la multa va de 2,000 a 10,000 UMA. El sistema para registrarlo todavía no abre: por eso vale tener el expediente listo y la constancia fechada.','Ley arts. 33 Bis y 33 Ter · vigente desde julio de 2025 · lineamientos sin publicar');
+  /* Nota, no servicio: el id '*' pinta la explicación sin renglón de precio. */
+  if(pct(e,'bc')<1)
+    no('*','El beneficiario controlador del CLIENTE no se cotiza aparte: sus criterios van dentro del Manual de Políticas Internas, y ahí se construyen.','RCG art. 23 Quinquies · Ley art. 18 fr. III');
 
   if(g.postura==='mejora') si('biopsia','No se venden productos sueltos: primero la Biopsia. El manual sin diagnóstico es recetar sin examinar.','R10');
   else no('biopsia','Postura de cumplir el mínimo: la Biopsia se lee como un gasto previo al gasto.','N11');
@@ -1173,6 +1245,13 @@ function recGrupo(ents,g){
      que arrancar y va la iguala de operación normal. */
   const arranque = nadieOpera && (faltaManual||faltaEbr);
 
+  /* Sin costo, así que se ofrece siempre. Si el Representante está por nombrar
+     o recién nombrado, se recomienda; si ya está rodado, se deja a consideración. */
+  if(alguna(e=>pct(e,'rep')<1))
+    si('cursoRepresentante','Sin costo. A la persona que quede como Representante le enseña a operar el Portal pantalla por pantalla, y le deja cuatro plantillas. Va en la propuesta como cortesía.','Cortesía de GMC360');
+  else
+    op('cursoRepresentante','Sin costo, por si el Representante quiere repasar la operación del Portal o hay relevo.','Cortesía de GMC360');
+
   if(arranque){
     si('igualaArranque','No hay quien opere el cumplimiento y además falta construir el marco. La iguala de arranque hace las dos cosas: construye manual, metodología y programa de capacitación, y opera los avisos mes a mes, sin cobro aparte. Máximo 12 meses, para que en ese plazo el cliente arme su propia función interna.','Autorizada por dirección · es un puente, no un destino');
     no('paqueteMarco','Va incluido en la iguala de arranque.','');
@@ -1180,7 +1259,14 @@ function recGrupo(ents,g){
     no('mebr','Va incluido en la iguala de arranque.','');
     no('programaCap','Va incluido en la iguala de arranque.','');
     no('iguala','Aquí aplica la de arranque: además de operar, hay que construir.','');
-    if(faltaCap) si('capacitacion','Las sesiones con el equipo se cobran aparte: la iguala incluye el programa, no la impartición.','');
+    if(faltaCap){
+      si('capGeneral','La iguala incluye el programa de capacitación, no impartirlo. El curso general cubre a todo el personal.','RCG art. 39 Bis fr. I');
+      si('capEspecializada','El Representante y quien opere el cumplimiento necesitan el curso especializado.','RCG art. 39 Bis fr. I');
+      si('capDireccion','El consejo o el administrador único también entran: la norma los nombra.','RCG art. 39 Bis fr. I');
+      op('capInduccion','Si contratan gente en áreas de atención al público, la norma pide capacitarla antes o al momento de ingresar.','RCG art. 39 Bis 1');
+      op('certUIF','Si quieren que su Representante quede certificado ante la UIF.','Ley art. 34 Bis');
+      op('capacitacion','Si prefieren sesión en vivo dentro de la empresa en vez de curso en línea.','');
+    }
     no('acompanamiento','No tienen a quién acompañar: necesitan que alguien lo opere.','Eje C');
     A.push({t:'La iguala de arranque termina',d:'Está topada a 12 meses a propósito. Al cliente le conviene más un oficial de cumplimiento de planta que una iguala indefinida. Escríbelo en la propuesta: al mes 12 se entrega la operación a su gente, y GMC360 se queda como acompañamiento o auditoría anual.'});
     return{R,O,N,A};
@@ -1199,7 +1285,12 @@ function recGrupo(ents,g){
 
   if(faltaCap){
     si('programaCap','Falta programa anual de capacitación documentado. Uno solo para el grupo.','RCG art. 39 Bis · Ley art. 18 fr. IX · primer año calendario 2027');
-    si('capacitacion','El equipo necesita formación para operar lo que se construya.','');
+    si('capGeneral','Todo el personal necesita el curso anual, sin importar el área.','RCG art. 39 Bis fr. I');
+    si('capEspecializada','El Representante Encargado y el área de cumplimiento necesitan el curso especializado.','RCG art. 39 Bis fr. I · quien imparte debe acreditar 5 años de experiencia');
+    si('capDireccion','El consejo de administración o el administrador único están nombrados expresamente en la norma.','RCG art. 39 Bis fr. I');
+    op('capInduccion','Para el personal que entre durante el año a áreas de atención al público.','RCG art. 39 Bis 1');
+    op('certUIF','Si quieren que su Representante quede certificado ante la UIF.','Ley art. 34 Bis');
+    op('capacitacion','Si prefieren sesión en vivo dentro de la empresa en vez de curso en línea.','');
   }else no('programaCap','Ya tienen programa de capacitación documentado.','');
 
   if(nadieOpera){
@@ -1251,6 +1342,9 @@ function calcular(id,ctx,g,idxEnt,totalEnt){
     case 'mensual':{const m=s.topeMeses?Math.min(g.meses,s.topeMeses):g.meses;
       imp=m*s.importe; txt=m+' meses'+(s.topeMeses&&g.meses>s.topeMeses?' · topada a '+s.topeMeses:''); break;}
     case 'sesiones': imp=g.sesiones*s.importe; txt=g.sesiones+' sesiones'; break;
+    case 'personas':{const n=g[s.campo]||0; if(!n) return null;
+      const pu=CONFIG.capacitacion[s.precio];
+      imp=n*pu; txt=n+(n===1?' persona':' personas')+' × '+mx(pu); break;}
     case 'horas':{ if(!g.horas) return null;
       const hr=CONFIG.horaAcompUSD*CONFIG.tcUSD;
       imp=g.horas*hr*CONFIG.mesesBolsa; txt=g.horas+' h/mes × '+CONFIG.mesesBolsa+' meses'; break;}
