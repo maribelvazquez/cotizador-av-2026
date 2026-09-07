@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cotizador de Actividades Vulnerables · Vista interna · GMC360</title>
+<style>
+/* ══════════════════════════════════════════════════════════════
+   GMC360 · COTIZADOR DE ACTIVIDADES VULNERABLES — VISTA INTERNA
+   v4.0 · 7 de septiembre de 2026 · con acceso y guardado
+
+   Precios autorizados por dirección. El motor de horas del
+   cotizador 2025 quedó atrás: ahora es base más escalones.
+
+   El ejecutivo captura el diagnóstico. La herramienta recomienda.
+   Cotiza una empresa o un grupo.
+
+   Uso interno. No publicar. Todo lo configurable en CONFIG.
+   ══════════════════════════════════════════════════════════════ */
+:root{--verde:#64c27b;--verde-claro:#87d895;--gris:#4d4d4d;--negro:#1b1b1e;
+--verde-bg:#f2faf4;--linea:#e3e8e4;--bg:#f7f9f7;--ambar:#b8860b;--ambar-bg:#fdf7e8;
+--rojo:#b3261e;--rojo-bg:#fdf0ef;--azul-bg:#eef4fb;--azul:#3a6ea5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--negro);
+font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:24px 20px 90px}
+header{border-bottom:3px solid var(--verde);padding-bottom:14px}
+.marca{font-weight:700;letter-spacing:.06em;color:var(--verde);font-size:13px}
+h1{font-size:24px;margin:6px 0 4px}.sub{color:var(--gris);font-size:14px}
+.aviso{background:var(--verde-bg);border-left:4px solid var(--verde);padding:10px 14px;margin:16px 0;font-size:13.5px;color:var(--gris)}
+h2{font-size:17px;color:var(--verde);margin:30px 0 4px;border-bottom:1px solid var(--linea);padding-bottom:6px}
+h2 .n{color:var(--verde-claro);font-weight:700;margin-right:8px}
+.hint{color:var(--gris);font-size:13px;margin:0 0 12px}
+.card{background:#fff;border:1px solid var(--linea);border-radius:8px;padding:16px;margin-bottom:14px}
+.ent{border-left:4px solid var(--verde-claro)}
+.entHead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.entHead .tit{font-weight:700;font-size:15px;color:var(--verde)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:13px}
+label{display:block;font-size:13px;font-weight:600;color:var(--gris);margin-bottom:4px}
+label .fund{display:block;font-weight:400;font-size:11.5px;color:#8a918c;margin-top:2px}
+select,input[type=text],input[type=number]{width:100%;padding:8px 10px;border:1px solid var(--linea);
+border-radius:6px;font-size:14px;background:#fff;color:var(--negro)}
+select:focus,input:focus{outline:2px solid var(--verde-claro);outline-offset:-1px}
+.chks{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:6px}
+.chk{display:flex;gap:8px;align-items:flex-start;padding:7px 9px;border:1px solid var(--linea);
+border-radius:6px;background:#fff;cursor:pointer;font-size:13.5px}
+.chk:hover{border-color:var(--verde-claro);background:var(--verde-bg)}
+.chk input{margin-top:3px}
+.grupo-tit{font-size:12px;font-weight:700;letter-spacing:.05em;color:var(--gris);margin:16px 0 8px;text-transform:uppercase}
+.arquetipo{background:var(--verde);color:#fff;border-radius:8px;padding:16px 18px;margin-bottom:14px}
+.arquetipo .t{font-size:12px;letter-spacing:.06em;opacity:.85;font-weight:700}
+.arquetipo .v{font-size:21px;font-weight:700;margin:3px 0 6px}
+.arquetipo .d{font-size:13.5px;opacity:.95;line-height:1.5}
+.alerta{border-left:4px solid var(--rojo);background:var(--rojo-bg);padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:10px;font-size:13.5px}
+.alerta b{color:var(--rojo)}
+.interna{border-left:4px solid var(--azul);background:var(--azul-bg);padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:10px;font-size:13px;color:var(--gris)}
+.interna b{color:var(--azul)}
+.rec{border:1px solid var(--linea);border-radius:8px;padding:11px 13px;margin-bottom:8px;background:#fff;display:flex;gap:11px;align-items:flex-start}
+.rec.si{border-left:4px solid var(--verde);background:var(--verde-bg)}
+.rec.op{border-left:4px solid var(--ambar);background:var(--ambar-bg)}
+.rec.no{border-left:4px solid #c9d2cb;background:#fafbfa}
+.rec input{margin-top:4px}.rec .cuerpo{flex:1}
+.rec .nom{font-weight:600;font-size:14px}
+.rec .por{font-size:12.5px;color:var(--gris);margin-top:3px}
+.rec .regla{font-size:11px;color:#8a918c;margin-top:3px;font-style:italic}
+.rec .imp{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;font-size:14px}
+.rec.no .imp{color:#8a918c;font-weight:500}
+.rec .forzado{font-size:11.5px;color:#b26a00;font-weight:600;margin-top:5px}
+.sello{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:1px}
+.s-gmc{background:var(--verde);color:#fff}.s-lex{background:var(--gris);color:#fff}.s-edu{background:var(--verde-claro);color:var(--negro)}
+.riesgo{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:11px}
+.r-alto{background:var(--rojo-bg);color:var(--rojo);border:1px solid var(--rojo)}
+.r-medio{background:var(--ambar-bg);color:var(--ambar);border:1px solid var(--ambar)}
+.r-bajo{background:var(--verde-bg);color:#2e7d4f;border:1px solid var(--verde)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+thead th{background:var(--verde);color:#fff;text-align:left;padding:8px 10px;font-weight:600;font-size:12.5px}
+thead th.num{text-align:right}
+tbody td{padding:8px 10px;border-bottom:1px solid var(--linea)}
+tbody td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tbody tr.sec td{background:var(--verde-bg);font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--gris)}
+tfoot td{padding:8px 10px;font-weight:600;border-top:2px solid var(--verde)}
+tfoot td.num{text-align:right;font-variant-numeric:tabular-nums}
+tfoot tr.total td{font-size:16px;color:var(--verde);border-top:1px solid var(--linea)}
+.scroll{overflow-x:auto}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.kpi{background:var(--verde-bg);border-radius:8px;padding:12px 14px}
+.kpi .v{font-size:20px;font-weight:700;color:var(--verde);font-variant-numeric:tabular-nums}
+.kpi .l{font-size:12px;color:var(--gris);margin-top:2px}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+button{padding:9px 16px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer}
+.b1{background:var(--verde);color:#fff}.b1:hover{background:#54ab6a}
+.b2{background:#fff;color:var(--gris);border:1px solid var(--linea)}.b2:hover{border-color:var(--verde-claro)}
+.b3{background:#fff;color:var(--rojo);border:1px solid var(--linea);padding:5px 11px;font-size:12px}
+.flag{color:var(--ambar);font-weight:600;font-size:11.5px}
+.nota{font-size:12px;color:#8a918c;margin-top:6px}
+/* ── acceso y guardado ── */
+#gate{position:fixed;inset:0;background:var(--negro);color:#fff;z-index:99;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:24px;text-align:center}
+#gate .g-marca{color:var(--verde);font-weight:700;letter-spacing:.14em;font-size:12px}
+#gate h2{font-size:26px;margin:0;font-weight:600}
+#gate p{color:#b9c0ba;font-size:14px;max-width:420px;margin:0;line-height:1.6}
+#gate button{background:var(--verde);color:#08210e;border:0;border-radius:8px;padding:12px 26px;
+  font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+#gate .g-err{color:#ffb4a8;font-size:13px;max-width:420px}
+.barra{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fff;border:1px solid var(--linea);
+  border-radius:8px;padding:9px 13px;margin-bottom:14px;font-size:12.5px;color:var(--gris)}
+.barra .quien{font-weight:600;color:var(--negro)}
+.barra .sep{flex:1}
+.barra button{background:var(--verde);color:#08210e;border:0;border-radius:6px;padding:7px 15px;
+  font-weight:600;cursor:pointer;font-family:inherit;font-size:13px}
+.barra button[disabled]{background:#d4dcd6;color:#8a918c;cursor:default}
+.barra .salir{background:none;color:#8a918c;text-decoration:underline;padding:4px}
+.local{border-left:4px solid var(--ambar);background:var(--ambar-bg)}
+.cal{border:1px solid var(--linea);border-radius:8px;background:#fff;margin-bottom:14px;overflow:hidden}
+.cal summary{cursor:pointer;padding:11px 14px;font-weight:600;font-size:13.5px;color:var(--negro);
+  list-style:none;display:flex;align-items:center;gap:9px}
+.cal summary::-webkit-details-marker{display:none}
+.cal summary::before{content:'▸';color:var(--verde);font-size:15px}
+.cal[open] summary::before{content:'▾'}
+.cal .cuerpo{padding:0 14px 13px}
+.cal p{font-size:12.5px;color:var(--gris);margin:0 0 11px;line-height:1.6}
+.cal table{width:100%;border-collapse:collapse;font-size:12.5px}
+.cal th{background:var(--verde);color:#fff;text-align:left;padding:7px 9px;font-weight:600}
+.cal td{border-bottom:1px solid var(--linea);padding:7px 9px;vertical-align:top;color:var(--gris)}
+.cal td.hoy{color:var(--verde);font-weight:600;white-space:nowrap}
+.cal td.luego{color:#b26a00;font-weight:600;white-space:nowrap}
+.cal td.fund{font-size:11px;color:#8a918c;font-style:italic}
+@media print{body{background:#fff}.wrap{max-width:none;padding:0}.noprint{display:none!important}.card{border:none;padding:0}}
+</style>
+</head>
+<body>
+
+<!-- Pantalla de acceso. Se quita sola cuando entra un correo de gmc360. -->
+<div id="gate" class="noprint">
+  <div class="g-marca">GMC360 · LEX-GMC · 360EDUCA</div>
+  <h2>Cotizador de Actividades Vulnerables</h2>
+  <p>Herramienta interna. Entra con tu correo de GMC360 para que cada cotización
+     quede guardada a tu nombre.</p>
+  <button id="btnEntrar">Entrar con mi correo de GMC360</button>
+  <div class="g-err" id="gateErr"></div>
+</div>
+
+<div class="wrap">
+
+<header>
+  <div class="marca">GMC360 · LEX-GMC · 360EDUCA</div>
+  <h1>Cotizador de Actividades Vulnerables</h1>
+  <div class="sub">Vista interna · v4.0 · precios autorizados por dirección</div>
+</header>
+
+<div class="barra noprint" id="barra"></div>
+<div id="calendario" class="noprint"></div>
+
+<div class="aviso noprint">
+  <b>Cómo se usa.</b> Captura el diagnóstico de cada entidad y no marques servicios: la herramienta
+  decide cuáles aplican, cuáles no y por qué. Lo común al grupo se cotiza una vez; lo propio de cada
+  empresa, por empresa. El número no se le entrega al cliente antes de la sesión cliente/consultor360.
+</div>
+
+<!-- 1 · GRUPO -->
+<h2><span class="n">1</span>Grupo y contexto</h2>
+<div class="card">
+  <div class="grid">
+    <div><label>Grupo o razón social principal</label><input type="text" id="g-nombre"></div>
+    <div><label>Contacto</label><input type="text" id="g-contacto"></div>
+    <div><label>Ejecutivo que cotiza</label><input type="text" id="g-ejecutivo"></div>
+  </div>
+  <div class="grupo-tit">Postura y capacidad</div>
+  <div class="grid">
+    <div><label>¿Quién lleva el tema hoy?<span class="fund">Decide qué línea de servicio aplica</span></label>
+      <select id="g-quien">
+        <option value="nadie">Nadie</option><option value="contador">El contador externo, entre sus pendientes</option>
+        <option value="despacho">Un despacho especializado</option><option value="persona">Una persona dedicada</option>
+        <option value="area">Un área con equipo propio</option></select></div>
+    <div><label>¿Qué buscan?</label><select id="g-postura">
+      <option value="minimo">No tener multa · cumplir el mínimo</option>
+      <option value="mejora">Un sistema que sostenga una revisión</option></select></div>
+    <div><label>¿Presión externa?<span class="fund">No cambia el precio: escala a dirección</span></label>
+      <select id="g-conting">
+        <option value="c0">Ninguna</option><option value="c1">Requerimiento del SAT</option>
+        <option value="c2">Visita de verificación</option><option value="c3">Procedimiento sancionador</option></select></div>
+    <div><label>¿Hay fideicomiso?</label><select id="g-fideicomiso">
+      <option value="no">No</option><option value="si">Sí</option><option value="nose">No sé</option></select></div>
+    <div><label>¿Divisas, comercio exterior o activos virtuales?</label><select id="g-riesgoBanc">
+      <option value="no">No</option><option value="si">Sí</option>
+      <option value="bloqueo">Sí, y ya hay cuentas bloqueadas</option></select></div>
+  </div>
+  <div class="grupo-tit">Condiciones comerciales</div>
+  <div class="grid">
+    <div><label>Modalidad<span class="fund">Híbrida hasta 3 sesiones presenciales</span></label>
+      <select id="g-modalidad"></select></div>
+    <div><label>Plazo comprometido</label><select id="g-urgencia">
+      <option value="normal">Más de 10 días</option>
+      <option value="urgente">10 días o menos · honorario al doble</option></select></div>
+    <div><label>Descuento<span class="fund">La auditoría no baja de B</span></label><select id="g-descuento"></select></div>
+    <div><label>¿Es renovación?</label><select id="g-renovacion">
+      <option value="0">Cliente nuevo</option><option value="1">Renovación · +5%</option></select></div>
+    <div><label>Meses de iguala</label><input type="number" id="g-meses" min="0" max="36" value="12"></div>
+    <div><label>Sesiones de capacitación</label><input type="number" id="g-sesiones" min="0" max="12" value="2"></div>
+    <div><label>Horas de acompañamiento al mes<span class="fund">12, 20 o 40 · 6 meses</span></label>
+      <select id="g-horas"><option value="0">No aplica</option><option value="12">12 horas</option>
+      <option value="20">20 horas</option><option value="40">40 horas</option></select></div>
+    <div><label>¿Informe impreso?</label><select id="g-impresion">
+      <option value="0">No</option><option value="1">Sí · $2,500</option></select></div>
+  </div>
+</div>
+
+<!-- 2 · ENTIDADES -->
+<h2><span class="n">2</span>Entidades</h2>
+<p class="hint">Cada entidad se diagnostica por separado: pueden estar en situaciones muy distintas aunque sean del mismo dueño.</p>
+<div id="entidades"></div>
+<div class="btns noprint" style="margin-top:0">
+  <button class="b2" onclick="agregar()">+ Agregar otra entidad</button>
+</div>
+
+<!-- 3 · RECOMENDACIÓN -->
+<h2><span class="n">3</span>Lo que recomienda la herramienta</h2>
+<div id="alertas"></div>
+<div id="arquetipo"></div>
+<div id="recos"></div>
+
+<!-- 4 · HONORARIOS -->
+<h2><span class="n">4</span>Desglose de honorarios</h2>
+<div class="card">
+  <div class="scroll"><table>
+    <thead><tr><th style="width:46%">Concepto</th><th>Sello</th><th>Base de cálculo</th><th class="num">Honorario</th></tr></thead>
+    <tbody id="tbody"></tbody><tfoot id="tfoot"></tfoot></table></div>
+  <div class="kpis" id="kpis"></div>
+  <div id="notaInterna"></div>
+  <div class="btns noprint">
+    <button class="b1" onclick="window.print()">Imprimir o guardar en PDF</button>
+    <button class="b2" onclick="location.reload()">Empezar de nuevo</button>
+  </div>
+  <p class="nota">Importes sin IVA salvo donde se indique. Vigencia sugerida: 30 días naturales.
+  Los viáticos se cotizan aparte cuando la sede es fuera de CDMX.</p>
+</div>
+</div>
+
+<!-- Firebase. Si no carga, el cotizador sigue calculando; solo no guarda. -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   BLOQUE CONFIG · precios autorizados por dirección, 7-sep-2026
+   Espejo de la hoja del layout. Si cambia el layout, cambia aquí.
+   ══════════════════════════════════════════════════════════════ */
+const CONFIG={
+ /* Sella cada cotización guardada con la versión de precios que la produjo.
+    Cámbiala cada vez que dirección autorice un precio nuevo. Sin esto, en
+    enero no vas a poder saber con qué números se cotizó en octubre. */
+ versionPrecios:'2026-09-07',
+
+ /* ── CALENDARIO DE EXIGIBILIDAD ──
+    La reforma a las RCG (DOF 07-ago-2026) entra en vigor el 30-nov-2026 y sus
+    obligaciones son escalonadas. Hoy, buena parte de lo que el motor detecta
+    como faltante TODAVÍA NO ES EXIGIBLE.
+    Esto cambia cómo se vende: no es "estás en falta", es "tienes hasta tal
+    fecha". Es más honesto y se cierra mejor. Verificado contra la Ley, el
+    Reglamento y las RCG el 7 de septiembre de 2026. */
+ exigibilidad:[
+  {q:'Alta en padrón y designación del Representante', desde:'Vigente hoy',
+   f:'Reglamento art. 12 · RCG arts. 4 y 10'},
+  {q:'Expediente único de identificación y su verificación anual', desde:'Vigente hoy',
+   f:'Ley art. 18 fr. IV · RCG arts. 12 y 21'},
+  {q:'Avisos al día 17 del mes siguiente', desde:'Vigente hoy',
+   f:'Ley art. 23 · RCG art. 24 Bis'},
+  {q:'Avisos de 24 horas por sospecha o por indicios', desde:'30 de noviembre de 2026',
+   f:'RCG arts. 26 Bis y 26 Bis 1'},
+  {q:'Manual de Políticas Internas con sus 14 contenidos', desde:'1 de marzo de 2027',
+   f:'RCG arts. 37 y 37 Bis · Transitorio Tercero'},
+  {q:'Metodología de riesgos y modelo de grado de riesgo de clientes', desde:'1 de marzo de 2027',
+   f:'RCG arts. 10 Septies y 23 Bis · Transitorios Segundo y Cuarto'},
+  {q:'Identificación del beneficiario controlador del cliente', desde:'1 de marzo de 2027',
+   f:'RCG art. 23 Quinquies · Transitorio Cuarto'},
+  {q:'Mecanismos automatizados de monitoreo', desde:'1 de junio de 2027',
+   f:'RCG art. 41'},
+  {q:'Programa anual de capacitación', desde:'Primer año calendario 2027',
+   f:'RCG art. 39 Bis · Transitorio Séptimo'},
+  {q:'Auditoría anual de cumplimiento', desde:'Primer periodo 2028 · dictamen en marzo de 2029',
+   f:'Ley art. 18 fr. XI · RCG Cap. XIV · Transitorio Octavo'}
+ ],
+ iva:.16, renovacionInflacion:.05, impresion:2500,
+ tcUSD:18, horaAcompUSD:300, mesesBolsa:6,
+
+ /* ── AUDITORÍA: base más escalones ── */
+ auditoria:{
+   base:70000,
+   porActividadExtra:30000,
+   /* escalón por avisos al año · decreciente y topado en 150,000 */
+   avisos:[{h:50,s:0},{h:350,s:20000},{h:650,s:40000},{h:950,s:60000},
+           {h:1250,s:80000},{h:1550,s:100000},{h:3000,s:120000},
+           {h:6000,s:140000},{h:Infinity,s:150000}],
+   /* escalón por clientes · topado en 3,000 */
+   clientes:[{h:100,s:0},{h:850,s:20000},{h:1600,s:40000},
+             {h:2350,s:60000},{h:Infinity,s:80000}],
+   factorAvisos:0.60          // la auditoría de avisos es el 60% de la integral
+ },
+
+ /* ── MARCO NORMATIVO ── */
+ marco:{ manual:70000, mebr:60000, paquete:110000, porActividadExtra:20000 },
+
+ /* ── MUESTRA DE EXPEDIENTES · ligada al autodiagnóstico publicado ── */
+ muestra:{ piso:20, tope:100,
+   niveles:[{id:'avanzado',nombre:'80% o más · Avanzado',pct:.05},
+            {id:'construccion',nombre:'55 a 79% · En construcción',pct:.10},
+            {id:'inicial',nombre:'30 a 54% · Inicial',pct:.15},
+            {id:'arranque',nombre:'Menos de 30% · Sin arranque',pct:.20}]},
+
+ actividades:[
+  {id:'arrendamiento',nombre:'Arrendamiento de inmuebles'},{id:'mutuo',nombre:'Préstamo, mutuo o crédito'},
+  {id:'vehiculos',nombre:'Vehículos'},{id:'donativos',nombre:'Donativos'},
+  {id:'joyas',nombre:'Joyas, metales y piedras preciosas'},{id:'prepago',nombre:'Tarjetas de prepago, vales y monederos'},
+  {id:'blindaje',nombre:'Blindaje'},{id:'juegos',nombre:'Casinos, juegos y sorteos'},
+  {id:'valores',nombre:'Traslado o custodia de valores'},{id:'inmuebles',nombre:'Compraventa de inmuebles'},
+  {id:'desarrollo',nombre:'Desarrollo inmobiliario y construcción'},{id:'aduanal',nombre:'Agentes aduanales'},
+  {id:'profesionales',nombre:'Servicios profesionales'},{id:'virtuales',nombre:'Activos virtuales'},
+  {id:'fedatarios',nombre:'Fe pública · notarios y corredores'},{id:'ninguna',nombre:'No realiza actividad vulnerable'}],
+
+ modalidad:[{id:'remota',nombre:'Vía remota',f:1.00},
+            {id:'hibrida',nombre:'Híbrida · hasta 3 sesiones presenciales',f:1.35},
+            {id:'presencial',nombre:'Presencial · 4 sesiones o más',f:1.75}],
+ descuentos:[{id:'A',nombre:'Precio A · sin descuento',pct:0},
+             {id:'B',nombre:'Precio B · 10%',pct:.10},{id:'C',nombre:'Precio C · 15%',pct:.15}],
+ topeDescuentoAuditoria:.10,
+ urgenciaFactor:2,
+
+ /* ── QUÉ NO PUEDE IR JUNTO ──
+    Si los dos lados quedan activos en la misma cotización, algo se está
+    cobrando dos veces. El motor lo evita solo; si alguien lo fuerza a mano,
+    sale la alerta. Para agregar una regla basta un renglón más. */
+ incompatibles:[
+   {a:'igualaArranque',b:['paqueteMarco','manual','mebr','programaCap','iguala'],
+    msj:'La iguala de arranque ya incluye el marco, el programa de capacitación y la operación mensual.'},
+   {a:'paqueteMarco',b:['manual','mebr'],
+    msj:'El paquete ya incluye manual y metodología.'}
+ ],
+
+ /* ── DESCUENTO POR ENTIDAD ADICIONAL ──
+    La auditoría se queda en 15% siempre: cada dictamen es un encargo
+    independiente con su propio informe y no se abarata por volumen.
+    Los demás servicios sí escalan porque el marco se construye una vez. */
+ entidadAdicional:{ auditoria:.15, otros:[{hasta:3,d:.15},{hasta:10,d:.30},{hasta:Infinity,d:.50}] },
+
+ servicios:{
+  biopsia:{sello:'GMC360',ambito:'entidad',nombre:'Biopsia de Cumplimiento',base:'fijo',importe:100000},
+  determinacion:{sello:'LEX-GMC',ambito:'entidad',nombre:'Dictamen de determinación de actividad vulnerable',base:'fijo',importe:96000},
+  padron:{sello:'GMC360',ambito:'entidad',nombre:'Alta en Padrón y designación del Representante',base:'fijo',importe:15000},
+  auditoria:{sello:'GMC360',ambito:'entidad',nombre:'Auditoría PLD/FT de actividad vulnerable',base:'auditoria',modalidad:true,topeB:true},
+  auditoriaAvisos:{sello:'GMC360',ambito:'entidad',nombre:'Auditoría de avisos',base:'auditoriaAvisos',modalidad:true,topeB:true},
+  auditoriaExterna:{sello:'GMC360',ambito:'entidad',nombre:'Auditoría externa anual (Ley art. 18 fr. XI)',base:'auditoria',modalidad:true,topeB:true},
+  reconstruccion:{sello:'GMC360',ambito:'entidad',nombre:'Reconstrucción retroactiva de ejercicios',base:'ejercicios',importe:180000,ejerciciosBase:5},
+  avisosExt:{sello:'GMC360',ambito:'entidad',nombre:'Preparación y carga de avisos extemporáneos',base:'bloques',importe:40000,porBloque:1000},
+  art55:{sello:'LEX-GMC',ambito:'entidad',nombre:'Escrito y expediente de autocorrección (Ley art. 55 · Regl. art. 55 Bis)',base:'fijo',importe:70000},
+  expedientes:{sello:'GMC360',ambito:'entidad',nombre:'Integración de expedientes de identificación',base:'muestra',importe:600},
+  bc:{sello:'GMC360',ambito:'entidad',nombre:'Beneficiario controlador de la entidad y de clientes',base:'fijo',importe:103000},
+  manualVol:{sello:'GMC360',ambito:'entidad',nombre:'Manual de cumplimiento voluntario',base:'fijo',importe:70000},
+  manual:{sello:'GMC360',ambito:'grupo',nombre:'Manual de Políticas Internas (art. 37 Bis)',base:'manual'},
+  mebr:{sello:'GMC360',ambito:'grupo',nombre:'Metodología de riesgos con modelo de riesgo de cliente',base:'mebr'},
+  paqueteMarco:{sello:'GMC360',ambito:'grupo',nombre:'Paquete: Manual + Metodología + Modelo de clientes',base:'paquete'},
+  programaCap:{sello:'GMC360',ambito:'grupo',nombre:'Diseño del programa anual de capacitación',base:'fijo',importe:18000},
+  capacitacion:{sello:'360educa',ambito:'grupo',nombre:'Capacitación a la medida',base:'sesiones',importe:40000,modalidad:true},
+  acompanamiento:{sello:'GMC360',ambito:'grupo',nombre:'Bolsa de horas de acompañamiento',base:'horas'},
+  iguala:{sello:'GMC360',ambito:'grupo',nombre:'Iguala de operación mensual',base:'mensual',importe:40000},
+  /* IGUALA DE ARRANQUE · autorizada por dirección el 7-sep-2026.
+     Sustituye a la iguala con Representante Encargado, que se dio de baja:
+     era cara y al cliente le conviene más tener su propio oficial de planta.
+     Esta es un puente, no un destino: GMC360 construye y opera mientras el
+     cliente arma su función interna. Por eso está topada a 12 meses.
+     Incluye, sin cobro aparte: avisos mes a mes, manual, metodología de
+     riesgos con modelo de clientes y programa anual de capacitación. */
+  igualaArranque:{sello:'GMC360',ambito:'grupo',nombre:'Iguala de arranque · todo incluido',
+    base:'mensual',importe:50000,topeMeses:12,
+    incluye:['paqueteMarco','manual','mebr','programaCap','iguala']}
+ }
+};
+
+/* ══════════════════════════════════════════════════════════════ */
+const $=id=>document.getElementById(id);
+const mx=n=>'$'+Math.round(n).toLocaleString('es-MX');
+const buscar=(a,i)=>a.find(o=>o.id===i)||a[0];
+const sc=s=>s==='GMC360'?'s-gmc':s==='LEX-GMC'?'s-lex':'s-edu';
+const escalon=(tabla,v)=>{for(const e of tabla){if(v<=e.h)return e.s}return tabla[tabla.length-1].s};
+
+let ENT=[], OV={};
+const nuevaEnt=()=>({nombre:'',sabe:'si',actividad:'arrendamiento',actExtra:0,padron:'si',
+ avisos:'ok',avisosAnio:0,avisosReg:0,ejercicios:0,clientes:0,nivel:'inicial',
+ tipoClientes:'terceros',manual:false,rep:false,exp:false,ebr:false,matriz:false,cap:false,sis:false,bc:false});
+
+function grupo(){return{
+ quien:$('g-quien').value, postura:$('g-postura').value, conting:$('g-conting').value,
+ fideicomiso:$('g-fideicomiso').value, riesgoBanc:$('g-riesgoBanc').value,
+ modalidad:buscar(CONFIG.modalidad,$('g-modalidad').value),
+ urgente:$('g-urgencia').value==='urgente',
+ descuento:buscar(CONFIG.descuentos,$('g-descuento').value),
+ renovacion:$('g-renovacion').value==='1',
+ meses:+$('g-meses').value||0, sesiones:+$('g-sesiones').value||0,
+ horas:+$('g-horas').value||0, impresion:$('g-impresion').value==='1'};}
+
+const muestraDe=e=>{
+  const n=buscar(CONFIG.muestra.niveles,e.nivel);
+  const cruda=Math.round((e.clientes||0)*n.pct);
+  return Math.max(CONFIG.muestra.piso, Math.min(CONFIG.muestra.tope, cruda));
+};
+function riesgoDe(e,g){
+  if(e.actividad==='ninguna') return{n:'BAJO',c:'r-bajo'};
+  if(['ceros','ninguno','tarde30m'].includes(e.avisos)||e.padron==='no'||g.conting!=='c0') return{n:'ALTO',c:'r-alto'};
+  if(['parcial','nose'].includes(e.avisos)||e.padron==='desact'||!e.rep||!e.manual) return{n:'MEDIO',c:'r-medio'};
+  return{n:'BAJO',c:'r-bajo'};
+}
+
+/* ══ MOTOR DE RECOMENDACIÓN ══ */
+function recEntidad(e,g){
+  const R=[],O=[],N=[],A=[];
+  const si=(id,por,regla)=>R.push({id,por,regla}), op=(id,por,regla)=>O.push({id,por,regla}), no=(id,por,regla)=>N.push({id,por,regla});
+
+  if(e.actividad==='ninguna'){
+    no('*','Esta entidad no actualiza los supuestos del artículo 17. No se le cotiza cumplimiento obligatorio, y así se le dice en la propuesta.','R12');
+    op('manualVol','No está obligada, pero un manual voluntario le sirve como evidencia de buena fe.','R12');
+    return{R,O,N,A,riesgo:{n:'BAJO',c:'r-bajo'}};
+  }
+  if(e.sabe!=='si'){
+    si('determinacion','No hay certeza del encuadre. Primero se determina si configura y en qué fracción.','Camino B · regla dura');
+    no('*','Todo lo demás queda fuera para esta entidad hasta que haya determinación.','No se cotiza implementación sobre una actividad no determinada');
+    A.push({t:'Determinación pendiente',d:'Esta entidad no se cotiza como cumplimiento: sale dictamen jurídico.'});
+    return{R,O,N,A,riesgo:{n:'MEDIO',c:'r-medio'}};
+  }
+  if(e.padron==='no') si('padron','No está dada de alta. Es lo primero y condiciona todo lo demás.','');
+  else if(e.padron==='desact'||!e.rep) si('padron','Registro desactualizado o Representante sin aceptación en el Portal.','Reglamento art. 12 · RCG arts. 4 y 10 · Ley art. 20');
+  else no('padron','Ya está en padrón, actualizada y con Representante aceptado.','');
+
+  const mal=['tarde30m','parcial','ninguno','ceros','nose'].includes(e.avisos);
+  if(mal){
+    si('reconstruccion','Hay avisos no presentados o con retraso relevante. Se reconstruyen cinco ejercicios: las facultades de comprobación son de cinco años.','R4 · Ley art. 53 fr. III y art. 54');
+    si('art55','La autocorrección opera al cien por ciento la primera vez; después es "hasta el cincuenta por ciento" y no garantizado.','Ley art. 55 (autorregularización espontánea) · Reglamento art. 55 Bis (el escrito)');
+    if(e.avisosReg>0) si('avisosExt','Hay avisos que preparar y cargar.','Por bloque de 1,000');
+    if(e.avisos==='ceros') A.push({t:'Hallazgo crítico en '+(e.nombre||'esta entidad'),d:'Avisos en ceros operando sobre umbral. Va nombrado y cuantificado en el resumen ejecutivo.'});
+  }else{
+    no('reconstruccion','Los avisos están al corriente. No hay pasado que reconstruir.','R2');
+    no('art55','No hay incumplimiento que autocorregir.','');
+  }
+
+  const terceros=e.tipoClientes!=='grupo', bajoVol=(e.avisosAnio||0)<=50 && (e.clientes||0)<=100;
+  const sanaPractica=g.postura==='mejora';
+  if(terceros) si('auditoria','Hay clientes terceros: hay expedientes de identificación que revisar y procede la auditoría integral.','R5');
+  else if(sanaPractica) si('auditoria','Padrón intragrupo, pero buscan sana práctica al cien por ciento: ahí sí procede la auditoría integral.','R5 corregida por dirección');
+  else if(bajoVol){
+    si('auditoriaAvisos','Padrón intragrupo y volumen bajo: no hay expedientes de terceros que justifiquen la auditoría integral. Se revisa lo que sí importa, que son los avisos.','R5');
+    no('auditoria','Cobrar la auditoría integral aquí sería cotizar trabajo que no existe.','R5 · N1');
+  }else si('auditoria','Padrón intragrupo pero volumen alto: hay operación suficiente que revisar.','R5 corregida');
+
+  if(!e.exp&&terceros) si('expedientes','Hay clientes terceros sin expediente integrado.','RCG art. 12 (expediente único) y art. 21 (verificación anual) · Ley art. 18 fr. IV · conservación 5 años');
+  else if(!terceros) no('expedientes','Padrón intragrupo: no hay expedientes de terceros que integrar.','R5');
+  if(!e.bc) si('bc','Falta identificar al beneficiario controlador, de la entidad y de sus clientes persona moral.','RCG art. 23 Quinquies · Ley art. 18 fr. III · es el del CLIENTE; el de la entidad se funda en CFF 32-B Ter, no en LFPIORPI');
+
+  if(g.postura==='mejora') si('biopsia','No se venden productos sueltos: primero la Biopsia. El manual sin diagnóstico es recetar sin examinar.','R10');
+  else no('biopsia','Postura de cumplir el mínimo: la Biopsia se lee como un gasto previo al gasto.','N11');
+
+  if(g.quien==='area') si('auditoriaExterna','Tienen capacidad instalada: lo que necesitan de un tercero es verificación independiente.','Eje C · RCG art. 45 · externa obligatoria solo en riesgo alto');
+  else op('auditoriaExterna','El primer ejercicio sujeto a auditoría anual es 2028. Llegar con ciclos previos documentados cambia la posición.','RCG Cap. XIV arts. 42 a 51 · la EXTERNA solo obliga en riesgo alto; en bajo y medio basta auditoría interna independiente');
+  return{R,O,N,A,riesgo:riesgoDe(e,g)};
+}
+
+function recGrupo(ents,g){
+  const R=[],O=[],N=[],A=[];
+  const si=(id,por,regla)=>R.push({id,por,regla}), op=(id,por,regla)=>O.push({id,por,regla}), no=(id,por,regla)=>N.push({id,por,regla});
+  const ob=ents.filter(e=>e.actividad!=='ninguna'&&e.sabe==='si');
+  if(!ob.length){A.push({t:'Sin entidades obligadas',d:'Ninguna entidad actualiza supuestos o todas están pendientes de determinación.'});return{R,O,N,A};}
+  const alguna=f=>ob.some(f);
+  const faltaManual=alguna(e=>!e.manual), faltaEbr=alguna(e=>!e.ebr||!e.matriz);
+
+  const faltaCap=alguna(e=>!e.cap);
+  const nadieOpera=(g.quien==='nadie'||g.quien==='contador');
+  /* La iguala de arranque aplica cuando se juntan las dos carencias: no hay
+     quien opere Y falta construir el marco. Si el marco ya existe, no hay nada
+     que arrancar y va la iguala de operación normal. */
+  const arranque = nadieOpera && (faltaManual||faltaEbr);
+
+  if(arranque){
+    si('igualaArranque','No hay quien opere el cumplimiento y además falta construir el marco. La iguala de arranque hace las dos cosas: construye manual, metodología y programa de capacitación, y opera los avisos mes a mes, sin cobro aparte. Máximo 12 meses, para que en ese plazo el cliente arme su propia función interna.','Autorizada por dirección · es un puente, no un destino');
+    no('paqueteMarco','Va incluido en la iguala de arranque.','');
+    no('manual','Va incluido en la iguala de arranque.','');
+    no('mebr','Va incluido en la iguala de arranque.','');
+    no('programaCap','Va incluido en la iguala de arranque.','');
+    no('iguala','Aquí aplica la de arranque: además de operar, hay que construir.','');
+    if(faltaCap) si('capacitacion','Las sesiones con el equipo se cobran aparte: la iguala incluye el programa, no la impartición.','');
+    no('acompanamiento','No tienen a quién acompañar: necesitan que alguien lo opere.','Eje C');
+    A.push({t:'La iguala de arranque termina',d:'Está topada a 12 meses a propósito. Al cliente le conviene más un oficial de cumplimiento de planta que una iguala indefinida. Escríbelo en la propuesta: al mes 12 se entrega la operación a su gente, y GMC360 se queda como acompañamiento o auditoría anual.'});
+    return{R,O,N,A};
+  }
+
+  if(faltaManual&&faltaEbr){
+    si('paqueteMarco','Faltan manual y metodología. Construirlos juntos como un solo marco cuesta $110,000 contra $130,000 por separado.','Paquete autorizado por dirección');
+    no('manual','Va dentro del paquete.',''); no('mebr','Va dentro del paquete.','');
+  }else if(faltaManual){
+    si('manual','Falta Manual de Políticas Internas. Modelo de grupo, se cobra una vez.','RCG arts. 37 y 37 Bis · Ley art. 18 fr. VIII · exigible 1-mar-2027');
+  }else if(faltaEbr){
+    si('mebr','Falta metodología de riesgos o modelo de grado de riesgo de clientes.','RCG art. 10 Septies (metodología) y art. 23 Bis (clientes) · Ley art. 18 fr. VII · exigible 1-mar-2027');
+  }else{
+    no('paqueteMarco','Ya tienen manual y metodología. Si necesitan calibración, entra por acompañamiento.','');
+  }
+
+  if(faltaCap){
+    si('programaCap','Falta programa anual de capacitación documentado. Uno solo para el grupo.','RCG art. 39 Bis · Ley art. 18 fr. IX · primer año calendario 2027');
+    si('capacitacion','El equipo necesita formación para operar lo que se construya.','');
+  }else no('programaCap','Ya tienen programa de capacitación documentado.','');
+
+  if(nadieOpera){
+    si('iguala','No hay quien opere el cumplimiento día a día, pero el marco ya está construido: solo hay que operarlo.','Eje C');
+    no('igualaArranque','El marco ya existe. La de arranque es para cuando además hay que construirlo.','');
+    no('acompanamiento','No tienen a quién acompañar: necesitan que alguien lo opere.','Eje C');
+  }else if(g.quien==='despacho'){
+    no('iguala','Ya tienen despacho especializado. Si el despacho es el cliente, se complementa.','N1');
+    op('acompanamiento','Acompañamiento acotado, si el despacho lo pide.','');
+    A.push({t:'Ya tienen despacho',d:'Si el despacho es el cliente, la propuesta se posiciona como complemento. Si es competencia, aplica el argumento de que los generalistas no están al día con el Acuerdo 115.'});
+  }else if(g.quien==='persona'){
+    si('acompanamiento','Tienen una persona dedicada: se le dan herramientas y acompañamiento, no se le quita el trabajo.','Eje C');
+    no('iguala','Contrataron a alguien para llevar el tema. Tercerizar sería quitarle su trabajo.','Eje C · N1');
+  }else{
+    no('iguala','Tienen área con equipo propio.','Eje C');
+    op('acompanamiento','Acompañamiento y calibración sobre lo que ya tienen.','Eje C');
+  }
+
+  if(g.riesgoBanc==='bloqueo') A.push({t:'Prioridad invertida',d:'Con cuentas bloqueadas, la defensa bancaria va antes que el plan de cumplimiento. Ese servicio se cotiza aparte, fuera de esta herramienta.'});
+  if(g.conting!=='c0') A.push({t:'Escalar a dirección',d:'Hay acto de autoridad. No se cotiza de rutina: no hay factor automático, la propuesta se arma a la medida.'});
+  if(g.fideicomiso!=='no') A.push({t:'Escalar a dirección',d:'Hay fideicomiso involucrado.'});
+  if(ents.length>2) A.push({t:'Escalar a dirección',d:'Más de dos entidades.'});
+  if(g.urgente) A.push({t:'Urgencia de diez días',d:'El honorario va al doble. Confirma que el equipo puede entregar en ese plazo antes de mandarla.'});
+  if(g.postura==='minimo'&&ob.some(e=>!e.manual||!e.ebr)) A.push({t:'Cuidado con sobredimensionar',d:'Postura de mínimo con brecha grande: alcance y precio cerrados, sin iguala.'});
+  if(ents.some(e=>e.avisos==='nose'||e.padron==='nose')) A.push({t:'Faltan datos',d:'Hay respuestas en "no sé". El motor las trató como riesgo; la cotización no es firme hasta confirmarlas.'});
+  return{R,O,N,A};
+}
+
+/* ══ CÁLCULO ══ */
+function costoAuditoria(e){
+  const A=CONFIG.auditoria;
+  return A.base + escalon(A.avisos, e.avisosAnio||0) + escalon(A.clientes, e.clientes||0)
+       + A.porActividadExtra*(e.actExtra||0);
+}
+function calcular(id,ctx,g,idxEnt,totalEnt){
+  const s=CONFIG.servicios[id]; if(!s) return null;
+  const desc=s.topeB?Math.min(g.descuento.pct,CONFIG.topeDescuentoAuditoria):g.descuento.pct;
+  let imp=0, txt='';
+
+  switch(s.base){
+    case 'auditoria': imp=costoAuditoria(ctx); txt='base + escalones'; break;
+    case 'auditoriaAvisos': imp=costoAuditoria(ctx)*CONFIG.auditoria.factorAvisos; txt='60% de la integral'; break;
+    case 'manual': imp=CONFIG.marco.manual+CONFIG.marco.porActividadExtra*(ctx.actExtraGrupo||0); txt='base + actividades'; break;
+    case 'mebr': imp=CONFIG.marco.mebr+CONFIG.marco.porActividadExtra*(ctx.actExtraGrupo||0); txt='base + actividades'; break;
+    case 'paquete': imp=CONFIG.marco.paquete+CONFIG.marco.porActividadExtra*(ctx.actExtraGrupo||0); txt='paquete + actividades'; break;
+    case 'ejercicios':{const n=Math.max(ctx.ejercicios||1,1); imp=s.importe*(n/s.ejerciciosBase); txt=n+' ejercicio'+(n===1?'':'s'); break;}
+    case 'bloques':{const b=Math.max(1,Math.ceil((ctx.avisosReg||0)/s.porBloque)); imp=b*s.importe; txt=b+' bloque'+(b===1?'':'s'); break;}
+    case 'muestra':{const m=muestraDe(ctx); imp=m*s.importe; txt=m+' expedientes de muestra'; break;}
+    case 'mensual':{const m=s.topeMeses?Math.min(g.meses,s.topeMeses):g.meses;
+      imp=m*s.importe; txt=m+' meses'+(s.topeMeses&&g.meses>s.topeMeses?' · topada a '+s.topeMeses:''); break;}
+    case 'sesiones': imp=g.sesiones*s.importe; txt=g.sesiones+' sesiones'; break;
+    case 'horas':{ if(!g.horas) return null;
+      const hr=CONFIG.horaAcompUSD*CONFIG.tcUSD;
+      imp=g.horas*hr*CONFIG.mesesBolsa; txt=g.horas+' h/mes × '+CONFIG.mesesBolsa+' meses'; break;}
+    default: imp=s.importe; txt='importe cerrado';
+  }
+
+  if(s.modalidad) imp*=g.modalidad.f;
+  imp*=(1-desc);
+
+  /* descuento por entidad adicional */
+  if(s.ambito==='entidad'&&idxEnt>0){
+    if(s.base==='auditoria'||s.base==='auditoriaAvisos') imp*=(1-CONFIG.entidadAdicional.auditoria);
+    else{const t=CONFIG.entidadAdicional.otros.find(x=>totalEnt<=x.hasta)||CONFIG.entidadAdicional.otros.slice(-1)[0];
+         imp*=(1-t.d);}
+  }
+  if(s.ambito==='grupo'&&totalEnt>1){
+    const t=CONFIG.entidadAdicional.otros.find(x=>totalEnt<=x.hasta)||CONFIG.entidadAdicional.otros.slice(-1)[0];
+    imp*=(1-t.d*0.5);   // el marco ya se cobra una vez; el descuento reconoce la adaptación por entidad
+  }
+  if(g.urgente) imp*=CONFIG.urgenciaFactor;
+  if(g.renovacion) imp*=(1+CONFIG.renovacionInflacion);
+  return{imp,txt,s};
+}
+
+/* ══ INTERFAZ ══ */
+const opts=(a,sel)=>a.map(o=>`<option value="${o.id}"${o.id===sel?' selected':''}>${o.nombre}</option>`).join('');
+$('g-modalidad').innerHTML=opts(CONFIG.modalidad);
+$('g-descuento').innerHTML=opts(CONFIG.descuentos);
+
+function pintarEntidades(){
+  $('entidades').innerHTML=ENT.map((e,i)=>`
+  <div class="card ent">
+    <div class="entHead"><div class="tit">Entidad ${i+1}</div>
+      ${ENT.length>1?`<button class="b3 noprint" onclick="quitar(${i})">Quitar</button>`:''}</div>
+    <div class="grid">
+      <div><label>Razón social</label><input type="text" data-i="${i}" data-k="nombre" value="${e.nombre}"></div>
+      <div><label>¿Sabe que realiza actividad vulnerable?</label>
+        <select data-i="${i}" data-k="sabe">
+          <option value="si"${e.sabe==='si'?' selected':''}>Sí, lo tiene claro</option>
+          <option value="duda"${e.sabe==='duda'?' selected':''}>Tiene dudas del encuadre</option></select></div>
+      <div><label>Actividad vulnerable principal</label>
+        <select data-i="${i}" data-k="actividad">${opts(CONFIG.actividades,e.actividad)}</select></div>
+      <div><label>Actividades vulnerables adicionales<span class="fund">+$30,000 auditoría · +$20,000 marco</span></label>
+        <input type="number" min="0" max="6" data-i="${i}" data-k="actExtra" value="${e.actExtra}"></div>
+      <div><label>¿Está en el padrón del SAT?</label>
+        <select data-i="${i}" data-k="padron">
+          <option value="si"${e.padron==='si'?' selected':''}>Sí, actualizado</option>
+          <option value="desact"${e.padron==='desact'?' selected':''}>Sí, desactualizado</option>
+          <option value="no"${e.padron==='no'?' selected':''}>No</option>
+          <option value="nose"${e.padron==='nose'?' selected':''}>No sé</option></select></div>
+      <div><label>¿Cómo va con los avisos?</label>
+        <select data-i="${i}" data-k="avisos">
+          <option value="ok"${e.avisos==='ok'?' selected':''}>Todos y a tiempo</option>
+          <option value="tarde30"${e.avisos==='tarde30'?' selected':''}>Con retraso menor a 30 días</option>
+          <option value="tarde30m"${e.avisos==='tarde30m'?' selected':''}>Con retraso mayor a 30 días</option>
+          <option value="parcial"${e.avisos==='parcial'?' selected':''}>Solo algunos</option>
+          <option value="ninguno"${e.avisos==='ninguno'?' selected':''}>Ninguno</option>
+          <option value="ceros"${e.avisos==='ceros'?' selected':''}>En ceros, operando sobre umbral</option>
+          <option value="nose"${e.avisos==='nose'?' selected':''}>No sé</option></select></div>
+      <div><label>Avisos al año<span class="fund">Escalón de la auditoría</span></label>
+        <input type="number" min="0" step="10" data-i="${i}" data-k="avisosAnio" value="${e.avisosAnio}"></div>
+      <div><label>Clientes activos<span class="fund">Escalón de la auditoría</span></label>
+        <input type="number" min="0" step="10" data-i="${i}" data-k="clientes" value="${e.clientes}"></div>
+      <div><label>Nivel de cumplimiento del autodiagnóstico<span class="fund">Define el tamaño de la muestra</span></label>
+        <select data-i="${i}" data-k="nivel">${opts(CONFIG.muestra.niveles,e.nivel)}</select></div>
+      <div><label>Ejercicios sin revisar</label><input type="number" min="0" max="5" data-i="${i}" data-k="ejercicios" value="${e.ejercicios}"></div>
+      <div><label>Avisos por regularizar</label><input type="number" min="0" step="100" data-i="${i}" data-k="avisosReg" value="${e.avisosReg}"></div>
+      <div><label>¿A quién le vende o le renta?</label>
+        <select data-i="${i}" data-k="tipoClientes">
+          <option value="terceros"${e.tipoClientes==='terceros'?' selected':''}>A terceros</option>
+          <option value="ambos"${e.tipoClientes==='ambos'?' selected':''}>A terceros y a su grupo</option>
+          <option value="grupo"${e.tipoClientes==='grupo'?' selected':''}>Solo a su grupo</option></select></div>
+    </div>
+    <div class="grupo-tit">Qué tiene armado</div>
+    <div class="chks">
+      ${[['manual','Manual'],['rep','Representante con aceptación'],['exp','Expedientes integrados'],
+         ['ebr','Metodología de riesgos'],['matriz','Matriz de riesgo de clientes'],
+         ['cap','Capacitación documentada'],['sis','Sistema'],['bc','Beneficiario controlador']]
+        .map(([k,t])=>`<label class="chk"><input type="checkbox" data-i="${i}" data-k="${k}"${e[k]?' checked':''}><span>${t}</span></label>`).join('')}
+    </div>
+    <div class="nota">Muestra que se revisaría: <b>${muestraDe(e)} expedientes</b> · piso ${CONFIG.muestra.piso}, tope ${CONFIG.muestra.tope}</div>
+  </div>`).join('');
+}
+function agregar(){ENT.push(nuevaEnt());pintarEntidades();render();}
+function quitar(i){ENT.splice(i,1);pintarEntidades();render();}
+
+function filaRec(r,clase,ctx,g,pref,idx,tot){
+  if(r.id==='*') return `<div class="rec no"><div class="cuerpo"><div class="por">${r.por}</div>${r.regla?`<div class="regla">${r.regla}</div>`:''}</div></div>`;
+  const s=CONFIG.servicios[r.id]; if(!s) return '';
+  const key=pref+'|'+r.id, c=calcular(r.id,ctx,g,idx,tot);
+  const on=OV[key]!==undefined?OV[key]:(clase==='si');
+  /* Las tres categorías llevan casilla. Recomendado viene palomeado; a considerar
+     y no se recomienda vienen apagados. Así el ejecutivo puede agregar algo que el
+     motor no recomienda cuando el cliente lo pide, pero tiene que hacerlo a mano y
+     leyendo antes por qué no se recomendaba. */
+  return `<div class="rec ${clase}">
+    <input type="checkbox" data-ov="${key}"${on?' checked':''}>
+    <div class="cuerpo"><div class="nom">${s.nombre}<span class="sello ${sc(s.sello)}">${s.sello}</span>
+      ${s.propuesto?'<span class="flag"> ◆ propuesto, sin autorizar</span>':''}</div>
+      <div class="por">${r.por}</div>${r.regla?`<div class="regla">${r.regla}</div>`:''}
+      ${clase==='no'&&on?'<div class="forzado">Agregado a mano contra la recomendación del motor. Justifícalo con dirección antes de mandarla.</div>':''}</div>
+    ${c?`<div class="imp">${mx(c.imp)}</div>`:''}</div>`;
+}
+
+function render(){
+  const g=grupo();
+  const ob=ENT.filter(e=>e.actividad!=='ninguna'&&e.sabe==='si');
+  const actExtraGrupo=ob.reduce((a,e)=>Math.max(a,e.actExtra||0),0);
+  const porEnt=ENT.map(e=>({e,r:recEntidad(e,g)}));
+  const rg=recGrupo(ENT,g);
+  const alertas=[...rg.A,...porEnt.flatMap(x=>x.r.A)];
+  $('alertas').innerHTML=alertas.map(a=>`<div class="alerta"><b>${a.t}.</b> ${a.d}</div>`).join('');
+
+  let arq;
+  const brecha=ob.some(e=>!e.manual||!e.ebr||e.padron==='no');
+  if(g.conting!=='c0') arq={v:'Caso a la medida',d:'Hay acto de autoridad. Dirección arma la propuesta.'};
+  else if(g.postura==='minimo') arq=brecha
+    ?{v:'Remediación acotada',d:'Alcance y precio cerrados, sin iguala. La propuesta larga aquí se lee como cara y sobrada.'}
+    :{v:'Auditoría anual y nada más',d:'Cumple y quiere seguir cumpliendo sin más. Una sola línea, precio cerrado.'};
+  else arq=brecha
+    ?{v:'Plan integral por fases',d:'Diagnóstico, corrección del pasado, construcción del marco y operación. Cronograma anclado a las fechas de exigibilidad.'}
+    :{v:'Consolidación',d:'Auditoría, calibración y verificación. Ya no hay qué construir.'};
+  $('arquetipo').innerHTML=`<div class="arquetipo"><div class="t">ARQUETIPO DE PROPUESTA</div>
+    <div class="v">${arq.v}</div><div class="d">${arq.d}</div></div>`;
+
+  let html='';
+  porEnt.forEach((x,i)=>{
+    const nom=x.e.nombre||('Entidad '+(i+1));
+    html+=`<div class="card"><div class="entHead"><div class="tit">${nom}</div>
+      <span class="riesgo ${x.r.riesgo.c}">Nivel de riesgo: ${x.r.riesgo.n}</span></div>`;
+    const ctx={...x.e};
+    if(x.r.R.length) html+='<div class="grupo-tit">Se recomienda cotizar</div>'+x.r.R.map(r=>filaRec(r,'si',ctx,g,'e'+i,i,ENT.length)).join('');
+    if(x.r.O.length) html+='<div class="grupo-tit">A considerar</div>'+x.r.O.map(r=>filaRec(r,'op',ctx,g,'e'+i,i,ENT.length)).join('');
+    if(x.r.N.length) html+='<div class="grupo-tit">No se recomienda, y por qué</div>'+x.r.N.map(r=>filaRec(r,'no',ctx,g,'e'+i,i,ENT.length)).join('');
+    html+='</div>';
+  });
+  const ctxG={actExtraGrupo};
+  html+=`<div class="card"><div class="entHead"><div class="tit">Comunes al grupo · se cotizan una sola vez</div></div>`;
+  if(rg.R.length) html+='<div class="grupo-tit">Se recomienda cotizar</div>'+rg.R.map(r=>filaRec(r,'si',ctxG,g,'g',0,ENT.length)).join('');
+  if(rg.O.length) html+='<div class="grupo-tit">A considerar</div>'+rg.O.map(r=>filaRec(r,'op',ctxG,g,'g',0,ENT.length)).join('');
+  if(rg.N.length) html+='<div class="grupo-tit">No se recomienda, y por qué</div>'+rg.N.map(r=>filaRec(r,'no',ctxG,g,'g',0,ENT.length)).join('');
+  html+='</div>'; $('recos').innerHTML=html;
+
+  let sub=0; const filas=[]; let hayIguala=false, hayAcomp=false;
+  const activo=(p,r,def)=>{const k=p+'|'+r.id; return OV[k]!==undefined?OV[k]:def;};
+  porEnt.forEach((x,i)=>{
+    const ctx={...x.e};
+    const lista=[...x.r.R.map(r=>({r,def:true})),...x.r.O.map(r=>({r,def:false})),...x.r.N.map(r=>({r,def:false}))]
+      .filter(o=>o.r.id!=='*'&&activo('e'+i,o.r,o.def));
+    if(!lista.length) return;
+    filas.push(`<tr class="sec"><td colspan="4">${x.e.nombre||('Entidad '+(i+1))} — riesgo ${x.r.riesgo.n}</td></tr>`);
+    const v=new Set();
+    lista.forEach(({r})=>{if(v.has(r.id))return; v.add(r.id);
+      const c=calcular(r.id,ctx,g,i,ENT.length); if(!c)return; sub+=c.imp;
+      filas.push(`<tr><td>${c.s.nombre}</td><td><span class="sello ${sc(c.s.sello)}">${c.s.sello}</span></td>
+        <td>${c.txt}</td><td class="num">${mx(c.imp)}</td></tr>`);});
+  });
+  const listaG=[...rg.R.map(r=>({r,def:true})),...rg.O.map(r=>({r,def:false})),...rg.N.map(r=>({r,def:false}))]
+    .filter(o=>o.r.id!=='*'&&activo('g',o.r,o.def));
+  if(listaG.length){
+    filas.push('<tr class="sec"><td colspan="4">Comunes al grupo</td></tr>');
+    const v=new Set();
+    listaG.forEach(({r})=>{if(v.has(r.id))return; v.add(r.id);
+      const c=calcular(r.id,ctxG,g,0,ENT.length); if(!c)return; sub+=c.imp;
+      if(r.id==='iguala'||r.id==='igualaArranque') hayIguala=true;
+      if(r.id==='acompanamiento') hayAcomp=true;
+      filas.push(`<tr><td>${c.s.nombre}</td><td><span class="sello ${sc(c.s.sello)}">${c.s.sello}</span></td>
+        <td>${c.txt}</td><td class="num">${mx(c.imp)}</td></tr>`);});
+  }
+  if(g.impresion&&filas.length){sub+=CONFIG.impresion;
+    filas.push(`<tr><td>Informe impreso</td><td></td><td>importe fijo</td><td class="num">${mx(CONFIG.impresion)}</td></tr>`);}
+
+  $('tbody').innerHTML=filas.length?filas.join(''):'<tr><td colspan="4" style="text-align:center;color:#8a918c;padding:20px">Sin servicios activos.</td></tr>';
+  const iva=sub*CONFIG.iva;
+  $('tfoot').innerHTML=filas.length?`<tr><td colspan="3">Subtotal</td><td class="num">${mx(sub)}</td></tr>
+    <tr><td colspan="3">IVA 16%</td><td class="num">${mx(iva)}</td></tr>
+    <tr class="total"><td colspan="3">Total</td><td class="num">${mx(sub+iva)}</td></tr>`:'';
+  $('kpis').innerHTML=filas.length?`
+    <div class="kpi"><div class="v">${mx(sub)}</div><div class="l">Honorarios sin IVA</div></div>
+    <div class="kpi"><div class="v">${ENT.length}</div><div class="l">Entidades cotizadas</div></div>
+    <div class="kpi"><div class="v">${g.modalidad.f.toFixed(2)}×</div><div class="l">Factor de modalidad</div></div>
+    <div class="kpi"><div class="v">${g.urgente?'2.00×':'—'}</div><div class="l">Recargo por urgencia</div></div>`:'';
+
+  /* Aviso de traslape: recorre la tabla CONFIG.incompatibles y avisa si dos
+     servicios que se traslapan quedaron activos en la misma cotización. */
+  const act=id=>{const k='g|'+id; const enR=rg.R.some(r=>r.id===id); return OV[k]!==undefined?OV[k]:enR;};
+  CONFIG.incompatibles.forEach(x=>{
+    if(!act(x.a)) return;
+    const ch=x.b.filter(act); if(!ch.length) return;
+    const noms=ch.map(id=>CONFIG.servicios[id].nombre).join(', ');
+    $('alertas').innerHTML += `<div class="alerta"><b>Traslape.</b> ${x.msj} Quítale ${noms}: así como está, se cobra dos veces.</div>`;
+  });
+
+  $('notaInterna').innerHTML = (hayIguala&&hayAcomp)
+    ? `<div class="interna"><b>Nota interna, no va en la propuesta.</b> Van iguala y bolsa de horas en la misma cotización.
+       La hora de acompañamiento vale el doble que la hora dentro de la iguala porque la da dirección y las directoras,
+       mientras que la iguala la ejecuta el equipo operativo. Si el cliente compara y pregunta, ese es el argumento —
+       pero en el documento solo va el alcance de cada servicio, no la estructura de costos.</div>` : '';
+}
+
+const handler=ev=>{
+  const t=ev.target;
+  if(t.dataset.ov!==undefined){OV[t.dataset.ov]=t.checked;render();return;}
+  if(t.dataset.i!==undefined){
+    const i=+t.dataset.i,k=t.dataset.k;
+    ENT[i][k]=t.type==='checkbox'?t.checked:(t.type==='number'?+t.value:t.value);
+    if(['clientes','nivel'].includes(k)) pintarEntidades();
+  }
+  render();
+};
+document.addEventListener('input',handler);
+document.addEventListener('change',handler);
+/* El calendario se pinta una vez: no depende de lo que capture el ejecutivo. */
+$('calendario').innerHTML=`<details class="cal"><summary>Qué ya es exigible y qué todavía no · consúltalo antes de decirle a un cliente que está en falta</summary>
+  <div class="cuerpo">
+  <p>La reforma a las Reglas entra en vigor el 30 de noviembre de 2026 y sus obligaciones son escalonadas.
+     Hoy, buena parte de lo que esta herramienta detecta como faltante <b>todavía no es exigible</b>.
+     Eso no quita la venta: la cambia. No es «estás en falta», es «tienes hasta tal fecha y construirlo
+     bien toma meses». Es más honesto y cierra mejor.</p>
+  <table><thead><tr><th style="width:44%">Obligación</th><th style="width:26%">Exigible desde</th><th>Fundamento</th></tr></thead>
+  <tbody>${CONFIG.exigibilidad.map(x=>`<tr><td>${x.q}</td>
+    <td class="${x.desde==='Vigente hoy'?'hoy':'luego'}">${x.desde}</td>
+    <td class="fund">${x.f}</td></tr>`).join('')}</tbody></table>
+  </div></details>`;
+
+ENT.push(nuevaEnt()); pintarEntidades(); render();
+
+/* ══════════════════════════════════════════════════════════════
+   ACCESO Y GUARDADO
+
+   El proyecto de Firebase es cotizador-av-2026. Los datos de abajo
+   NO son una contraseña: identifican al proyecto y Google los diseñó
+   para ir a la vista. Quien decide si alguien entra son las reglas de
+   Firestore, que exigen correo @gmc360.com.mx verificado.
+
+   La llave de Claude, esa sí secreta, nunca vivirá en este archivo.
+   ══════════════════════════════════════════════════════════════ */
+const FIREBASE={
+  apiKey:"AIzaSyC-T5ObXrd_lObRvgstBks-0uZONj5RNAc",
+  authDomain:"cotizador-av-2026.firebaseapp.com",
+  projectId:"cotizador-av-2026",
+  storageBucket:"cotizador-av-2026.firebasestorage.app",
+  messagingSenderId:"449954481312",
+  appId:"1:449954481312:web:74cca84384115785d5b5c5"
+};
+const DOMINIO='@gmc360.com.mx';
+
+let USUARIO=null, db=null, guardada=false;
+const local = location.protocol==='file:';
+const hayFB = typeof firebase!=='undefined' && !local;
+
+/* Folio legible y único, sin necesidad de un contador en la base. */
+function nuevoFolio(){
+  const d=new Date(), p=n=>String(n).padStart(2,'0');
+  const al='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let r=''; for(let i=0;i<3;i++) r+=al[Math.floor(Math.random()*al.length)];
+  return `AV-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}-${r}`;
+}
+
+function pintarBarra(){
+  const b=$('barra');
+  if(local){
+    b.className='barra noprint local';
+    b.innerHTML=`<span><b>Modo local.</b> Estás abriendo el archivo desde tu computadora, así que
+      esta cotización <b>no se va a guardar</b>. Para que quede registrada, entra por la dirección en línea.</span>`;
+    return;
+  }
+  if(!USUARIO){ b.innerHTML=''; return; }
+  b.className='barra noprint';
+  b.innerHTML=`<span>Cotiza <span class="quien">${USUARIO.displayName||USUARIO.email}</span></span>
+    <span class="sep"></span>
+    <span id="estadoGuardado"></span>
+    <button id="btnGuardar">Guardar cotización</button>
+    <button class="salir" id="btnSalir">Salir</button>`;
+  $('btnGuardar').onclick=guardar;
+  $('btnSalir').onclick=()=>firebase.auth().signOut();
+}
+
+/* Arma el expediente de la cotización tal como quedó en pantalla. */
+function armarRegistro(){
+  const g=grupo();
+  const filas=[...document.querySelectorAll('#tbody tr')].filter(t=>!t.classList.contains('sec'))
+    .map(t=>{const c=t.querySelectorAll('td');
+      return {concepto:c[0]?.innerText||'', sello:c[1]?.innerText||'',
+              base:c[2]?.innerText||'', importe:c[3]?.innerText||''};});
+  const sub=[...document.querySelectorAll('#tfoot tr')][0]?.innerText||'';
+  return {
+    folio:nuevoFolio(),
+    versionPrecios:CONFIG.versionPrecios,
+    capturadaPor:USUARIO.email,          // las reglas exigen que coincida con quien entró
+    capturadaEl:firebase.firestore.FieldValue.serverTimestamp(),
+    cliente:{
+      grupo:$('g-nombre')?.value||'', contacto:$('g-contacto')?.value||'',
+      ejecutivo:$('g-ejecutivo')?.value||''
+    },
+    contexto:{
+      quien:g.quien, postura:g.postura, contingencia:g.conting,
+      fideicomiso:g.fideicomiso, riesgoBancario:g.riesgoBanc,
+      modalidad:g.modalidad.id, urgente:g.urgente, descuento:g.descuento.id,
+      renovacion:g.renovacion, meses:g.meses, sesiones:g.sesiones,
+      horas:g.horas, impresion:g.impresion
+    },
+    arquetipo:$('arquetipo').innerText.trim(),
+    entidades:ENT.map(e=>({...e, riesgo:riesgoDe(e,g).n, muestra:muestraDe(e)})),
+    /* Lo que el ejecutivo cambió a mano contra lo que el motor recomendaba.
+       Es la señal más valiosa para calibrar: dice dónde el motor se equivoca. */
+    ajustesManuales:Object.entries(OV).filter(([,v])=>v!==undefined)
+      .map(([k,v])=>({servicio:k,activado:v})),
+    partidas:filas,
+    totales:{ subtotal:sub, texto:$('tfoot').innerText.trim() },
+    alertas:$('alertas').innerText.trim()
+  };
+}
+
+async function guardar(){
+  if(!db||!USUARIO) return;
+  const btn=$('btnGuardar'), est=$('estadoGuardado');
+  if(!document.querySelectorAll('#tbody tr').length ||
+     !$('tfoot').innerHTML){ est.textContent='No hay nada que guardar todavía.'; return; }
+  btn.disabled=true; est.textContent='Guardando…';
+  try{
+    const reg=armarRegistro();
+    await db.collection('cotizaciones').doc(reg.folio).set(reg);
+    est.innerHTML=`Guardada como <b>${reg.folio}</b>`;
+    guardada=true;
+  }catch(e){
+    console.error(e);
+    est.textContent='No se pudo guardar: '+(e.code||e.message);
+    btn.disabled=false;
+  }
+}
+
+/* Aviso si se cierra la pestaña con una cotización sin guardar. */
+window.addEventListener('beforeunload',ev=>{
+  if(!local && USUARIO && !guardada && $('tfoot').innerHTML){ ev.preventDefault(); ev.returnValue=''; }
+});
+
+if(local){
+  $('gate').style.display='none';
+  pintarBarra();
+}else if(!hayFB){
+  $('gate').innerHTML=`<div class="g-marca">GMC360</div><h2>No se pudo cargar el acceso</h2>
+    <p>Revisa tu conexión y recarga la página. Si el problema sigue, avísale a dirección.</p>`;
+}else{
+  firebase.initializeApp(FIREBASE);
+  db=firebase.firestore();
+  $('btnEntrar').onclick=()=>{
+    const prov=new firebase.auth.GoogleAuthProvider();
+    prov.setCustomParameters({hd:'gmc360.com.mx'});   // sugiere el dominio en el selector
+    firebase.auth().signInWithPopup(prov).catch(e=>{
+      $('gateErr').textContent = e.code==='auth/popup-blocked'
+        ? 'El navegador bloqueó la ventana de acceso. Permite las ventanas emergentes de este sitio y vuelve a intentar.'
+        : 'No se pudo entrar: '+e.code;
+    });
+  };
+  firebase.auth().onAuthStateChanged(u=>{
+    if(u && u.email && u.email.toLowerCase().endsWith(DOMINIO)){
+      USUARIO=u; $('gate').style.display='none'; pintarBarra();
+    }else if(u){
+      /* Entró con un correo que no es de la empresa: se cierra la sesión.
+         Aunque se colara, las reglas de Firestore no lo dejarían escribir. */
+      const ajeno=u.email;
+      firebase.auth().signOut().then(()=>{
+        $('gateErr').textContent=`${ajeno} no es un correo de GMC360. Entra con el tuyo de la empresa.`;
+      });
+    }else{
+      USUARIO=null; $('gate').style.display='flex'; pintarBarra();
+    }
+  });
+}
+</script>
+</body>
+</html>
