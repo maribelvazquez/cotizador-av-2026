@@ -85,6 +85,10 @@ quien lo atendió; si son notas, tómalas como buenas. Nunca cites la transcripc
 propuesta ni menciones que hubo una grabación.
 ${d.contexto || '(no capturado — márcalo con [POR CONFIRMAR] donde haga falta)'}
 
+EQUIPO DE TRABAJO (para la sección 5; si viene vacío, márcalo [POR CONFIRMAR] y NO inventes nombres)
+Líder del proyecto: ${(d.equipo && d.equipo.lider) || '(no capturado)'}
+Quién más entra:    ${(d.equipo && d.equipo.integrantes) || '(no capturado)'}
+
 ARQUETIPO DE PROPUESTA QUE DETERMINÓ EL MOTOR
 ${d.arquetipo || ''}
 
@@ -161,10 +165,14 @@ PORTADA — Título del plan, entidades destinatarias, mes y año, y la leyenda 
    Tabla de fases contra meses, anclada a las fechas de exigibilidad del diagnóstico.
 
 5. EQUIPO DE TRABAJO
-   Dirección del proyecto y responsabilidades del cliente. Sin cifras de credenciales que no vengan abajo.
+   Usa los nombres del bloque EQUIPO DE TRABAJO, tal como vienen. Si vienen vacíos, escribe
+   [POR CONFIRMAR] y sigue: NUNCA inventes un nombre, un cargo ni una credencial. Después,
+   responsabilidades del cliente. Sin cifras de credenciales que no vengan abajo.
 
 6. INVERSIÓN Y CONDICIONES
-   Tabla por fase con los honorarios tal cual. Vigencia de treinta días naturales. IVA. Viáticos aparte.
+   Tabla por fase con los honorarios tal cual, tomados del campo "honorario" de cada servicio.
+   Si un servicio trae el honorario vacío o dice "por definir", va en la tabla con la leyenda
+   "por definir" — no le pongas un número ni lo escondas. Vigencia de treinta días naturales. IVA. Viáticos aparte.
    Exclusiones.
 
 7. PRÓXIMOS PASOS

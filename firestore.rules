@@ -13,11 +13,21 @@ rules_version = '2';
 //
 //   autorizaciones/ el control de salida. Aquí sí se escribe varias
 //                   veces —revisada, luego autorizada— porque es un
-//                   expediente de firmas, no el precio. Solo puede
-//                   escribir quien esté en la lista de dirección.
+//                   expediente de firmas, no el precio.
 //
-// Para agregar a alguien que pueda autorizar, se agrega su correo a
-// la lista de abajo y se vuelve a publicar. Nada más.
+// CORREGIDO EL 7 DE SEPTIEMBRE DE 2026
+// La versión anterior dejaba escribir esta colección SOLO a dirección.
+// El resultado: nadie del equipo podía mover una cotización a ningún
+// estado, ni siquiera a "Enviada al cliente", aunque la pantalla se lo
+// ofreciera. Le pasó a Samara en la junta de revisión.
+// Ahora el equipo mueve todos los estados y queda registrado quién lo
+// hizo; lo único reservado a dirección es marcar "Autorizada", que es
+// justo lo que la pantalla ya prometía.
+//
+// SI SE QUIERE QUITAR TAMBIÉN ESE CANDADO: en la regla de update de
+// abajo, cambiar la línea de "autorizada" por  || true  —o borrarla—.
+// Para agregar a alguien que pueda autorizar, se agrega su correo a la
+// lista de dirección y se vuelve a publicar.
 // ══════════════════════════════════════════════════════════════
 
 service cloud.firestore {
@@ -44,9 +54,25 @@ service cloud.firestore {
     }
 
     match /autorizaciones/{folio} {
-      allow read:           if esDelEquipo();
-      allow create, update: if esDireccion();
-      allow delete:         if false;   // una firma no se borra
+      allow read: if esDelEquipo();
+
+      // Cualquiera del equipo puede mover una cotización, siempre que
+      // el estado que escribe no sea "autorizada". Ese lo firma dirección.
+      allow create, update: if esDelEquipo()
+                            && (request.resource.data.estado != 'autorizada'
+                                || esDireccion());
+
+      allow delete: if false;   // una firma no se borra
+    }
+
+    // observaciones/  la retroalimentación del equipo durante la
+    //                  calibración. Cualquiera del equipo escribe la suya y
+    //                  todos leen; nadie edita ni borra la de nadie.
+    match /observaciones/{id} {
+      allow read:   if esDelEquipo();
+      allow create: if esDelEquipo()
+                    && request.resource.data.por == request.auth.token.email;
+      allow update, delete: if false;
     }
 
     // Todo lo demás, cerrado.

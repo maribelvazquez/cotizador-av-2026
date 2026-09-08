@@ -342,6 +342,16 @@ label.ns input{margin:0}
   margin-top:34px;padding-top:13px;line-height:1.65;max-width:700px}
 .inf .leg b{color:var(--gris)}
 
+.selloInterno{background:#1b1b1e;color:#fff;font-size:11.5px;font-weight:600;letter-spacing:.3px;
+  padding:9px 13px;border-radius:6px 6px 0 0;margin-bottom:-1px;line-height:1.5;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.falta td{background:#fff8e8}
+.falta td:first-child{color:#8a6d1f;font-weight:500}
+.falta .num{color:#b26a00;font-weight:600;font-style:italic}
+.rec .imp.falta{color:#b26a00;font-size:11.5px;font-weight:600;text-align:right;line-height:1.35;max-width:150px}
+.rec .imp.falta span{display:block;font-weight:400;font-size:10.5px;color:#8a6d1f}
+.alerta .pend{margin:7px 0 0;padding-left:18px}
+.alerta .pend li{margin:3px 0}
 @media print{
   /* Al imprimir el informe o la propuesta se oculta todo menos esa caja.
      Hay que abrir el camino nivel por nivel: #informe vive DENTRO de
@@ -352,15 +362,6 @@ label.ns input{margin:0}
   body.pr-inf #t-cotizar > *{display:none !important}
   body.pr-inf #informe{display:block !important}
   body.pr-inf{background:#fff}
-  /* La guía se imprime sola, igual que el informe. Aquí no hace falta
-     abrir camino: #t-guia sí es hijo directo de .wrap. */
-  body.pr-guia .wrap > *{display:none !important}
-  body.pr-guia #t-guia{display:block !important}
-  body.pr-guia{background:#fff}
-  body.pr-guia .guia th,body.pr-guia .guia .regla,body.pr-guia .guia .nunca{
-    -webkit-print-color-adjust:exact;print-color-adjust:exact}
-  body.pr-guia .guia h2{page-break-after:avoid}
-  body.pr-guia .guia table,body.pr-guia .guia .bloque{page-break-inside:avoid}
   .inf .ent{page-break-inside:auto}
   .inf h2{page-break-after:avoid}
   .inf tr{page-break-inside:avoid}
@@ -399,7 +400,7 @@ label.ns input{margin:0}
   <button class="tab on" data-t="cotizar">Cotizar</button>
   <button class="tab" data-t="guion">Guion de la junta</button>
   <button class="tab" data-t="consejos">Cómo se conduce</button>
-  <button class="tab" data-t="guia">Guía de uso</button>
+  <button class="tab" data-t="guia">Cómo se usa</button>
 </nav>
 <div id="t-cotizar">
 
@@ -416,8 +417,15 @@ cuando ya sepamos qué se le va a vender.</p>
 <div class="card">
   <div class="grid">
     <div><label>Grupo o razón social principal</label><input type="text" id="g-nombre"></div>
-    <div><label>Contacto</label><input type="text" id="g-contacto"></div>
+    <div><label>Contacto<span class="fund">Nombre y cargo</span></label><input type="text" id="g-contacto"
+        placeholder="Lic. Nombre Apellido · Director General"></div>
+    <div><label>Correo del contacto</label><input type="email" id="g-correo" placeholder="nombre@empresa.com"></div>
+    <div><label>Teléfono</label><input type="text" id="g-tel"></div>
     <div><label>Ejecutivo que cotiza</label><input type="text" id="g-ejecutivo"></div>
+    <div><label>Líder del proyecto<span class="fund">Va en la sección de equipo de la propuesta</span></label>
+      <input type="text" id="g-lider" placeholder="Maribel Vázquez Menchaca"></div>
+    <div><label>Quién más entra al equipo</label><input type="text" id="g-equipo"
+        placeholder="Nombre · rol, separados por coma"></div>
   </div>
   <div class="grupo-tit">Eje C · Postura y capacidad
     <span class="ejeq">Decide qué clase de propuesta van a leer</span></div>
@@ -436,9 +444,12 @@ cuando ya sepamos qué se le va a vender.</p>
         <option value="c2">Visita de verificación</option><option value="c3">Procedimiento sancionador</option></select></div>
     <div><label>¿Hay fideicomiso?</label><select id="g-fideicomiso">
       <option value="no">No</option><option value="si">Sí</option><option value="nose">No sé</option></select></div>
-    <div><label>¿Divisas, comercio exterior o activos virtuales?</label><select id="g-riesgoBanc">
-      <option value="no">No</option><option value="si">Sí</option>
-      <option value="bloqueo">Sí, y ya hay cuentas bloqueadas</option></select></div>
+    <div><label>¿Hay cuentas bancarias bloqueadas o cerradas?
+      <span class="fund">El efectivo, las divisas y los activos virtuales se preguntan por empresa, abajo</span></label>
+      <select id="g-riesgoBanc">
+      <option value="no">No</option>
+      <option value="si">Hay fricción con el banco, sin bloqueo</option>
+      <option value="bloqueo">Sí, hay cuentas bloqueadas o cerradas</option></select></div>
     <div><label>¿El Representante tiene tiempo asignado al tema?
       <span class="fund">O es nombramiento nominal</span></label>
       <select id="g-repTiempo">
@@ -511,6 +522,8 @@ porque antes no sabíamos qué se iba a vender.</p>
     <div><label>Meses de iguala</label><input type="number" id="g-meses" min="0" max="36" value="12"></div>
     <div><label>Sesiones a la medida<span class="fund">En la empresa, por sesión</span></label>
       <input type="number" id="g-sesiones" min="0" max="12" value="0"></div>
+    <div><label>Horas de assessment<span class="fund">Revisar un entregable que ya tienen</span></label>
+      <input type="number" id="g-hAssessment" min="0" max="200" step="4" value="0"></div>
     <div><label>Horas de acompañamiento al mes<span class="fund">12, 20 o 40 · 6 meses</span></label>
       <select id="g-horas"><option value="0">No aplica</option><option value="12">12 horas</option>
       <option value="20">20 horas</option><option value="40">40 horas</option></select></div>
@@ -535,6 +548,9 @@ porque antes no sabíamos qué se iba a vender.</p>
 
 <!-- 4 · HONORARIOS -->
 <h2><span class="n">6</span>Desglose de honorarios</h2>
+<div class="selloInterno">DOCUMENTO INTERNO · no se le entrega al cliente.
+  Trae la estructura de costos completa. Lo que ve el cliente es el informe de diagnóstico
+  y la propuesta, no esta hoja.</div>
 <div class="card">
   <div class="scroll"><table>
     <thead><tr><th style="width:58%">Concepto</th><th>Base de cálculo</th><th class="num">Honorario</th></tr></thead>
@@ -556,10 +572,13 @@ porque antes no sabíamos qué se iba a vender.</p>
 <h2 class="noprint"><span class="n">7</span>Redactar la propuesta</h2>
 <p class="hint noprint">Cuéntale de qué se trató. Los números, el diagnóstico y los alcances ya los tiene:
 esos no se inventan. Lo que redacta es el texto que los une.</p>
+<div class="aviso noprint"><b>Graba siempre la sesión con el cliente.</b> La transcripción es lo que alimenta
+esta parte, y es la diferencia entre una propuesta que suena a la junta que tuvieron y una genérica.
+Si no la grabaste, escribe aquí lo que recuerdes: sirve, pero menos.</div>
 <div class="card prop noprint">
   <div class="campos">
     <div><label>¿A quién va dirigida?
-      <span class="ayuda">Nombre y cargo. Si no lo sabes, déjalo vacío y la propuesta lo marca como pendiente.</span></label>
+      <span class="ayuda">Se llena solo con el contacto que capturaste arriba. Cámbialo si va dirigida a alguien más.</span></label>
       <input type="text" id="p-dest" placeholder="Lic. Nombre Apellido · Director General"></div>
     <div><label>¿De qué se trató?
       <span class="ayuda">Con tus palabras o pegando la transcripción de la junta, como te sea más rápido.
@@ -831,6 +850,10 @@ const CONFIG={
  ],
  iva:.16, renovacionInflacion:.05, impresion:2500,
  tcUSD:18, horaAcompUSD:300, mesesBolsa:6,
+ /* El assessment se cobra por hora: no es construir un entregable, es
+    revisar el que el cliente ya tiene y decir qué le falta. Es el caso de
+    quien dice "mi manual está bien" — y con la reforma casi nunca lo está. */
+ horaAssessmentUSD:260,
 
  /* ── AUDITORÍA: base más escalones ── */
  auditoria:{
@@ -949,7 +972,7 @@ const CONFIG={
   manualVol:{sello:'GMC360',ambito:'entidad',nombre:'Manual de cumplimiento voluntario',
     alcance:'Manual para entidad que no actualiza los supuestos, con su justificación',
     entregables:'Manual voluntario · memo de no configuración',base:'fijo',importe:70000},
-  manual:{sello:'GMC360',ambito:'grupo',nombre:'Manual de Políticas Internas (art. 37 Bis)',
+  manual:{sello:'GMC360',ambito:'grupo',nombre:'Manual de Políticas Internas (Ley art. 18 fr. VIII · RCG arts. 37 y 37 Bis)',
     alcance:'Los catorce contenidos mínimos, redactados sobre la operación real',
     entregables:'Manual aprobado por el órgano de administración · matriz de contenidos',base:'manual'},
   mebr:{sello:'GMC360',ambito:'grupo',nombre:'Metodología de riesgos con modelo de riesgo de cliente',
@@ -968,6 +991,15 @@ const CONFIG={
     alcance:'Curso en línea sin costo para la persona designada como Representante Encargado. Diez lecciones que explican pantalla por pantalla cómo se opera el Portal, dónde cae su operación en el artículo 17, y qué le toca hacer cada día, cada mes y cada año',
     entregables:'Grabación de la sesión en vivo · acceso al Portal del Representante · cuatro plantillas descargables · materiales imprimibles · bibliografía',
     base:'fijo',importe:0},
+  /* ASSESSMENT · agregado el 7-sep-2026 tras la junta de revisión.
+     No existía y es el que se va a vender solo con la reforma: el cliente
+     tiene manual, lo cree bueno, y hay que decirle qué le falta frente a
+     los catorce contenidos nuevos. No es biopsia —no se tocan expedientes
+     ni avisos— y no es construir. Es revisar un entregable existente. */
+  assessment:{sello:'GMC360',ambito:'entidad',nombre:'Assessment de un entregable existente',
+    alcance:'Revisión de un entregable que el cliente ya tiene —manual, metodología de riesgos, modelo de grado de riesgo de clientes o programa de capacitación— contra lo que exigen la Ley, el Reglamento y las Reglas de Carácter General vigentes. No incluye revisión de expedientes ni de avisos presentados: eso es la Biopsia',
+    entregables:'Informe de brechas contenido por contenido · qué se conserva, qué se corrige y qué se rehace · estimación del esfuerzo de corrección',
+    base:'assessment'},
   capGeneral:{sello:'360educa',ambito:'grupo',nombre:'Capacitación anual PLD/FT · General',
     alcance:'Curso en línea de capacitación anual para todo el personal, sin importar el área. Cubre el marco de la LFPIORPI, las obligaciones de la empresa y qué debe hacer cada colaborador',
     entregables:'Acceso al curso por persona · evaluación · constancia individual · reporte de avance del grupo',
@@ -1031,7 +1063,9 @@ const nuevaEnt=()=>{
   CONFIG.obligaciones.forEach(o=>{chk[o.id]=o.puntos.map(()=>false); niv[o.id]='no'; det[o.id]=false;});
   return {nombre:'',sabe:'si',actividad:'arrendamiento',actExtra:0,padron:'si',
    avisos:'ok',avisosAnio:0,avisosReg:0,ejercicios:0,clientes:0,
-   opsUmbral:'a',estados:1,control:'hoja',
+   /* Dos umbrales, no uno: el de identificación dimensiona expedientes y el
+      de aviso dimensiona avisos. Antes iban revueltos en un solo campo. */
+   opsIdent:'a',opsAviso:'a',paises:'no',estados:1,control:'hoja',
    /* Riesgos que se marcan por separado porque cada uno pesa distinto:
       el efectivo por restricciones de umbral, las divisas y los activos
       virtuales por riesgo. Antes era un sí/no y no decía cuál. */
@@ -1039,7 +1073,7 @@ const nuevaEnt=()=>{
    /* "No sé" es una respuesta legítima en una junta. Sin esto, un cero
       capturado por desconocimiento se lee como un cero real y la
       cotización sale firme cuando no debería. */
-   nsAvisos:false,nsEjercicios:false,nsAvisosReg:false,
+   nsAvisos:false,nsEjercicios:false,nsAvisosReg:false,nsClientes:false,
    tipoClientes:'terceros', chk, niv, det,
    /* Estas banderas ya no se capturan: las calcula sincronizar() a partir del
       checklist. Siguen existiendo porque el motor de recomendación las usa. */
@@ -1097,7 +1131,9 @@ function grupo(){return{
  horas:+$('g-horas').value||0, impresion:$('g-impresion').value==='1',
  nPersonal:+$('g-nPersonal').value||0, nCumplimiento:+$('g-nCumplimiento').value||0,
  nDireccion:+$('g-nDireccion').value||0, nIngreso:+$('g-nIngreso').value||0,
- nCertUIF:+$('g-nCertUIF').value||0};}
+ nCertUIF:+$('g-nCertUIF').value||0,
+ hAssessment:+$('g-hAssessment').value||0,
+ lider:$('g-lider').value.trim(), equipo:$('g-equipo').value.trim()};}
 
 const muestraDe=e=>{
   const n=buscar(CONFIG.muestra.niveles,e.nivel);
@@ -1180,6 +1216,12 @@ function recEntidad(e,g){
   const nom=e.nombre||'esta entidad';
   /* Un dato que no se sabe no es un cero. Si falta, el renglón que depende de
      él no es firme, y se dice antes de que la propuesta salga. */
+  if(e.nsClientes||!e.clientes) A.push({t:'Falta el número de clientes activos',
+    d:'Es uno de los dos escalones de la auditoría. Sin este dato la auditoría sale con el escalón más bajo y no es el precio real. Pídelo por correo antes de mandar la propuesta.'});
+  if(e.paises==='grupo') A.push({t:'Grupo internacional',
+    d:'Si la matriz tiene su propio programa de cumplimiento, el alcance cambia: hay que ver qué se homologa y qué no. Escálalo a dirección antes de cotizar.'});
+  if(e.paises==='opera') A.push({t:'Opera en otros países',
+    d:'Revisa modalidad y viáticos, y si hay obligaciones de otra jurisdicción que no cubre esta propuesta. Dilo explícitamente en el alcance.'});
   if(e.nsAvisos) A.push({t:'Falta el volumen de avisos',
     d:`No se sabe cuántos avisos al año presenta ${nom}. La auditoría se cotiza por escalón de avisos: ese renglón no es firme hasta tener el dato.`});
   if(e.nsEjercicios) A.push({t:'Faltan los ejercicios sin revisar',
@@ -1238,6 +1280,14 @@ function recEntidad(e,g){
   /* Nota, no servicio: el id '*' pinta la explicación sin renglón de precio. */
   if(pct(e,'bc')<1)
     no('*','El beneficiario controlador del CLIENTE no se cotiza aparte: sus criterios van dentro del Manual de Políticas Internas, y ahí se construyen.','RCG art. 23 Quinquies · Ley art. 18 fr. III');
+
+  /* Si el cliente dice que su manual o su metodología ya están completos,
+     casi nunca lo están frente a la reforma: se construyeron con la norma
+     anterior. No se le discute — se le ofrece revisarlo y demostrarlo. */
+  const dicenCompleto=['manual','ebr','matriz','cap'].filter(id=>pct(e,id)>=1);
+  if(dicenCompleto.length)
+    si('assessment','Dicen que ya lo tienen completo, y puede ser cierto — pero se construyó con la norma anterior. El Manual pasó a catorce contenidos mínimos y la metodología cambió de capítulo. Revisarlo cuesta una fracción de rehacerlo, y si sale bien, el cliente se queda con la constancia de que sí cumple.','Ley art. 18 · RCG arts. 37 y 37 Bis · reforma en vigor el 30 de noviembre de 2026');
+  else op('assessment','Por si aparece un entregable que el cliente cree terminado y conviene revisarlo antes de cotizarlo como nuevo.','Se cobra por horas, no por entregable');
 
   if(g.postura==='mejora') si('biopsia','No se venden productos sueltos: primero la Biopsia. El manual sin diagnóstico es recetar sin examinar.','R10');
   else no('biopsia','Postura de cumplir el mínimo: la Biopsia se lee como un gasto previo al gasto.','N11');
@@ -1342,6 +1392,28 @@ function costoAuditoria(e){
   return A.base + escalon(A.avisos, e.avisosAnio||0) + escalon(A.clientes, e.clientes||0)
        + A.porActividadExtra*(e.actExtra||0);
 }
+/* ── SERVICIOS QUE NO SE PUEDEN CALCULAR TODAVÍA ──
+   Un servicio de capacitación, de horas, de sesiones o de iguala no vale
+   nada por sí solo: vale por cuánta gente, cuántas horas, cuántas sesiones
+   o cuántos meses, y eso se captura hasta abajo, en condiciones comerciales.
+   Antes esos servicios salían recomendados con su palomita y luego
+   DESAPARECÍAN del desglose sin decir nada, o aparecían en cero. El
+   ejecutivo veía la palomita arriba y el número no cuadraba abajo.
+   Ahora no se pierden: bajan a la tabla marcados en ámbar, no suman al
+   subtotal, y arriba sale una alerta con lo que falta capturar. */
+const FALTANTES={
+  nPersonal:     'cuántas personas de todo el personal van a capacitación',
+  nCumplimiento: 'cuántas personas del área de cumplimiento van a capacitación',
+  nDireccion:    'cuántas personas de consejo y dirección van a capacitación',
+  nIngreso:      'cuántas personas de nuevo ingreso van a inducción',
+  nCertUIF:      'cuántas personas se van a certificar ante la UIF',
+  horas:         'cuántas horas de acompañamiento al mes',
+  hAssessment:   'cuántas horas de assessment',
+  sesiones:      'cuántas sesiones a la medida',
+  meses:         'cuántos meses de iguala'
+};
+const sinDato=(s,campo)=>({imp:0, txt:'falta un dato', s, falta:FALTANTES[campo]||'un dato'});
+
 function calcular(id,ctx,g,idxEnt,totalEnt){
   const s=CONFIG.servicios[id]; if(!s) return null;
   const desc=s.topeB?Math.min(g.descuento.pct,CONFIG.topeDescuentoAuditoria):g.descuento.pct;
@@ -1356,13 +1428,18 @@ function calcular(id,ctx,g,idxEnt,totalEnt){
     case 'ejercicios':{const n=Math.max(ctx.ejercicios||1,1); imp=s.importe*(n/s.ejerciciosBase); txt=n+' ejercicio'+(n===1?'':'s'); break;}
     case 'bloques':{const b=Math.max(1,Math.ceil((ctx.avisosReg||0)/s.porBloque)); imp=b*s.importe; txt=b+' bloque'+(b===1?'':'s'); break;}
     case 'muestra':{const m=muestraDe(ctx); imp=m*s.importe; txt=m+' expedientes de muestra'; break;}
-    case 'mensual':{const m=s.topeMeses?Math.min(g.meses,s.topeMeses):g.meses;
+    case 'mensual':{ if(!g.meses) return sinDato(s,'meses');
+      const m=s.topeMeses?Math.min(g.meses,s.topeMeses):g.meses;
       imp=m*s.importe; txt=m+' meses'+(s.topeMeses&&g.meses>s.topeMeses?' · topada a '+s.topeMeses:''); break;}
-    case 'sesiones': imp=g.sesiones*s.importe; txt=g.sesiones+' sesiones'; break;
-    case 'personas':{const n=g[s.campo]||0; if(!n) return null;
+    case 'sesiones':{ if(!g.sesiones) return sinDato(s,'sesiones');
+      imp=g.sesiones*s.importe; txt=g.sesiones+' sesiones'; break;}
+    case 'personas':{const n=g[s.campo]||0; if(!n) return sinDato(s,s.campo);
       const pu=CONFIG.capacitacion[s.precio];
       imp=n*pu; txt=n+(n===1?' persona':' personas')+' × '+mx(pu); break;}
-    case 'horas':{ if(!g.horas) return null;
+    case 'assessment':{ if(!g.hAssessment) return sinDato(s,'hAssessment');
+      const ha=CONFIG.horaAssessmentUSD*CONFIG.tcUSD;
+      imp=g.hAssessment*ha; txt=g.hAssessment+' horas × '+mx(ha); break;}
+    case 'horas':{ if(!g.horas) return sinDato(s,'horas');
       const hr=CONFIG.horaAcompUSD*CONFIG.tcUSD;
       imp=g.horas*hr*CONFIG.mesesBolsa; txt=g.horas+' h/mes × '+CONFIG.mesesBolsa+' meses'; break;}
     default: imp=s.importe; txt='importe cerrado';
@@ -1370,6 +1447,7 @@ function calcular(id,ctx,g,idxEnt,totalEnt){
 
   if(s.modalidad) imp*=g.modalidad.f;
   imp*=(1-desc);
+  /* (los factores de abajo no aplican a un servicio sin dato: nunca llega aquí) */
 
   /* descuento por entidad adicional */
   if(s.ambito==='entidad'&&idxEnt>0){
@@ -1425,13 +1503,25 @@ function pintarEntidades(){
         <input type="number" min="0" step="10" data-i="${i}" data-k="avisosAnio" value="${e.avisosAnio}"${e.nsAvisos?' disabled':''}>
         <label class="ns"><input type="checkbox" data-i="${i}" data-k="nsAvisos"${e.nsAvisos?' checked':''}> No sé todavía</label></div>
       <div><label>Clientes activos<span class="fund">Escalón de la auditoría</span></label>
-        <input type="number" min="0" step="10" data-i="${i}" data-k="clientes" value="${e.clientes}"></div>
-      <div><label>Operaciones sobre umbral al mes</label>
-        <select data-i="${i}" data-k="opsUmbral">
-          <option value="a"${e.opsUmbral==='a'?' selected':''}>1 a 10</option>
-          <option value="b"${e.opsUmbral==='b'?' selected':''}>11 a 100</option>
-          <option value="c"${e.opsUmbral==='c'?' selected':''}>101 a 1,000</option>
-          <option value="d"${e.opsUmbral==='d'?' selected':''}>Más de 1,000</option></select></div>
+        <input type="number" min="0" step="10" data-i="${i}" data-k="clientes" value="${e.clientes}"${e.nsClientes?' disabled':''}>
+        <label class="ns"><input type="checkbox" data-i="${i}" data-k="nsClientes"${e.nsClientes?' checked':''}> No sé todavía</label></div>
+      <div><label>Operaciones sobre umbral de <b>identificación</b> al mes
+        <span class="fund">Dimensiona expedientes</span></label>
+        <select data-i="${i}" data-k="opsIdent">
+          ${['a','1 a 10','b','11 a 100','c','101 a 1,000','d','Más de 1,000'].reduce((a,x,j,A)=>
+            j%2?a+`<option value="${A[j-1]}"${e.opsIdent===A[j-1]?' selected':''}>${x}</option>`:a,'')}</select></div>
+      <div><label>Operaciones sobre umbral de <b>aviso</b> al mes
+        <span class="fund">Dimensiona avisos</span></label>
+        <select data-i="${i}" data-k="opsAviso">
+          ${['a','1 a 10','b','11 a 100','c','101 a 1,000','d','Más de 1,000'].reduce((a,x,j,A)=>
+            j%2?a+`<option value="${A[j-1]}"${e.opsAviso===A[j-1]?' selected':''}>${x}</option>`:a,'')}</select></div>
+      <div><label>¿Opera en otros países o es parte de un grupo internacional?
+        <span class="fund">Si hay matriz extranjera con programa propio, se escala</span></label>
+        <select data-i="${i}" data-k="paises">
+          <option value="no"${e.paises==='no'?' selected':''}>No, solo México</option>
+          <option value="opera"${e.paises==='opera'?' selected':''}>Sí, opera en otros países</option>
+          <option value="grupo"${e.paises==='grupo'?' selected':''}>Sí, es parte de un grupo internacional</option>
+          <option value="nose"${e.paises==='nose'?' selected':''}>No sé todavía</option></select></div>
       <div><label>¿En cuántos estados opera?<span class="fund">Afecta viáticos y modalidad</span></label>
         <input type="number" min="1" max="32" data-i="${i}" data-k="estados" value="${e.estados}"></div>
       <div><label>¿Cómo lleva el control?</label>
@@ -1504,7 +1594,8 @@ function filaRec(r,clase,ctx,g,pref,idx,tot){
       ${s.propuesto?'<span class="flag"> ◆ propuesto, sin autorizar</span>':''}</div>
       <div class="por">${r.por}</div>${r.regla?`<div class="regla">${r.regla}</div>`:''}
       ${clase==='no'&&on?'<div class="forzado">Agregado a mano contra la recomendación del motor. Justifícalo con dirección antes de mandarla.</div>':''}</div>
-    ${c?`<div class="imp">${clase==='no'?'<span class="siSola">si se cotizara sola</span>':''}${mx(c.imp)}</div>`:''}</div>`;
+    ${c&&!c.falta?`<div class="imp">${clase==='no'?'<span class="siSola">si se cotizara sola</span>':''}${mx(c.imp)}</div>`:''}
+    ${c&&c.falta&&on?`<div class="imp falta">falta capturar<span>${c.falta}</span></div>`:''}</div>`;
 }
 
 function render(){
@@ -1549,6 +1640,12 @@ function render(){
   html+='</div>'; $('recos').innerHTML=html;
 
   let sub=0; const filas=[]; let hayIguala=false, hayAcomp=false;
+  /* Servicios activos que todavía no se pueden calcular. Se acumulan aquí
+     para avisarlo arriba y para no dejar salir la cotización en silencio. */
+  const pendientes=[];
+  const filaFalta=c=>`<tr class="falta"><td>${c.s.nombre}</td>
+      <td>falta capturar ${c.falta}</td>
+      <td class="num">por definir</td></tr>`;
   const activo=(p,r,def)=>{const k=p+'|'+r.id; return OV[k]!==undefined?OV[k]:def;};
   porEnt.forEach((x,i)=>{
     const ctx={...x.e};
@@ -1558,7 +1655,9 @@ function render(){
     filas.push(`<tr class="sec"><td colspan="3">${x.e.nombre||('Entidad '+(i+1))} — riesgo ${x.r.riesgo.n}</td></tr>`);
     const v=new Set();
     lista.forEach(({r})=>{if(v.has(r.id))return; v.add(r.id);
-      const c=calcular(r.id,ctx,g,i,ENT.length); if(!c)return; sub+=c.imp;
+      const c=calcular(r.id,ctx,g,i,ENT.length); if(!c)return;
+      if(c.falta){ pendientes.push(c); filas.push(filaFalta(c)); return; }
+      sub+=c.imp;
       filas.push(`<tr><td>${c.s.nombre}</td><td>${c.txt}</td><td class="num">${mx(c.imp)}</td></tr>`);});
   });
   const listaG=[...rg.R.map(r=>({r,def:true})),...rg.O.map(r=>({r,def:false})),...rg.N.map(r=>({r,def:false}))]
@@ -1567,7 +1666,9 @@ function render(){
     filas.push('<tr class="sec"><td colspan="3">Comunes al grupo</td></tr>');
     const v=new Set();
     listaG.forEach(({r})=>{if(v.has(r.id))return; v.add(r.id);
-      const c=calcular(r.id,ctxG,g,0,ENT.length); if(!c)return; sub+=c.imp;
+      const c=calcular(r.id,ctxG,g,0,ENT.length); if(!c)return;
+      if(c.falta){ pendientes.push(c); filas.push(filaFalta(c)); return; }
+      sub+=c.imp;
       if(r.id==='iguala'||r.id==='igualaArranque') hayIguala=true;
       if(r.id==='acompanamiento') hayAcomp=true;
       filas.push(`<tr><td>${c.s.nombre}</td><td>${c.txt}</td><td class="num">${mx(c.imp)}</td></tr>`);});
@@ -1585,6 +1686,17 @@ function render(){
     <div class="kpi"><div class="v">${ENT.length}</div><div class="l">Entidades cotizadas</div></div>
     <div class="kpi"><div class="v">${g.modalidad.f.toFixed(2)}×</div><div class="l">Factor de modalidad</div></div>
     <div class="kpi"><div class="v">${g.urgente?'2.00×':'—'}</div><div class="l">Recargo por urgencia</div></div>`:'';
+
+  /* Lo que falta capturar para poder cotizar lo que ya está palomeado. */
+  if(pendientes.length){
+    const l=pendientes.map(c=>`<li><b>${c.s.nombre}</b> — falta capturar ${c.falta}</li>`).join('');
+    $('alertas').innerHTML =
+      `<div class="alerta critico"><b>Hay ${pendientes.length} servicio${pendientes.length===1?'':'s'} palomeado${
+        pendientes.length===1?'':'s'} que todavía no se puede${pendientes.length===1?'':'n'} cotizar.</b>
+        Aparece${pendientes.length===1?'':'n'} en el desglose marcado${pendientes.length===1?'':'s'} en ámbar y
+        <b>no suma${pendientes.length===1?'':'n'} al total</b>. Los datos que faltan se capturan abajo, en
+        <b>Condiciones comerciales</b>.<ul class="pend">${l}</ul></div>` + $('alertas').innerHTML;
+  }
 
   /* Aviso de traslape: recorre la tabla CONFIG.incompatibles y avisa si dos
      servicios que se traslapan quedaron activos en la misma cotización. */
@@ -1745,6 +1857,105 @@ const GUION=[
     oido:''}]}]}
 ];
 
+/* ══ CÓMO SE USA · la guía del consultor, dentro de la herramienta ══
+   Se puede imprimir desde aquí con el botón de arriba, para llevarla a la
+   junta o dársela a alguien que entra nuevo. */
+const GUIA_HTML = `
+ <div class="btns noprint" style="margin:0 0 14px"><button class="b2" onclick="window.print()">Imprimir o guardar en PDF</button></div>
+ <h2>Cómo se usa el cotizador</h2>
+ <p class="eje">Tú capturas la situación del cliente. La herramienta decide qué servicios aplican,
+   cuáles no y por qué. No hay una lista de servicios para ir palomeando: eso es a propósito,
+   y es lo que hace que una propuesta salga igual la arme quien la arme.</p>
+ <div class="regla">No es asesoría jurídica ni dictamen, y su resultado no se le entrega al cliente
+   antes de la sesión cliente/consultor360.</div>
+
+ <h2>El orden de la captura</h2>
+ <div class="bloque">
+  <div class="preg">1 · El cliente</div>
+  <p class="porq">Nombre, contacto con correo, quién cotiza y quién va a liderar el proyecto. Debajo, ocho
+    preguntas de postura y capacidad. No miden cumplimiento: deciden qué clase de propuesta va a leer el
+    cliente. La de «quién lleva el tema hoy» ella sola define qué línea de servicio aplica.</p>
+  <p class="oido">Si hay requerimiento, visita, procedimiento o cuentas bloqueadas, <b>se escala a dirección</b>
+    y no se cotiza de rutina.</p>
+
+  <div class="preg">2 · Entidades</div>
+  <p class="porq">Una tarjeta por empresa. Arriba el Eje B, que dimensiona el trabajo; abajo el Eje A,
+    que son doce preguntas, una por obligación.</p>
+  <p class="oido"><b>Tres cosas que hay que hacer bien.</b> «A medias» es respuesta válida y cambia el
+    diagnóstico. El botón de «ver los N puntos» solo se abre cuando hay biopsia o auditoría de por medio.
+    Y las casillas de <b>«No sé todavía»</b> se usan: un cero capturado por desconocimiento hace que la
+    cotización salga en firme cuando no debería.</p>
+
+  <div class="preg">3 · Diagnóstico de obligaciones</div>
+  <p class="porq">Se llena solo. De aquí sale el informe que <b>sí</b> se le entrega al cliente: no lleva
+    honorarios ni notas internas, solo qué le aplica, desde cuándo y cómo va.</p>
+  <p class="oido">De las doce obligaciones, solo tres son exigibles hoy. Lo demás tiene fecha futura, y a
+    eso <b>no se le llama incumplimiento</b>: es un pendiente con fecha, y esa fecha es el argumento.</p>
+
+  <div class="preg">4 · Lo que recomienda la herramienta</div>
+  <p class="porq">Alertas, arquetipo y servicios en tres bloques. Los recomendados vienen palomeados.
+    Puedes agregar algo que el motor no recomienda, pero a mano y después de leer por qué no lo recomendaba.</p>
+  <p class="oido">Si un servicio queda palomeado en <b>ámbar</b>, es que todavía no se puede cotizar:
+    le falta un dato de condiciones comerciales —cuántas personas, cuántas horas, cuántos meses—.
+    Aparece en el desglose pero <b>no suma al total</b> hasta que lo captures.</p>
+
+  <div class="preg">5 · Condiciones comerciales</div>
+  <p class="porq">Van hasta abajo a propósito: antes no sabíamos qué se iba a vender. Aquí van modalidad,
+    plazo, descuento, meses de iguala, horas y cuánta gente va a capacitación <b>por perfil</b>.</p>
+  <p class="oido">El plazo de «10 días o menos» pone el honorario al doble. No lo marques por costumbre.</p>
+
+  <div class="preg">6 · Desglose de honorarios</div>
+  <p class="porq">Es la cotización. <b>Documento interno</b>: trae la estructura de costos y no se le manda al cliente.</p>
+
+  <div class="preg">7 · Redactar la propuesta</div>
+  <p class="porq">Los números, el diagnóstico y los alcances ya los tiene. Lo que redacta es el texto que
+    los une. Entre más contexto le des, menos [POR CONFIRMAR] va a traer de regreso.</p>
+  <p class="oido"><b>Graba siempre la sesión con el cliente</b> y pega la transcripción. Es la diferencia
+    entre una propuesta que suena a la junta que tuvieron y una genérica.</p>
+ </div>
+
+ <h2>Guardar, y qué pasa después</h2>
+ <p class="eje">Guarda siempre, aunque el cliente no cierre: las que no cerraron son justamente las que
+   dicen dónde estamos caros.</p>
+ <div class="regla">Una cotización guardada <b>no se puede editar ni borrar</b>. Por nadie. Si se pudieran
+   editar, nunca sabríamos si el número que estamos viendo es el que de verdad se cotizó o uno corregido
+   después, y las tres semanas de calibración no valdrían nada.</div>
+ <p class="eje">Lo que sí cambia es el estado, y eso vive aparte. Tú mueves todos los estados; lo único
+   que no puedes hacer es marcar «Autorizada por dirección».</p>
+ <table><thead><tr><th style="width:34%">Estado</th><th>Qué significa</th></tr></thead><tbody>
+  <tr><td class="a">Borrador</td><td>Recién guardada, todavía se está trabajando</td></tr>
+  <tr><td class="a">En revisión de dirección</td><td>Lista para que dirección la vea</td></tr>
+  <tr><td class="a">Autorizada por dirección</td><td>Ya se puede mandar. Solo dirección la marca</td></tr>
+  <tr><td class="a">Enviada al cliente</td><td>Ya salió</td></tr>
+  <tr><td class="a">Aceptada por el cliente</td><td>Cerró</td></tr>
+  <tr><td class="a">Cancelada</td><td>No prosperó</td></tr>
+ </tbody></table>
+ <p class="eje">Para cambiarle algo a una cotización guardada no se edita: <b>se duplica</b> con «Usar como
+   base». La original no se toca, y la copia se recalcula con los precios de hoy.</p>
+
+ <h2>Diez cosas que no se hacen</h2>
+ <div class="nunca"><ul>
+  <li>No se le entrega un número al cliente antes de la sesión cliente/consultor360.</li>
+  <li>No se le dice a un cliente que está en falta de una obligación que todavía no lo obliga.</li>
+  <li>No se estima un dato que se puede pedir. Para eso están las casillas de «No sé todavía».</li>
+  <li>No se vende implementación antes del diagnóstico.</li>
+  <li>No se compite contra el despacho que ya atiende al cliente: se complementa.</li>
+  <li>No se menciona a otro cliente en una propuesta. Ni por nombre, ni descrito de forma reconocible.</li>
+  <li>No se le manda la propuesta de cinco fases a un cliente que solo quiere el mínimo.</li>
+  <li>No se cotizan de rutina los casos con requerimiento, visita, procedimiento o cuentas bloqueadas.</li>
+  <li>No se manda nada al cliente sin el estado «Autorizada por dirección».</li>
+  <li>No se comparte el desglose de honorarios ni por qué un servicio cuesta lo que cuesta.</li>
+ </ul></div>
+
+ <h2>Si algo se atora</h2>
+ <table><thead><tr><th style="width:30%">Lo que ves</th><th style="width:32%">Qué pasa</th><th>Qué haces</th></tr></thead><tbody>
+  <tr><td class="a">No te deja entrar</td><td>El correo no es de @gmc360.com.mx</td><td>Sal de la otra cuenta de Google y vuelve a entrar</td></tr>
+  <tr><td class="a">Letrero ámbar de «modo local»</td><td>Abriste el archivo, no la dirección</td><td>Usa la dirección. Ahí no se guarda nada</td></tr>
+  <tr><td class="a">Un renglón en ámbar en el desglose</td><td>Falta un dato de condiciones comerciales</td><td>Captúralo abajo. Mientras, no suma al total</td></tr>
+  <tr><td class="a">La propuesta trae [POR CONFIRMAR]</td><td>Faltó contexto o faltó un dato</td><td>Consíguelo y ponlo tú en el Word</td></tr>
+  <tr><td class="a">Cualquier otra cosa</td><td>—</td><td>Usa el botón <b>Reportar algo</b> de arriba. Queda con folio y versión</td></tr>
+ </tbody></table>`;
+
 /* ══ CÓMO SE CONDUCE · el criterio de dirección, a la mano ══ */
 function pintarGuion(){
   $('t-guion').innerHTML = `
@@ -1834,117 +2045,33 @@ function pintarGuion(){
      <li>Se nombra lo que queda fuera del alcance con la misma claridad que lo que entra.</li>
      <li>Se cede la palabra al equipo, por nombre.</li>
     </ul>
-   </div>`;
+   </div>
 
-  /* ══ GUÍA DE USO · la misma que está en Word, aquí adentro ══
-     Vive en la herramienta a propósito: cotiza gente que no tiene acceso
-     a las carpetas de dirección, y una guía que hay que ir a buscar no se
-     lee. El botón de arriba la guarda en PDF. */
-  $('t-guia').innerHTML = `
-   <h2>Guía de uso del cotizador</h2>
-   <p class="eje">Cómo se usa, de principio a fin. Es la misma guía que está en Word;
-     está aquí para no tener que ir a buscarla.</p>
-   <p class="noprint" style="margin:0 0 22px">
-     <button class="b1" onclick="imprimirGuia()">Guardar esta guía en PDF</button></p>
-
-   <h2>Qué es y qué no es</h2>
-   <p class="eje">Herramienta interna que convierte una junta de diagnóstico en tres documentos:
-     el informe de obligaciones para el cliente, la cotización con folio y la propuesta redactada.</p>
-   <div class="regla"><b>El consultor captura la situación; la herramienta decide qué servicios
-     aplican y cuáles no.</b> No hay lista de servicios para palomear: el criterio de dirección está
-     en el motor para que una propuesta salga igual la arme quien la arme.</div>
-   <p class="eje">No es asesoría jurídica ni dictamen, y su resultado no se entrega al cliente antes
-     de la sesión cliente/consultor360.</p>
-
-   <h2>Entrar</h2>
-   <p class="eje">Por la dirección de internet, con correo @gmc360.com.mx. Si se abre desde un archivo
-     guardado en la computadora sale un letrero ámbar: calcula, pero no guarda. Y si no se guarda,
-     esa cotización no existe para nadie más.</p>
-
-   <h2>Las cuatro pestañas</h2>
-   <table><thead><tr><th style="width:26%">Pestaña</th><th style="width:42%">Para qué</th><th>Cuándo</th></tr></thead><tbody>
-    <tr><td class="a">Cotizar</td><td>El formulario y los tres documentos</td><td>Después de la junta</td></tr>
-    <tr><td class="a">Guion de la junta</td><td>Las preguntas con su porqué y qué escuchar</td><td>Antes y durante la junta</td></tr>
-    <tr><td class="a">Cómo se conduce</td><td>Criterio de dirección: qué se ofrece y qué NO</td><td>Antes de mandar cualquier propuesta</td></tr>
-    <tr><td class="a">Guía de uso</td><td>Esta hoja</td><td>La primera vez, y cuando haya duda</td></tr>
+   <h2>Diagnóstico, biopsia y assessment no son lo mismo</h2>
+   <p class="eje">Es la confusión más cara del equipo: lleva a cobrar un diagnóstico que no se cobra,
+     o a regalar una biopsia que sí se cobra. Los tres son distintos y se venden distinto.</p>
+   <table><thead><tr><th style="width:22%">Qué es</th><th style="width:24%">Qué se revisa</th>
+     <th style="width:20%">Cómo se cobra</th><th>Cuándo va</th></tr></thead><tbody>
+    <tr><td class="a">Diagnóstico</td>
+        <td>Nada. Se pregunta y el cliente contesta</td>
+        <td><b>No se cobra</b></td>
+        <td>Siempre. Es lo que imprime esta herramienta al terminar la junta, y ya es un entregable</td></tr>
+    <tr><td class="a">Biopsia de Cumplimiento</td>
+        <td>Papel: muestra de expedientes y un mes de avisos</td>
+        <td>Precio cerrado</td>
+        <td>Cuando saben que están mal y quieren saber qué tan mal, antes de decidir cuánto gastar</td></tr>
+    <tr><td class="a">Assessment</td>
+        <td>Un entregable que el cliente ya tiene: su manual, su metodología, su modelo de clientes</td>
+        <td>Por horas</td>
+        <td>Cuando el cliente dice «el mío ya está bien». Con la reforma casi nunca lo está: se construyó con la norma anterior</td></tr>
    </tbody></table>
+   <div class="regla"><b>No hace falta cobrar un diagnóstico para poder cotizar.</b> Con las respuestas de la
+     junta ya hay con qué. Lo que se cobra es meterse al papel — y eso es otra conversación, más adelante.</div>
+   <div class="nunca"><b>Cuidado con el orden.</b> Si el cliente ya escogió un camino con base en el
+     diagnóstico de la junta, pedirle que primero pague una biopsia se lee como cambiarle las reglas.
+     La biopsia se ofrece <i>antes</i> de que escoja, o no se ofrece.</div>`;
 
-   <h2>El flujo de captura</h2>
-   <div class="bloque">
-    <div class="preg">1 · El cliente</div>
-    <p class="porq">Datos y Eje C, ocho preguntas de postura y capacidad. «Quién lleva el tema hoy»
-      decide sola qué línea de servicio aplica. Requerimiento, visita, procedimiento o cuentas
-      bloqueadas escalan a dirección.</p>
-    <div class="preg">2 · Entidades</div>
-    <p class="porq">Una tarjeta por empresa. Eje B, la dimensión, arriba; Eje A, la brecha, con sus
-      doce preguntas, abajo.</p>
-    <div class="preg">3 · Diagnóstico</div>
-    <p class="porq">Se llena solo. De aquí sale el informe para el cliente.</p>
-    <div class="preg">4 · Recomendación</div>
-    <p class="porq">Los servicios salen en tres bloques. Los tres llevan casilla; forzar uno
-      «no recomendado» deja advertencia y queda registrado en la cotización.</p>
-    <div class="preg">5 · Condiciones comerciales</div>
-    <p class="porq">Hasta el final, a propósito.</p>
-    <div class="preg">6 · Honorarios</div>
-    <p class="porq">La cotización, en PDF.</p>
-    <div class="preg">7 · Propuesta</div>
-    <p class="porq">Con las notas o la transcripción de la junta.</p>
-   </div>
-
-   <h2>Las tres reglas de captura del Eje A</h2>
-   <div class="regla">
-    <ul>
-     <li>«A medias» es respuesta válida y cambia el diagnóstico. No se redondea a sí ni a no.</li>
-     <li>El detalle punto por punto solo se abre con biopsia o auditoría de por medio.</li>
-     <li>Las casillas de «No sé todavía» se usan. Un cero por desconocimiento hace que la cotización
-         salga en firme cuando no debería.</li>
-    </ul>
-   </div>
-
-   <h2>Guardar, estados y versiones</h2>
-   <p class="eje">Una cotización guardada <b>no se puede editar ni borrar, por nadie</b>. Eso protege la
-     calibración: si se pudiera corregir después, nunca sabrías si el número que ves es el que se
-     cotizó. Lo que sí cambia es su estado.</p>
-   <table><thead><tr><th style="width:34%">Estado</th><th>Quién lo mueve</th></tr></thead><tbody>
-    <tr><td class="a">Borrador</td><td>El equipo</td></tr>
-    <tr><td class="a">En revisión de dirección</td><td>El equipo</td></tr>
-    <tr><td class="a">Autorizada por dirección</td><td><b>Solo dirección</b></td></tr>
-    <tr><td class="a">Enviada al cliente</td><td>El equipo</td></tr>
-    <tr><td class="a">Aceptada por el cliente</td><td>El equipo</td></tr>
-    <tr><td class="a">Cancelada</td><td>El equipo</td></tr>
-   </tbody></table>
-   <div class="regla"><b>Regla de la casa:</b> nada sale al cliente sin que dirección lo revise.
-     El equipo mueve sus estados libremente; lo único reservado es autorizar.</div>
-   <p class="eje">Para cambiar una cotización ya guardada se usa «Usar como base»: la duplica con folio
-     nuevo, la original no se toca y la copia se recalcula con los precios de hoy.</p>
-
-   <h2>Diez cosas que no se hacen</h2>
-   <div class="nunca">
-    <ul>
-     <li>No se entrega un número antes de la sesión cliente/consultor360.</li>
-     <li>No se le dice a un cliente que está en falta de algo que aún no lo obliga.</li>
-     <li>No se estima un dato que se puede pedir.</li>
-     <li>No se vende implementación antes del diagnóstico.</li>
-     <li>No se compite contra el despacho que ya atiende al cliente: se complementa.</li>
-     <li>No se menciona a otro cliente en una propuesta.</li>
-     <li>No se manda la propuesta de cinco fases a un cliente de postura mínima.</li>
-     <li>No se cotizan de rutina los casos con contingencia: se escalan.</li>
-     <li>No se manda nada sin el estado «Autorizada por dirección».</li>
-     <li>No se comparte el desglose de honorarios ni la estructura de costos.</li>
-    </ul>
-   </div>
-
-   <h2>Quién hace qué con la herramienta</h2>
-   <table><thead><tr><th style="width:30%">Quién</th><th>Qué le toca</th></tr></thead><tbody>
-    <tr><td class="a">Quien cotiza</td>
-        <td>Captura, genera los tres documentos y mueve el estado hasta «En revisión». Si un número
-            se ve mal, avisa a dirección; no se corrige a mano.</td></tr>
-    <tr><td class="a">Dirección</td>
-        <td>Autoriza precios y autoriza cada cotización antes de que salga.</td></tr>
-    <tr><td class="a">Quien actualiza</td>
-        <td>Una sola persona designada por dirección cambia el layout de precios, lo refleja en el
-            bloque CONFIG y vuelve a publicar. Los dos números tienen que quedar iguales.</td></tr>
-   </tbody></table>`;
+  $('t-guia').innerHTML = GUIA_HTML;
 }
 pintarGuion();
 
@@ -2004,11 +2131,43 @@ function pintarBarra(){
     <span class="sep"></span>
     <span id="estadoGuardado"></span>
     <button class="salir" id="btnLista">Ver cotizaciones guardadas</button>
+    <button class="salir" id="btnReportar" title="Algo que no jaló, algo que no se entendió, un precio que se ve mal">Reportar algo</button>
     <button id="btnGuardar">Guardar cotización</button>
     <button class="salir" id="btnSalir">Salir</button>`;
   $('btnGuardar').onclick=guardar;
   $('btnLista').onclick=listar;
+  $('btnReportar').onclick=reportar;
   $('btnSalir').onclick=()=>firebase.auth().signOut();
+}
+
+/* ══ REPORTAR ALGO ══
+   La retroalimentación de la semana llegaba por cuatro canales —WhatsApp,
+   correo, con Claudia, un Google Sheet— y siempre sin folio, sin versión de
+   precios y sin saber en qué pantalla estaba quien lo escribió. Aquí se
+   escribe una vez y queda con todo eso pegado. Dirección abre una sola lista. */
+async function reportar(){
+  const txt=prompt('¿Qué viste?\n\nEscríbelo como se te ocurra: "esto no jaló", "este precio se ve alto",\n"esta pregunta no se entiende". Se guarda con la pantalla en la que estás.');
+  if(!txt||!txt.trim()) return;
+  const est=$('estadoGuardado');
+  try{
+    await db.collection('observaciones').add({
+      texto:txt.trim(),
+      por:USUARIO.email,
+      cuando:firebase.firestore.FieldValue.serverTimestamp(),
+      versionPrecios:CONFIG.versionPrecios,
+      cliente:$('g-nombre').value||'',
+      pestana:(document.querySelector('.tab.on')||{}).textContent||'',
+      /* El estado de la captura, para poder reproducir lo que vio */
+      entidades:ENT.length,
+      total:($('tfoot').innerText||'').split('\n').pop()||'',
+      ajustesManuales:Object.entries(OV).filter(([,v])=>v!==undefined).map(([k,v])=>k+'='+v)
+    });
+    est.textContent='Gracias, quedó registrado.';
+    setTimeout(()=>{est.textContent='';},4000);
+  }catch(e){
+    alert('No se pudo registrar: '+(e.code||e.message)+
+      '\n\nMándaselo a dirección por WhatsApp mientras se arregla.');
+  }
 }
 
 /* Lista las cotizaciones guardadas. Las reglas solo dejan leerlas a quien
@@ -2066,6 +2225,8 @@ async function usarComoBase(folio){
     const pon=(id,v)=>{const el=$(id); if(el&&v!==undefined&&v!==null) el.value=v;};
     pon('g-nombre',(x.cliente||{}).grupo); pon('g-contacto',(x.cliente||{}).contacto);
     pon('g-ejecutivo',(x.cliente||{}).ejecutivo);
+    pon('g-correo',(x.cliente||{}).correo); pon('g-tel',(x.cliente||{}).telefono);
+    pon('g-lider',(x.cliente||{}).lider);   pon('g-equipo',(x.cliente||{}).equipo);
     const c=x.contexto||{};
     pon('g-quien',c.quien); pon('g-postura',c.postura); pon('g-conting',c.contingencia);
     pon('g-fideicomiso',c.fideicomiso); pon('g-riesgoBanc',c.riesgoBancario);
@@ -2075,6 +2236,7 @@ async function usarComoBase(folio){
     pon('g-urgencia',c.urgente?'urgente':'normal');
     pon('g-renovacion',c.renovacion?'1':'0');
     pon('g-meses',c.meses); pon('g-sesiones',c.sesiones); pon('g-horas',c.horas);
+    pon('g-hAssessment',c.hAssessment);
     pon('g-impresion',c.impresion?'1':'0');
 
     OV={}; guardada=false; FOLIO_INFORME=''; ULTIMA_PROPUESTA='';
@@ -2154,8 +2316,9 @@ function armarRegistro(){
   const g=grupo();
   const filas=[...document.querySelectorAll('#tbody tr')].filter(t=>!t.classList.contains('sec'))
     .map(t=>{const c=t.querySelectorAll('td');
-      return {concepto:c[0]?.innerText||'', sello:c[1]?.innerText||'',
-              base:c[2]?.innerText||'', importe:c[3]?.innerText||''};});
+      return {concepto:c[0]?.innerText||'',
+              base:c[1]?.innerText||'', importe:c[2]?.innerText||'',
+              sinCalcular:t.classList.contains('falta')};});
   const sub=[...document.querySelectorAll('#tfoot tr')][0]?.innerText||'';
   return {
     folio:nuevoFolio(),
@@ -2165,14 +2328,16 @@ function armarRegistro(){
     capturadaEl:firebase.firestore.FieldValue.serverTimestamp(),
     cliente:{
       grupo:$('g-nombre')?.value||'', contacto:$('g-contacto')?.value||'',
-      ejecutivo:$('g-ejecutivo')?.value||''
+      correo:$('g-correo')?.value||'', telefono:$('g-tel')?.value||'',
+      ejecutivo:$('g-ejecutivo')?.value||'',
+      lider:g.lider||'', equipo:g.equipo||''
     },
     contexto:{
       quien:g.quien, postura:g.postura, contingencia:g.conting,
       fideicomiso:g.fideicomiso, riesgoBancario:g.riesgoBanc,
       modalidad:g.modalidad.id, urgente:g.urgente, descuento:g.descuento.id,
       renovacion:g.renovacion, meses:g.meses, sesiones:g.sesiones,
-      horas:g.horas, impresion:g.impresion
+      horas:g.horas, hAssessment:g.hAssessment, impresion:g.impresion
     },
     arquetipo:$('arquetipo').innerText.trim(),
     diagnostico:ENT.map(e=>({entidad:e.nombre||'', obligaciones:diagnostico(e)
@@ -2194,12 +2359,23 @@ async function guardar(){
   const btn=$('btnGuardar'), est=$('estadoGuardado');
   if(!document.querySelectorAll('#tbody tr').length ||
      !$('tfoot').innerHTML){ est.textContent='No hay nada que guardar todavía.'; return; }
+  /* Una cotización con servicios sin calcular se puede guardar, pero no
+     por accidente: el total que se guarda no incluye lo que falta. */
+  const pend=[...document.querySelectorAll('#tbody tr.falta td:first-child')].map(t=>t.innerText.trim());
+  if(pend.length && !confirm(
+      'Ojo: hay '+pend.length+' servicio'+(pend.length===1?'':'s')+' palomeado'+(pend.length===1?'':'s')+
+      ' que todavía no se puede'+(pend.length===1?'':'n')+' cotizar y NO está'+(pend.length===1?'':'n')+
+      ' en el total:\n\n  · '+pend.join('\n  · ')+
+      '\n\nLos datos que faltan se capturan abajo, en Condiciones comerciales.\n\n'+
+      '¿Guardar así de todos modos?')) return;
+
   btn.disabled=true; est.textContent='Guardando…';
   try{
     const reg=armarRegistro();
     await db.collection('cotizaciones').doc(reg.folio).set(reg);
     est.innerHTML=`Guardada como <b>${reg.folio}</b>`;
     guardada=true;
+    borrarBorrador();   // ya quedó con folio; el borrador local sobra
   }catch(e){
     console.error(e);
     est.textContent='No se pudo guardar: '+(e.code||e.message);
@@ -2225,10 +2401,13 @@ function insumosPropuesta(){
     .filter(t=>!t.classList.contains('sec'))
     .map(t=>{const c=t.querySelectorAll('td'); const nom=c[0]?.innerText||'';
       const s=Object.values(CONFIG.servicios).find(x=>x.nombre===nom);
-      return {servicio:nom, sello:c[1]?.innerText||'', honorario:c[3]?.innerText||'',
+      return {servicio:nom, sello:s?.sello||'', base:c[1]?.innerText||'',
+              honorario:c[2]?.innerText||'',
               alcance:s?.alcance||'', entregables:s?.entregables||''};});
   return {
     destinatario:$('p-dest').value.trim(),
+    contactoCorreo:$('g-correo').value.trim(),
+    equipo:{lider:g.lider||'', integrantes:g.equipo||''},
     contexto:$('p-desc').value.trim(),
     arquetipo:$('arquetipo').innerText.trim(),
     diagnostico:ENT.filter(e=>e.actividad!=='ninguna'&&e.sabe==='si')
@@ -2240,6 +2419,15 @@ function insumosPropuesta(){
     alertas:$('alertas').innerText.trim()
   };
 }
+
+/* El destinatario de la propuesta se hereda del contacto capturado arriba.
+   Solo mientras nadie lo haya escrito a mano: si el ejecutivo lo cambió,
+   no se le vuelve a pisar. */
+let destTocado=false;
+$('p-dest').addEventListener('input',()=>{destTocado=true;});
+$('g-contacto').addEventListener('input',()=>{
+  if(!destTocado) $('p-dest').value=$('g-contacto').value;
+});
 
 async function redactar(){
   const est=$('estadoIA'), btn=$('btnPropuesta');
@@ -2716,16 +2904,6 @@ function imprimirCon(quitar){
   setTimeout(limpia,60000);   // red de seguridad, por si nunca avisa
 }
 
-/* La guía de uso en PDF. Misma mecánica que el informe: se marca el body,
-   se imprime y el evento afterprint deshace la marca. */
-function imprimirGuia(){
-  const limpia=()=>{ document.body.classList.remove('pr-guia');
-    window.removeEventListener('afterprint',limpia); };
-  window.addEventListener('afterprint',limpia);
-  document.body.classList.add('pr-guia');
-  window.print();
-}
-
 function imprimirInforme(){
   if(!ENT.length) return;
   $('informe').innerHTML=armarInforme();
@@ -2765,6 +2943,55 @@ $('btnPropPdf').onclick=propuestaPdf;
 $('btnPropuesta').onclick=redactar;
 $('btnWord').onclick=descargarWord;
 
+/* ══ BORRADOR AUTOMÁTICO ══
+   «No le des actualizar si no has guardado, porque vas a borrar todo» no
+   debería ser una instrucción que la gente tenga que recordar después de
+   cuarenta minutos de captura. El navegador guarda el borrador solo, en la
+   computadora de quien captura, y lo ofrece de vuelta si la pestaña se cerró.
+   No sustituye a guardar: el borrador vive en un solo navegador y nadie más
+   lo ve. Lo que queda registrado sigue siendo lo que se guarda con folio. */
+const BORRADOR='cotizadorAV.borrador';
+const campos=['g-nombre','g-contacto','g-correo','g-tel','g-ejecutivo','g-lider','g-equipo',
+  'g-quien','g-postura','g-conting','g-fideicomiso','g-riesgoBanc','g-repTiempo','g-presupuesto',
+  'g-atencion','g-iniciativa','g-modalidad','g-urgencia','g-descuento','g-renovacion','g-meses',
+  'g-sesiones','g-horas','g-hAssessment','g-impresion','g-nPersonal','g-nCumplimiento','g-nDireccion',
+  'g-nIngreso','g-nCertUIF','p-dest','p-desc'];
+
+function guardarBorrador(){
+  try{
+    const f={}; campos.forEach(id=>{const el=$(id); if(el) f[id]=el.value;});
+    localStorage.setItem(BORRADOR, JSON.stringify({cuando:Date.now(), campos:f, ENT, OV}));
+  }catch(e){}   // modo privado, cuota llena: no pasa nada, se sigue trabajando
+}
+function borrarBorrador(){ try{ localStorage.removeItem(BORRADOR); }catch(e){} }
+
+function ofrecerBorrador(){
+  let d; try{ d=JSON.parse(localStorage.getItem(BORRADOR)||'null'); }catch(e){ return; }
+  if(!d||!d.ENT||!d.ENT.length) return;
+  const min=Math.round((Date.now()-d.cuando)/60000);
+  const cuando = min<60 ? `hace ${min} minuto${min===1?'':'s'}`
+    : min<1440 ? `hace ${Math.round(min/60)} hora${Math.round(min/60)===1?'':'s'}`
+    : `el ${new Date(d.cuando).toLocaleDateString('es-MX',{day:'numeric',month:'long'})}`;
+  const quien=(d.campos&&d.campos['g-nombre'])||'sin nombre';
+  $('avisoDerivada').innerHTML=`<div class="alerta"><b>Tienes una captura sin guardar.</b>
+    «${quien}», ${cuando}. Se quedó en este navegador cuando se cerró la pestaña.
+    <div class="btns" style="margin:9px 0 0">
+      <button class="b1" id="bRecuperar">Recuperarla</button>
+      <button class="b3" id="bDescartar">Descartarla</button></div></div>`;
+  $('bRecuperar').onclick=()=>{
+    campos.forEach(id=>{const el=$(id); if(el&&d.campos[id]!==undefined) el.value=d.campos[id];});
+    ENT=d.ENT; OV=d.OV||{};
+    ENT.forEach(sincronizar); pintarEntidades(); render();
+    $('avisoDerivada').innerHTML=''; window.scrollTo({top:0,behavior:'smooth'});
+  };
+  $('bDescartar').onclick=()=>{ borrarBorrador(); $('avisoDerivada').innerHTML=''; };
+}
+
+/* Se guarda cada vez que algo cambia, sin castigar al navegador. */
+let tBorrador;
+document.addEventListener('input', ()=>{ clearTimeout(tBorrador); tBorrador=setTimeout(guardarBorrador,1200); });
+document.addEventListener('change',()=>{ clearTimeout(tBorrador); tBorrador=setTimeout(guardarBorrador,1200); });
+
 /* Aviso si se cierra la pestaña con una cotización sin guardar. */
 window.addEventListener('beforeunload',ev=>{
   if(!local && USUARIO && !guardada && $('tfoot').innerHTML){ ev.preventDefault(); ev.returnValue=''; }
@@ -2791,6 +3018,7 @@ if(local){
   firebase.auth().onAuthStateChanged(u=>{
     if(u && u.email && u.email.toLowerCase().endsWith(DOMINIO)){
       USUARIO=u; $('gate').style.display='none'; pintarBarra();
+      ofrecerBorrador();   // por si la pestaña se cerró a media captura
     }else if(u){
       /* Entró con un correo que no es de la empresa: se cierra la sesión.
          Aunque se colara, las reglas de Firestore no lo dejarían escribir. */

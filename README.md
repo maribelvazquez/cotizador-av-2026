@@ -13,7 +13,13 @@ que no van al cliente.
 | `sitio/index.html` | El cotizador. Un solo archivo. |
 | `funciones/propuesta.js` | El redactor de propuestas. Corre en el servidor. |
 | `netlify.toml` | Le dice a Netlify qué publicar y qué correr. |
-| `firestore.rules` | Reglas de la base de cotizaciones. Se pegan en Firebase. |
+| `firestore.rules` | Reglas de la base. Se pegan en Firebase. **Cambiaron el 7-sep-2026**: antes ningún miembro del equipo podía mover el estatus de una cotización. |
+
+## Tres colecciones
+
+- `cotizaciones` — lo que se cotizó. Se crea y se lee; nunca se edita ni se borra.
+- `autorizaciones` — el estado de cada cotización. El equipo mueve todos; solo dirección marca «Autorizada».
+- `observaciones` — la retroalimentación del equipo, desde el botón «Reportar algo». Queda con folio, versión de precios y autor.
 
 ## La llave de Claude
 
