@@ -348,6 +348,16 @@ label.ns input{margin:0}
 .barra .ver{background:var(--negro);color:#fff;font-weight:700;font-size:11px;letter-spacing:.4px;
   padding:3px 8px;border-radius:5px;flex-shrink:0}
 .g-ver{margin-top:16px;font-size:11.5px;color:#8a918c;letter-spacing:.3px}
+.ent details.mas{margin:2px 0 14px;border-top:1px solid var(--linea);padding-top:10px}
+.ent details.mas summary{cursor:pointer;font-size:12px;color:var(--verde);font-weight:600;
+  list-style:none;padding:2px 0}
+.ent details.mas summary::-webkit-details-marker{display:none}
+.ent details.mas summary::before{content:'+ ';font-weight:700}
+.ent details.mas[open] summary::before{content:'– '}
+.ent details.mas .grid{margin-top:10px}
+tbody tr.subEnt td{background:#f6faf7;font-weight:600;border-top:1px solid var(--verde-claro);
+  border-bottom:1px solid var(--verde-claro);font-size:12.5px;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
 .fechaCoti:empty{display:none}
 .fechaCoti{font-size:11.5px;color:var(--gris);line-height:1.6;margin:2px 0 8px;
   -webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -410,6 +420,7 @@ label.ns input{margin:0}
   <button class="tab on" data-t="cotizar">Cotizar</button>
   <button class="tab" data-t="guion">Guion de la junta</button>
   <button class="tab" data-t="consejos">Cómo se conduce</button>
+  <button class="tab" data-t="manual">Diagnóstico del Manual</button>
   <button class="tab" data-t="guia">Cómo se usa</button>
 </nav>
 <div id="t-cotizar">
@@ -529,7 +540,13 @@ porque antes no sabíamos qué se iba a vender.</p>
     <div><label>Descuento<span class="fund">La auditoría no baja de B</span></label><select id="g-descuento"></select></div>
     <div><label>¿Es renovación?</label><select id="g-renovacion">
       <option value="0">Cliente nuevo</option><option value="1">Renovación · +5%</option></select></div>
-    <div><label>Meses de iguala</label><input type="number" id="g-meses" min="0" max="36" value="12"></div>
+    <div><label>Meses de iguala<span class="fund">El honorario mensual se ve en el desglose</span></label>
+      <select id="g-meses">
+        <option value="0">No aplica</option>
+        <option value="6">6 meses</option>
+        <option value="12" selected>12 meses</option>
+        <option value="18">18 meses</option>
+        <option value="24">24 meses</option></select></div>
     <div><label>Sesiones a la medida<span class="fund">En la empresa, por sesión</span></label>
       <input type="number" id="g-sesiones" min="0" max="12" value="0"></div>
     <div><label>Horas de assessment<span class="fund">Revisar un entregable que ya tienen</span></label>
@@ -609,6 +626,13 @@ Si no la grabaste, escribe aquí lo que recuerdes: sirve, pero menos.</div>
 </div><!-- fin t-cotizar -->
 <div id="t-guion" hidden class="guia"></div>
 <div id="t-consejos" hidden class="guia"></div>
+<div id="t-manual" hidden>
+  <h2><span class="n">·</span>Diagnóstico del Manual de Políticas Internas</h2>
+  <p class="hint">Los contenidos que exige el artículo 37 Bis de las Reglas, uno por uno.
+     No se captura para cotizar: se usa cuando tienes el manual del cliente enfrente y sale
+     como informe aparte, con su aclaración de que depende de lo que el cliente declaró.</p>
+  <div id="manual14"></div>
+</div>
 <div id="t-guia" hidden class="guia"></div>
 </div>
 
@@ -631,9 +655,9 @@ const CONFIG={
     la barra de arriba mientras se trabaja, en el pie del informe y dentro de
     cada cotización que se guarda. Así, al abrir la página se ve de inmediato
     si es la versión nueva o la que traía el navegador en caché. */
- version:'6.0',
+ version:'7.0',
  versionFecha:'8 de septiembre de 2026',
- versionNota:'auditoría completa: fórmulas de escala, alcances de servicio, fechas de la propuesta y condiciones de pago',
+ versionNota:'captura corta · cotización por empresa · hoja de diagnóstico del Manual · condiciones de pago',
  versionPrecios:'2026-09-07',
 
  /* ── QUIÉN PUEDE AUTORIZAR ──
@@ -682,189 +706,49 @@ const CONFIG={
     Esto cambia cómo se vende: no es "estás en falta", es "tienes hasta tal
     fecha". Es más honesto y se cierra mejor. Verificado contra la Ley, el
     Reglamento y las RCG el 7 de septiembre de 2026. */
- /* ── CATÁLOGO DE OBLIGACIONES ──
-    De aquí sale el diagnóstico que se le entrega al cliente. Cada renglón trae
-    su fundamento verificado contra la Ley, el Reglamento y las RCG el 7-sep-2026,
-    y la fecha desde la que es exigible.
-
-    Regla de oro del diagnóstico: algo que falta pero TODAVÍA NO ES EXIGIBLE no
-    es un incumplimiento. Es un pendiente con fecha. Decirle a un cliente que
-    está en falta de algo que aún no lo obliga es un error que se cae solo en
-    cuanto lo consulta con su abogado. */
+  /* ── LAS OBLIGACIONES QUE SE CAPTURAN ──
+    Diez. Cada una mueve el precio o define un servicio; ninguna está aquí
+    solo para llenar. Se quitaron el 8-sep-2026, por instrucción de dirección:
+      · aviso de 24 horas — es un deber que se dispara con un hecho, no un
+        estado en el que se pueda estar;
+      · mecanismos automatizados de monitoreo — no hay servicio que lo cierre;
+      · beneficiario controlador del CLIENTE — sus criterios van dentro del
+        Manual y ya se miden ahí.
+    Las tres siguen en el calendario de exigibilidad del informe, que aplica a
+    todo sujeto obligado con independencia del diagnóstico.
+    Los 94 puntos de detalle salieron a un papel de trabajo aparte: no movían
+    el precio y volvían impracticable la captura. */
  obligaciones:[
-  {id:'padron', corto:'Padrón', q:'Alta y registro en el padrón de actividades vulnerables', desde:null, ord:0,
-   f:'Reglamento art. 12 · RCG arts. 4 a 8',
-   puntos:[
-    {p:'Está dada de alta en el padrón del SAT', f:'Regl. art. 12'},
-    {p:'El alta se hizo con la e.firma de la propia entidad, no con la del representante legal', f:'RCG art. 4'},
-    {p:'Están dadas de alta TODAS las actividades vulnerables que realiza, no solo una', f:'RCG art. 4'},
-    {p:'Los datos del padrón están actualizados (cambios avisados dentro de 6 días hábiles)', f:'RCG art. 7'},
-    {p:'Si hay fideicomiso u otra figura jurídica, tiene su propia alta', f:'RCG art. 10 Sexies'}]},
-
-  {id:'rep', corto:'Representante', q:'Representante Encargado de Cumplimiento', desde:null, ord:0,
-   f:'Ley art. 20 · RCG art. 10',
-   puntos:[
-    {p:'Hay una persona designada ante el SAT', f:'Ley art. 20'},
-    {p:'La persona designada ACEPTÓ el cargo en el Portal con su e.firma', f:'RCG art. 10'},
-    {p:'Es persona física (no se puede designar a una moral ni a un despacho)', f:'RCG art. 10, párrafo final'},
-    {p:'Recibió capacitación en el último año', f:'Ley art. 20, párr. 3'},
-    {p:'Tiene acceso real a la dirección y a la información para hacer su trabajo', f:'RCG art. 37 Bis fr. X'}]},
-
-  {id:'exp', corto:'Expedientes', q:'Expediente único de identificación de clientes', desde:null, ord:0,
-   f:'Ley art. 18 fr. IV · RCG arts. 11 a 22',
-   puntos:[
-    {p:'Existe expediente para cada cliente, no solo para algunos', f:'RCG art. 12'},
-    {p:'Se integra ANTES o AL MOMENTO del acto u operación, no después', f:'RCG art. 12'},
-    {p:'Se usa el Anexo que corresponde al tipo de cliente (3 a 8)', f:'RCG art. 12'},
-    {p:'Los documentos están cotejados contra original', f:'RCG art. 12'},
-    {p:'Se pregunta y documenta si el cliente actúa por cuenta de un tercero', f:'RCG art. 22'},
-    {p:'Se verifican al menos una vez al año que estén completos y actualizados', f:'RCG art. 21'},
-    {p:'El comprobante de domicilio no rebasa tres meses de antigüedad', f:'RCG art. 21'},
-    {p:'Se conservan cinco años contados desde el acto u operación', f:'Ley art. 18 fr. IV'}]},
-
-  {id:'avisos', corto:'Avisos', q:'Presentación de avisos', desde:null, ord:0,
-   f:'Ley art. 23 · RCG arts. 24 Bis a 27',
-   puntos:[
-    {p:'Se presentan a más tardar el día 17 del mes inmediato siguiente', f:'Ley art. 23'},
-    {p:'Se presenta un aviso por cada acto u operación, no uno acumulado', f:'RCG art. 24 Bis 1'},
-    {p:'Se acumulan correctamente las operaciones fraccionadas en seis meses', f:'Regl. art. 7'},
-    {p:'Se presenta informe en ceros cuando no hubo operaciones que reportar', f:'RCG art. 25'},
-    {p:'No hay ejercicios anteriores sin presentar', f:'Ley art. 53 fr. VI'},
-    {p:'Se conservan acuses y documentación soporte por diez años', f:'Regl. art. 20'}]},
-
-/* Igual que el beneficiario controlador: el PROCEDIMIENTO va dentro del
-     Manual. Lo que se mide aquí es si el circuito existe y quién lo opera.
-     Y va en renglón aparte por una razón que no es de forma: es la fecha
-     más próxima de toda la reforma —30 de noviembre de 2026, cuatro meses
-     antes que el Manual—. Metida dentro de la pregunta del Manual, el
-     cliente vería marzo de 2027 y no vería noviembre. */
-  {id:'aviso24', corto:'Aviso de 24 horas', q:'¿Podrían presentar un aviso de 24 horas si mañana detectaran algo?',
-   /* CORREGIDO EL 8-SEP-2026. Estaba con fecha de noviembre de 2026 y ESO ERA
-      FALSO: la obligación vive en la Ley art. 18 fr. VI, segundo párrafo,
-      reformada el 16 de julio de 2025, y ya está vigente. Los arts. 26 Bis
-      a 26 Bis 2 de las RCG solo desarrollan el procedimiento —empiezan
-      diciendo "Para efectos del segundo párrafo de la fracción VI del
-      artículo 18 de la Ley"—. Decirle a un cliente que tiene hasta noviembre
-      lo dejaba expuesto a la multa del art. 54 fr. III por algo que ya le
-      obliga hoy. */
+  {id:'padron', corto:'Padrón', q:'Alta y registro en el padrón de actividades vulnerables',
    desde:null, ord:0,
-   f:'Ley art. 18 fr. VI, segundo párrafo (reforma DOF 16-07-2025, vigente) · Reglamento art. 7 Bis · RCG arts. 26 Bis a 26 Bis 2 · la obligación ya rige; lo que entra el 30 de noviembre de 2026 es el procedimiento reglado de las RCG · el procedimiento se escribe DENTRO del Manual y no se construye aparte',
-   puntos:[
-    {p:'Hay una persona identificable a quien se le escala la sospecha, y el personal de trato directo sabe quién es', f:'RCG art. 26 Bis'},
-    {p:'Queda constancia de la hora en que se detectó: de ahí corren las 24 horas, no del cierre del mes', f:'RCG art. 26 Bis'},
-    {p:'Está claro que procede aunque la operación no llegue al umbral', f:'RCG art. 26 Bis 2'},
-    {p:'Está claro que procede aunque la operación al final no se haya celebrado', f:'Regl. art. 7 Bis'}]},
-
-  {id:'manual', corto:'Manual', q:'Manual de Políticas Internas', desde:'1 de marzo de 2027', ord:2,
-   f:'Ley art. 18 fr. VIII · RCG arts. 37 y 37 Bis',
-   puntos:[
-    {p:'Existe el Manual, está fechado y aprobado por la dirección', f:'RCG art. 37'},
-    {p:'Criterios de identificación y conocimiento de clientes', f:'RCG art. 37 Bis fr. I'},
-    {p:'Clasificación de clientes por grado de riesgo', f:'RCG art. 37 Bis fr. II'},
-    {p:'Debida diligencia diferenciada según el grado de riesgo', f:'RCG art. 37 Bis fr. III'},
-    {p:'Tratamiento de Personas Políticamente Expuestas', f:'RCG art. 37 Bis fr. IV'},
-    {p:'Perfil transaccional de los clientes', f:'RCG art. 37 Bis fr. V'},
-    {p:'Procedimiento de presentación de avisos', f:'RCG art. 37 Bis fr. VI'},
-    {p:'Criterios de conservación de la información', f:'RCG art. 37 Bis fr. VII'},
-    {p:'Acumulación de operaciones para umbrales', f:'RCG art. 37 Bis fr. VIII'},
-    {p:'Consulta de listas de personas bloqueadas', f:'RCG art. 37 Bis fr. IX'},
-    {p:'Funciones y responsabilidades del Representante', f:'RCG art. 37 Bis fr. X'},
-    {p:'Programas de capacitación', f:'RCG art. 37 Bis fr. XI'},
-    {p:'Control interno y auditoría', f:'RCG art. 37 Bis fr. XII'},
-    {p:'Confidencialidad y prohibición de avisar al cliente', f:'RCG art. 37 Bis fr. XIII'},
-    {p:'Procedimiento de actualización del propio Manual', f:'RCG art. 37 Bis fr. XIV'},
-    {p:'Si es grupo empresarial, hay manual del grupo con las particularidades de cada empresa', f:'RCG art. 37 Bis 1'}]},
-
+   f:'Reglamento art. 12 · RCG arts. 4 a 8'},
+  {id:'rep', corto:'Representante', q:'Representante Encargado de Cumplimiento',
+   desde:null, ord:0,
+   f:'Ley art. 20 · RCG art. 10'},
+  {id:'exp', corto:'Expedientes', q:'Expediente único de identificación de clientes',
+   desde:null, ord:0,
+   f:'Ley art. 18 fr. IV · RCG arts. 11 a 22'},
+  {id:'avisos', corto:'Avisos', q:'Presentación de avisos',
+   desde:null, ord:0,
+   f:'Ley art. 23 · RCG arts. 24 Bis a 27'},
+  {id:'manual', corto:'Manual', q:'Manual de Políticas Internas',
+   desde:'1 de marzo de 2027', ord:2,
+   f:'Ley art. 18 fr. VIII · RCG arts. 37 y 37 Bis'},
   {id:'ebr', corto:'Metodología de riesgos', q:'Metodología de evaluación de riesgos de la entidad',
    desde:'1 de marzo de 2027', ord:2,
-   f:'Ley art. 18 fr. VII · RCG arts. 10 Septies a 10 Septies 6',
-   puntos:[
-    {p:'Existe una metodología escrita, no solo una matriz suelta', f:'RCG art. 10 Septies'},
-    {p:'Considera los actos u operaciones que realiza', f:'RCG art. 10 Septies 1'},
-    {p:'Considera el tipo de clientes', f:'RCG art. 10 Septies 1'},
-    {p:'Considera países y áreas geográficas', f:'RCG art. 10 Septies 1'},
-    {p:'Considera los canales de contratación y entrega', f:'RCG art. 10 Septies 1'},
-    {p:'Tiene un método explícito de medición del riesgo', f:'RCG art. 10 Septies 1'},
-    {p:'Se alimenta de una base de datos de al menos doce meses', f:'RCG art. 10 Septies 2 fr. II'},
-    {p:'Se revisa y actualiza al menos cada doce meses', f:'RCG art. 10 Septies 3'},
-    {p:'Hay mitigantes definidos para los riesgos identificados', f:'RCG art. 10 Septies'},
-    {p:'La documentación se conserva diez años', f:'RCG art. 10 Septies 3'}]},
-
+   f:'Ley art. 18 fr. VII · RCG arts. 10 Septies a 10 Septies 6'},
   {id:'matriz', corto:'Riesgo de clientes', q:'Modelo de grado de riesgo de clientes',
    desde:'1 de marzo de 2027', ord:2,
-   f:'RCG arts. 23 Bis a 23 Bis 4',
-   puntos:[
-    {p:'Existe un modelo que clasifica a cada cliente', f:'RCG art. 23 Bis'},
-    {p:'Es coherente con la metodología de riesgos de la entidad', f:'RCG art. 23 Bis'},
-    {p:'Tiene al menos tres grados: bajo, medio y alto', f:'RCG art. 23 Bis, párr. 2'},
-    {p:'Está escrito dentro del Manual de Políticas Internas', f:'RCG art. 23 Bis'},
-    {p:'Los clientes se reevalúan al menos cada seis meses', f:'RCG art. 23 Bis 1'},
-    {p:'Considera factores inherentes y transaccionales', f:'RCG art. 23 Bis 2'},
-    {p:'Hay perfil transaccional y alertas por desviación', f:'RCG arts. 23 Ter 1 y 23 Ter 2'},
-    {p:'Se consulta PEP y hay debida diligencia reforzada', f:'RCG arts. 23 Quáter y 23 Ter 4'}]},
-
-  /* Esta pregunta NO es «¿el Manual habla del beneficiario controlador?».
-     Eso ya lo mide la pregunta del Manual, y sería preguntar dos veces lo
-     mismo. Lo que mide aquí es si además de estar escrito, se está HACIENDO:
-     si a cada cliente se le identifica y queda en su expediente. Un manual
-     impecable con cero declaraciones recabadas es el hallazgo más común de
-     todos, y es exactamente lo que busca un auditor. */
-  {id:'bc', corto:'BC del cliente', q:'¿De verdad identifican al beneficiario controlador de cada cliente?',
-   desde:'1 de marzo de 2027', ord:2,
-   f:'Ley art. 18 fr. III · RCG Cap. III Quinquies arts. 23 Quinquies a 23 Quinquies 3 · umbral 25% · los CRITERIOS van dentro del Manual y no se construyen aparte; esto mide si se aplican en la operación y quedan en el expediente',
-   puntos:[
-    {p:'Los criterios del Manual se están aplicando de verdad, no solo escritos', f:'RCG art. 23 Quinquies'},
-    {p:'Se aplica la prelación: 25% o más del capital, luego control por otros medios, luego alta dirección', f:'RCG art. 23 Quinquies fr. I a III'},
-    {p:'A las personas físicas se les recaba declaración firmada de si conocen a un beneficiario controlador', f:'Ley art. 18 fr. III'},
-    {p:'Hay tratamiento específico para fideicomisos', f:'RCG art. 23 Quinquies 1'},
-    {p:'Se aplican las excepciones que la norma permite, sin excederse', f:'RCG art. 23 Quinquies 2'},
-    {p:'El soporte se conserva cinco años y se mantiene actualizado mientras dure la relación de negocios', f:'Ley art. 18 fr. IV · RCG art. 23 Quinquies, último párrafo'}]},
-
+   f:'RCG arts. 23 Bis a 23 Bis 4'},
   {id:'bcRegistro', corto:'Registro ante Economía', q:'Registro del beneficiario controlador ante el sistema de la Secretaría de Economía',
    desde:null, ord:0,
-   f:'Ley Cap. IV Bis arts. 33 Bis y 33 Ter · obliga a TODA sociedad mercantil, sea o no sujeto obligado · multa 2,000 a 10,000 UMA',
-   puntos:[
-    {p:'Sabe que esta obligación le aplica por ser sociedad mercantil, aunque no realizara actividad vulnerable', f:'Ley art. 3 fr. III, párrafo adicionado'},
-    {p:'Puede atender un requerimiento de autoridad sobre quién es su beneficiario controlador', f:'Ley art. 33 Bis, primer párrafo'},
-    {p:'Tiene identificadas las transmisiones de acciones o partes sociales que detonan aviso', f:'Ley art. 33 Bis, segundo párrafo'},
-    {p:'Tiene el expediente armado y fechado, listo para el día que abra el sistema', f:'Ley art. 33 Ter · lineamientos aún no publicados'}]},
-
-  {id:'sis', corto:'Monitoreo', q:'Mecanismos automatizados de monitoreo',
-   desde:'1 de junio de 2027', ord:3,
-   f:'RCG art. 41',
-   puntos:[
-    {p:'Hay un sistema, no una hoja de cálculo llevada a mano', f:'RCG art. 41'},
-    {p:'Conserva el histórico del grado de riesgo de cada cliente', f:'RCG art. 41 fr. IV'},
-    {p:'Conserva el histórico del perfil transaccional', f:'RCG art. 41 fr. IV'},
-    {p:'Genera alertas por operaciones fuera de perfil', f:'RCG art. 23 Ter 2'},
-    {p:'Los históricos se conservan diez años', f:'RCG art. 41 fr. IV'}]},
-
+   f:'Ley Cap. IV Bis arts. 33 Bis y 33 Ter · obliga a TODA sociedad mercantil, sea o no sujeto obligado · multa 2,000 a 10,000 UMA'},
   {id:'cap', corto:'Capacitación', q:'Programa anual de capacitación',
    desde:'Primer año calendario 2027', ord:4,
-   f:'Ley art. 18 fr. IX · RCG arts. 39 Bis a 39 Bis 2',
-   puntos:[
-    {p:'Se imparte al menos una vez al año', f:'RCG art. 39 Bis fr. I'},
-    {p:'Alcanza al consejo o administrador único y a la dirección', f:'RCG art. 39 Bis fr. I'},
-    {p:'Alcanza al Representante Encargado de Cumplimiento', f:'RCG art. 39 Bis fr. I'},
-    {p:'Alcanza a quien atiende clientes, identifica o envía avisos', f:'RCG art. 39 Bis fr. I'},
-    {p:'Quien la imparte acredita cinco años de experiencia en PLD/FT', f:'RCG art. 39 Bis fr. III'},
-    {p:'Hay evaluación y se expide constancia', f:'RCG art. 39 Bis 1'},
-    {p:'El personal nuevo se capacita antes o al ingresar a esas áreas', f:'RCG art. 39 Bis 1'},
-    {p:'Se conserva la evidencia diez años: programas, listas, evaluaciones y constancias', f:'RCG art. 39 Bis 1'},
-    {p:'Hay procedimientos documentados de selección de personal', f:'RCG art. 39 Bis 2'}]},
-
+   f:'Ley art. 18 fr. IX · RCG arts. 39 Bis a 39 Bis 2'},
   {id:'aud', corto:'Auditoría', q:'Auditoría anual de cumplimiento',
    desde:'Primer periodo 2028 · dictamen a más tardar el último día hábil de marzo de 2029', ord:5,
-   f:'Ley art. 18 fr. XI · RCG Cap. XIV arts. 42 a 51',
-   puntos:[
-    {p:'Está definido si le toca auditoría interna o externa según su grado de riesgo', f:'Ley art. 18 fr. XI · RCG arts. 44 y 45'},
-    {p:'Si es riesgo alto, el auditor es externo e independiente', f:'RCG art. 45'},
-    {p:'El auditor tiene título, cédula y tres años de experiencia', f:'RCG art. 45'},
-    {p:'El auditor tiene certificación vigente de la UIF', f:'RCG art. 45 · Ley art. 34 Bis'},
-    {p:'El auditor no fue Representante del auditado en el periodo ni en los dos años siguientes', f:'RCG art. 45'},
-    {p:'El dictamen cubre del 1 de enero al 31 de diciembre', f:'RCG art. 42'},
-    {p:'El dictamen incluye la proyección económica del monto de las multas', f:'RCG art. 49'},
-    {p:'El dictamen se conserva cinco años', f:'RCG art. 51'}]}
+   f:'Ley art. 18 fr. XI · RCG Cap. XIV arts. 42 a 51'}
  ],
 
  exigibilidad:[
@@ -874,8 +758,7 @@ const CONFIG={
    f:'Ley art. 18 fr. IV · RCG arts. 12 y 21'},
   {q:'Avisos al día 17 del mes siguiente', desde:'Vigente hoy', ord:9,
    f:'Ley art. 23 · RCG art. 24 Bis'},
-  {q:'Avisos de 24 horas por sospecha o por indicios', desde:'30 de noviembre de 2026', ord:1,
-   f:'RCG arts. 26 Bis y 26 Bis 1'},
+  {q:'Avisos de 24 horas por sospecha o por indicios', desde:'Vigente hoy', f:'Ley art. 18 fr. VI, segundo párrafo · reforma DOF 16-07-2025 · el procedimiento reglado de las RCG arts. 26 Bis a 26 Bis 2 rige desde el 30 de noviembre de 2026, pero el deber de avisar ya existe'},
   {q:'Manual de Políticas Internas con sus 14 contenidos', desde:'1 de marzo de 2027', ord:2,
    f:'RCG arts. 37 y 37 Bis · Transitorio Tercero'},
   {q:'Metodología de riesgos y modelo de grado de riesgo de clientes', desde:'1 de marzo de 2027', ord:2,
@@ -889,18 +772,9 @@ const CONFIG={
   {q:'Auditoría anual de cumplimiento', desde:'Primer periodo 2028 · dictamen en marzo de 2029', ord:5,
    f:'Ley art. 18 fr. XI · RCG Cap. XIV · Transitorio Octavo'}
  ],
+
  iva:.16, renovacionInflacion:.05, impresion:2500,
  tcUSD:18, horaAcompUSD:300, mesesBolsa:6,
- /* ── CÓMO ESCALA EL TRABAJO CON MÁS EMPRESAS ──
-    Corregido el 8-sep-2026. Antes, un servicio de ámbito grupo se ABARATABA
-    con cada empresa que se agregaba: un grupo de once pagaba menos por el
-    marco que una sola empresa. Está al revés. El RCG art. 37 Bis 1 permite
-    manual de grupo pero "con las particularidades de cada empresa": cada
-    entidad adicional es trabajo de adaptación, no ahorro.
-    marcoPorEntidadExtra: cuánto suma cada empresa adicional al marco.
-    igualaPorEntidadExtra: cada empresa opera su propio padrón y su e.firma. */
- marcoPorEntidadExtra:0.35,
- igualaPorEntidadExtra:0.60,
  /* El assessment se cobra por hora: no es construir un entregable, es
     revisar el que el cliente ya tiene y decir qué le falta. Es el caso de
     quien dice "mi manual está bien" — y con la reforma casi nunca lo está. */
@@ -945,9 +819,6 @@ const CONFIG={
             {id:'inicial',nombre:'30 a 54% · Inicial',pct:.15},
             {id:'arranque',nombre:'Menos de 30% · Sin arranque',pct:.20}]},
 
- /* Cada actividad lleva su fracción del artículo 17 de la Ley. Va así para
-    que el redactor de propuestas NO la invente: en una prueba real escribió
-    que el cash pooling era la fracción X, que es traslado de valores. */
  actividades:[
   {id:'arrendamiento',nombre:'Arrendamiento de inmuebles',fr:'XV'},
   {id:'mutuo',nombre:'Préstamo, mutuo o crédito',fr:'IV'},
@@ -1059,16 +930,16 @@ const CONFIG={
   manualVol:{sello:'GMC360',ambito:'entidad',nombre:'Manual de cumplimiento voluntario',
     alcance:'Manual para entidad que no actualiza los supuestos, con su justificación',
     entregables:'Manual voluntario · memo de no configuración',base:'fijo',importe:70000},
-  manual:{sello:'GMC360',ambito:'grupo',nombre:'Manual de Políticas Internas (Ley art. 18 fr. VIII · RCG arts. 37 y 37 Bis)',
+  manual:{sello:'GMC360',ambito:'entidad',nombre:'Manual de Políticas Internas (Ley art. 18 fr. VIII · RCG arts. 37 y 37 Bis)',
     alcance:'Los catorce contenidos mínimos, redactados sobre la operación real',
     entregables:'Manual aprobado por el órgano de administración · matriz de contenidos',base:'manual'},
-  mebr:{sello:'GMC360',ambito:'grupo',nombre:'Metodología de riesgos con modelo de riesgo de cliente',
+  mebr:{sello:'GMC360',ambito:'entidad',nombre:'Metodología de riesgos con modelo de riesgo de cliente',
     alcance:'Cuatro elementos, indicadores, medición, mitigantes, gobernanza y modelo de grado de riesgo de clientes',
     entregables:'Metodología · matriz institucional · modelo de clientes · memoria de calibración',base:'mebr'},
-  paqueteMarco:{sello:'GMC360',ambito:'grupo',nombre:'Paquete: Manual + Metodología + Modelo de clientes',
+  paqueteMarco:{sello:'GMC360',ambito:'entidad',nombre:'Paquete: Manual + Metodología + Modelo de clientes',
     alcance:'Los tres entregables construidos como un solo marco coherente',
     entregables:'Manual · metodología · modelo de clientes · texto integrable · memoria de calibración',base:'paquete'},
-  programaCap:{sello:'GMC360',ambito:'grupo',nombre:'Diseño del programa anual de capacitación',
+  programaCap:{sello:'GMC360',ambito:'entidad',nombre:'Diseño del programa anual de capacitación',
     alcance:'Cuatro niveles, calendario, evaluación y formato de constancias',
     entregables:'Programa anual · materiales por nivel · formatos',base:'fijo',importe:18000},
   /* Gratuito. Se cotiza en cero a propósito: aparece en la propuesta como
@@ -1113,7 +984,7 @@ const CONFIG={
   acompanamiento:{sello:'GMC360',ambito:'grupo',nombre:'Bolsa de horas de acompañamiento',
     alcance:'Bolsa de horas de asesoría: el cliente ejecuta y GMC360 revisa y comenta lo que produce, en sesiones con su dirección. Las horas se aplican contra un registro con fecha, tema y persona que las prestó, y tienen vigencia de seis meses desde la contratación. Los comentarios son opinión técnica sobre el documento revisado: no son aprobación de la autoridad ni sustituyen la auditoría de cumplimiento',
     entregables:'Registro de horas con fecha, tema y responsable · minuta de cada sesión con acuerdos, responsable y fecha compromiso · comentarios por escrito sobre cada documento revisado, con lo que se conserva, lo que se corrige y su fundamento',base:'horas'},
-  iguala:{sello:'GMC360',ambito:'grupo',nombre:'Iguala de operación mensual',
+  iguala:{sello:'GMC360',ambito:'entidad',nombre:'Iguala de operación mensual',
     alcance:'Operación mensual del cumplimiento: preparación y carga de los avisos del periodo, seguimiento de umbrales y de operaciones que se apartan del perfil transaccional, actualización de datos en el padrón y consultas del día a día. La presentación en plazo depende de que el cliente entregue la información de sus operaciones dentro de los primeros cinco días hábiles del mes; el calendario y el responsable de cada entrega se pactan por escrito. El Representante Encargado sigue siendo del cliente y es quien firma. No incluye integrar expedientes, construir el marco normativo ni representación ante la autoridad',
     entregables:'Avisos del periodo cargados en el Portal, con su acuse · relación de operaciones revisadas y de las que se apartaron del perfil · minuta de la sesión mensual con acuerdos y responsables · reporte mensual con avisos presentados, pendientes, alertas atendidas y cambios en el padrón',base:'mensual',importe:40000},
   /* IGUALA DE ARRANQUE · autorizada por dirección el 7-sep-2026.
@@ -1123,7 +994,7 @@ const CONFIG={
      cliente arma su función interna. Por eso está topada a 12 meses.
      Incluye, sin cobro aparte: avisos mes a mes, manual, metodología de
      riesgos con modelo de clientes y programa anual de capacitación. */
-  igualaArranque:{sello:'GMC360',ambito:'grupo',nombre:'Iguala de arranque · todo incluido',
+  igualaArranque:{sello:'GMC360',ambito:'entidad',nombre:'Iguala de arranque · todo incluido',
     alcance:'Construcción y operación en un solo precio mensual: manual, metodología de riesgos con modelo de clientes, programa anual de capacitación y la operación de avisos mes a mes. Máximo 12 meses',
     entregables:'Marco completo entregado · avisos presentados · programa de capacitación · minutas y reporte mensual',
     base:'mensual',importe:50000,topeMeses:12,
@@ -1149,8 +1020,8 @@ const nuevaEnt=()=>{
      'chk' es el detalle punto por punto. Solo se abre cuando alguien tiene la
      información —una biopsia, una auditoría— y entonces manda sobre la rápida.
      El ejecutivo comercial nunca tiene que abrirlo. */
-  const chk={}, niv={}, det={};
-  CONFIG.obligaciones.forEach(o=>{chk[o.id]=o.puntos.map(()=>false); niv[o.id]='no'; det[o.id]=false;});
+  const niv={};
+  CONFIG.obligaciones.forEach(o=>{ niv[o.id]='no'; });
   return {nombre:'',sabe:'si',actividad:'arrendamiento',actExtra:0,padron:'si',
    avisos:'ok',avisosAnio:0,avisosReg:0,ejercicios:0,clientes:0,
    /* Dos umbrales, no uno: el de identificación dimensiona expedientes y el
@@ -1164,15 +1035,16 @@ const nuevaEnt=()=>{
       capturado por desconocimiento se lee como un cero real y la
       cotización sale firme cuando no debería. */
    nsAvisos:false,nsEjercicios:false,nsAvisosReg:false,nsClientes:false,
-   tipoClientes:'terceros', chk, niv, det,
+   tipoClientes:'terceros', niv,
    /* Estas banderas ya no se capturan: las calcula sincronizar() a partir del
       checklist. Siguen existiendo porque el motor de recomendación las usa. */
    manual:false,rep:false,exp:false,ebr:false,matriz:false,cap:false,sis:false,bc:false,nivel:'arranque'};};
 
 /* Qué tan cubierta está una obligación, de 0 a 1.
    Si se abrió el detalle, manda el detalle. Si no, la respuesta rápida. */
+/* Una sola respuesta por obligación: no tiene, a medias, completo.
+   El detalle punto por punto salió a la sección de diagnóstico. */
 const pct=(e,id)=>{
-  if(e.det&&e.det[id]){const a=(e.chk&&e.chk[id])||[]; return a.length?a.filter(Boolean).length/a.length:0;}
   const v=(e.niv&&e.niv[id])||'no';
   return v==='si'?1:v==='parcial'?.5:0;
 };
@@ -1197,16 +1069,25 @@ function nivelDe(e){
 
 /* El motor de recomendación sigue leyendo banderas sí/no. Se las damos, pero
    ahora salen del checklist: "lo tiene" significa 70% o más de sus puntos. */
+/* ── EL PADRÓN Y LOS AVISOS SE CAPTURABAN DOS VECES ──
+   Estaban arriba, en la ficha de la entidad, con opciones ricas —«en ceros
+   operando sobre umbral», «con retraso mayor a 30 días»—, y otra vez abajo
+   como dos de las obligaciones, con tres botones. Y lo que se capturaba
+   abajo pisaba lo de arriba, así que las opciones ricas no servían de nada.
+   Ahora se preguntan UNA vez, arriba, donde tienen matiz, y el renglón del
+   diagnóstico se calcula solo. Dos preguntas menos por empresa. */
 function sincronizar(e){
-  ['manual','rep','exp','ebr','matriz','cap','sis','bc'].forEach(k=>{ e[k]=pct(e,k)>=.7; });
+  const dePadron={si:'si', desact:'parcial', no:'no', nose:'no'};
+  const deAvisos={ok:'si', tarde30:'parcial', parcial:'parcial',
+                  tarde30m:'no', ninguno:'no', ceros:'no', nose:'no'};
+  e.niv.padron = dePadron[e.padron] || 'no';
+  e.niv.avisos = deAvisos[e.avisos] || 'no';
+  ['manual','rep','exp','ebr','matriz','cap'].forEach(k=>{ e[k]=pct(e,k)>=.7; });
   e.nivel=nivelDe(e).id;
-  if(pct(e,'padron')===0) e.padron='no';
-  else if(pct(e,'padron')<1) e.padron='desact';
-  else e.padron='si';
-  const a=pct(e,'avisos');
-  if(a>=1) e.avisos='ok'; else if(a>=.5) e.avisos='parcial'; else e.avisos='tarde30m';
   return e;
 }
+/* Las que ya se contestaron arriba no se vuelven a preguntar abajo. */
+const CALCULADAS=['padron','avisos'];
 
 function grupo(){return{
  quien:$('g-quien').value, postura:$('g-postura').value, conting:$('g-conting').value,
@@ -1250,17 +1131,8 @@ function riesgoDe(e,g){
 function diagnostico(e){
   return CONFIG.obligaciones.map(o=>{
     const futura=!!o.desde, v=pct(e,o.id), es=escalaDe(v,futura);
-    const marcados=(e.chk&&e.chk[o.id]||[]).filter(Boolean).length;
-    /* Lo que le falta, dicho punto por punto. Esto es lo que hace que el
-       diagnóstico sirva: no dice "no cumple", dice qué exactamente. */
-    const faltantes=o.puntos.filter((_,j)=>!(e.chk&&e.chk[o.id]&&e.chk[o.id][j]));
-    const detalle=!!(e.det&&e.det[o.id]);
-    return {id:o.id, q:o.q, corto:o.corto||o.q, f:o.f, desde:o.desde||'Vigente hoy', ord:o.ord||0, futura, detalle,
-            estado:es.t, clase:es.c, pct:v, marcados, total:o.puntos.length,
-            /* Solo se dice "le falta esto y esto" cuando de verdad se revisó punto
-               por punto. Con la respuesta rápida no se sabe qué le falta, y afirmarlo
-               sería inventar. */
-            faltantes: detalle?faltantes:[]};
+    return {id:o.id, q:o.q, corto:o.corto||o.q, f:o.f, desde:o.desde||'Vigente hoy', ord:o.ord||0, futura,
+            estado:es.t, clase:es.c, pct:v};
   });
 }
 
@@ -1276,10 +1148,7 @@ function pintarDiagnostico(){
     const hoy=d.filter(x=>!x.futura), fut=d.filter(x=>x.futura&&x.pct<1);
     const malHoy=hoy.filter(x=>x.pct<1).length;
     const general=Math.round(niv.v*100);
-    const conDetalle=d.filter(x=>x.detalle).length;
-    const comoSeMidio = conDetalle
-      ? ` · ${conDetalle} ${conDetalle===1?'obligación revisada':'obligaciones revisadas'} punto por punto`
-      : '';
+    const comoSeMidio='';
     const resumen = malHoy===0
       ? (fut.length===0
         ? `Al corriente en las <b>${hoy.length}</b> obligaciones exigibles y con lo que viene ya construido.
@@ -1297,11 +1166,9 @@ function pintarDiagnostico(){
       <div class="resumen">${resumen}</div>
       <table><thead><tr><th style="width:60%">Obligación, fundamento y qué falta</th>
         <th style="width:16%">Exigible desde</th><th style="width:24%">Estado</th></tr></thead><tbody>
-      ${d.map(x=>`<tr><td class="ob">${x.q}<div class="fu">${x.f}</div>
-        ${x.faltantes.length&&x.faltantes.length<x.total
-          ? `<span class="nt">Le falta: ${x.faltantes.map(z=>z.p).join(' · ')}</span>`:''}</td>
+      ${d.map(x=>`<tr><td class="ob">${x.q}<div class="fu">${x.f}</div></td>
         <td class="${x.futura?'':'e-si'}">${x.desde}</td>
-        <td class="est ${x.clase}"><span class="pt">${x.detalle?x.marcados+'/'+x.total:'respuesta rápida'}</span>${x.estado}</td></tr>`).join('')}
+        <td class="est ${x.clase}">${x.estado}</td></tr>`).join('')}
       </tbody></table></div>`;
   }).join('');
 }
@@ -1384,6 +1251,48 @@ function recEntidad(e,g){
      postura y salía en propuestas donde no tenía nada que hacer. */
   const hayPasado = e.ejercicios>0 || e.nsEjercicios || e.avisosReg>0 || e.nsAvisosReg
     || e.padron!=='si' || !['ok'].includes(e.avisos) || pct(e,'exp')<1;
+  /* ── EL MARCO, POR EMPRESA ──
+     Se decidía una sola vez para todo el grupo, así que no había forma de
+     decir "manual para esta sí y para esta no". Ahora cada empresa trae su
+     propio renglón y su propia casilla. Lo que se reutiliza entre empresas
+     ya está reconocido en el descuento por entidad adicional. */
+  const faltaManualE = pct(e,'manual')<.7;
+  const faltaEbrE    = pct(e,'ebr')<.7 || pct(e,'matriz')<.7;
+  const faltaCapE    = pct(e,'cap')<.7;
+  const nadieOperaE  = (g.quien==='nadie'||g.quien==='contador');
+
+  if(nadieOperaE && (faltaManualE||faltaEbrE)){
+    si('igualaArranque','No hay quien opere el cumplimiento y además falta construir el marco. La iguala de arranque hace las dos cosas: construye manual, metodología y programa de capacitación, y opera los avisos mes a mes, sin cobro aparte. Máximo 12 meses, para que en ese plazo el cliente arme su propia función interna.','Autorizada por dirección · es un puente, no un destino');
+    no('paqueteMarco','Va incluido en la iguala de arranque.','');
+    no('manual','Va incluido en la iguala de arranque.','');
+    no('mebr','Va incluido en la iguala de arranque.','');
+    no('programaCap','Va incluido en la iguala de arranque.','');
+    no('iguala','Aquí aplica la de arranque: además de operar, hay que construir.','');
+  }else{
+    if(faltaManualE&&faltaEbrE){
+      si('paqueteMarco','Faltan manual y metodología. Construirlos juntos como un solo marco sale más barato que por separado.','Paquete autorizado por dirección');
+      no('manual','Va dentro del paquete.',''); no('mebr','Va dentro del paquete.','');
+    }else if(faltaManualE){
+      si('manual','Falta Manual de Políticas Internas con sus catorce contenidos.','Ley art. 18 fr. VIII · RCG arts. 37 y 37 Bis · exigible 1-mar-2027');
+    }else if(faltaEbrE){
+      si('mebr','Falta metodología de riesgos o modelo de grado de riesgo de clientes.','Ley art. 18 fr. VII · RCG art. 10 Septies y art. 23 Bis · exigible 1-mar-2027');
+    }else{
+      no('paqueteMarco','Esta empresa ya tiene manual y metodología. Si necesita calibración, entra por assessment o acompañamiento.','');
+    }
+
+    if(faltaCapE) si('programaCap','Falta programa anual de capacitación documentado para esta empresa.','Ley art. 18 fr. IX · RCG art. 39 Bis · primer año calendario 2027');
+    else no('programaCap','Esta empresa ya tiene programa de capacitación documentado.','');
+
+    if(nadieOperaE) si('iguala','No hay quien opere el cumplimiento día a día, pero el marco ya está construido: solo hay que operarlo.','Eje C');
+    else if(g.quien==='despacho') no('iguala','Ya tienen despacho especializado. Si el despacho es el cliente, se complementa.','N1');
+    else if(g.quien==='persona') no('iguala','Contrataron a alguien para llevar el tema. Tercerizar sería quitarle su trabajo.','Eje C · N1');
+    else no('iguala','Tienen área con equipo propio.','Eje C');
+  }
+
+  /* La auditoría es obligación propia y servicio propio. */
+  if(pct(e,'aud')<1)
+    op('auditoria','No tienen ciclo de auditoría documentado. El primer periodo auditable es 2028 y el dictamen se entrega en marzo de 2029: llegar con ciclos previos cambia la posición, pero no es urgente.','Ley art. 18 fr. XI · RCG Cap. XIV arts. 42 a 51');
+
   if(g.postura==='mejora' && hayPasado)
     si('biopsia','No se venden productos sueltos: primero la Biopsia. El manual sin diagnóstico es recetar sin examinar.','R10');
   else if(g.postura==='mejora')
@@ -1415,73 +1324,39 @@ function recGrupo(ents,g){
     si('assessment','Dicen que ya lo tienen completo, y puede ser cierto — pero se construyó con la norma anterior. El Manual pasó a catorce contenidos mínimos y la metodología cambió de capítulo. Revisarlo cuesta una fracción de rehacerlo, y si sale bien, el cliente se queda con la constancia de que sí cumple. Las horas cubren todos los entregables y todas las empresas del grupo.','Ley art. 18 · RCG arts. 37 y 37 Bis · reforma en vigor el 30 de noviembre de 2026');
   else op('assessment','Por si aparece un entregable que el cliente cree terminado y conviene revisarlo antes de cotizarlo como nuevo.','Se cobra por horas, no por entregable');
 
+  /* El marco, el programa de capacitación y las igualas se mudaron al bloque
+     de cada empresa el 8-sep-2026. Antes salían una sola vez para todo el
+     grupo y no se podía decir "manual para esta sí y para esta no". Aquí
+     queda solo lo que de verdad es del grupo: la gente que se capacita, las
+     horas y las sesiones. */
   const nadieOpera=(g.quien==='nadie'||g.quien==='contador');
-  /* La iguala de arranque aplica cuando se juntan las dos carencias: no hay
-     quien opere Y falta construir el marco. Si el marco ya existe, no hay nada
-     que arrancar y va la iguala de operación normal. */
-  const arranque = nadieOpera && (faltaManual||faltaEbr);
 
-  /* Sin costo, así que se ofrece siempre. Si el Representante está por nombrar
-     o recién nombrado, se recomienda; si ya está rodado, se deja a consideración. */
   if(alguna(e=>pct(e,'rep')<1))
     si('cursoRepresentante','Sin costo. A la persona que quede como Representante le enseña a operar el Portal pantalla por pantalla, y le deja cuatro plantillas. Va en la propuesta como cortesía.','Cortesía de GMC360');
   else
     op('cursoRepresentante','Sin costo, por si el Representante quiere repasar la operación del Portal o hay relevo.','Cortesía de GMC360');
 
-  if(arranque){
-    si('igualaArranque','No hay quien opere el cumplimiento y además falta construir el marco. La iguala de arranque hace las dos cosas: construye manual, metodología y programa de capacitación, y opera los avisos mes a mes, sin cobro aparte. Máximo 12 meses, para que en ese plazo el cliente arme su propia función interna.','Autorizada por dirección · es un puente, no un destino');
-    no('paqueteMarco','Va incluido en la iguala de arranque.','');
-    no('manual','Va incluido en la iguala de arranque.','');
-    no('mebr','Va incluido en la iguala de arranque.','');
-    no('programaCap','Va incluido en la iguala de arranque.','');
-    no('iguala','Aquí aplica la de arranque: además de operar, hay que construir.','');
-    if(faltaCap){
-      si('capGeneral','La iguala incluye el programa de capacitación, no impartirlo. El curso general cubre a todo el personal.','RCG art. 39 Bis fr. I');
-      si('capEspecializada','El Representante y quien opere el cumplimiento necesitan el curso especializado.','RCG art. 39 Bis fr. I');
-      si('capDireccion','El consejo o el administrador único también entran: la norma los nombra.','RCG art. 39 Bis fr. I');
-      op('capInduccion','Si contratan gente en áreas de atención al público, la norma pide capacitarla antes o al momento de ingresar.','RCG art. 39 Bis 1');
-      op('certUIF','Si quieren que su Representante quede certificado ante la UIF.','Ley art. 34 Bis');
-      op('capacitacion','Si prefieren sesión en vivo dentro de la empresa en vez de curso en línea.','');
-    }
-    no('acompanamiento','No tienen a quién acompañar: necesitan que alguien lo opere.','Eje C');
-    A.push({t:'La iguala de arranque termina',d:'Está topada a 12 meses a propósito. Al cliente le conviene más un oficial de cumplimiento de planta que una iguala indefinida. Escríbelo en la propuesta: al mes 12 se entrega la operación a su gente, y GMC360 se queda como acompañamiento o auditoría anual.'});
-    return{R,O,N,A};
-  }
-
-  if(faltaManual&&faltaEbr){
-    si('paqueteMarco','Faltan manual y metodología. Construirlos juntos como un solo marco cuesta $110,000 contra $130,000 por separado.','Paquete autorizado por dirección');
-    no('manual','Va dentro del paquete.',''); no('mebr','Va dentro del paquete.','');
-  }else if(faltaManual){
-    si('manual','Falta Manual de Políticas Internas. Modelo de grupo, se cobra una vez.','RCG arts. 37 y 37 Bis · Ley art. 18 fr. VIII · exigible 1-mar-2027');
-  }else if(faltaEbr){
-    si('mebr','Falta metodología de riesgos o modelo de grado de riesgo de clientes.','RCG art. 10 Septies (metodología) y art. 23 Bis (clientes) · Ley art. 18 fr. VII · exigible 1-mar-2027');
-  }else{
-    no('paqueteMarco','Ya tienen manual y metodología. Si necesitan calibración, entra por acompañamiento.','');
-  }
-
   if(faltaCap){
-    si('programaCap','Falta programa anual de capacitación documentado. Uno solo para el grupo.','RCG art. 39 Bis · Ley art. 18 fr. IX · primer año calendario 2027');
     si('capGeneral','Todo el personal necesita el curso anual, sin importar el área.','RCG art. 39 Bis fr. I');
     si('capEspecializada','El Representante Encargado y el área de cumplimiento necesitan el curso especializado.','RCG art. 39 Bis fr. I · quien imparte debe acreditar 5 años de experiencia');
     si('capDireccion','El consejo de administración o el administrador único están nombrados expresamente en la norma.','RCG art. 39 Bis fr. I');
     op('capInduccion','Para el personal que entre durante el año a áreas de atención al público.','RCG art. 39 Bis 1');
     op('certUIF','Si quieren que su Representante quede certificado ante la UIF.','Ley art. 34 Bis');
     op('capacitacion','Si prefieren sesión en vivo dentro de la empresa en vez de curso en línea.','');
-  }else no('programaCap','Ya tienen programa de capacitación documentado.','');
+  }else{
+    op('capGeneral','Ya tienen programa, pero la capacitación se imparte cada año: revisa si la del ejercicio en curso ya está dada.','RCG art. 39 Bis fr. I');
+    op('capEspecializada','Igual, para el área de cumplimiento.','RCG art. 39 Bis fr. I');
+    op('capacitacion','Si quieren sesión en vivo dentro de la empresa.','');
+  }
 
   if(nadieOpera){
-    si('iguala','No hay quien opere el cumplimiento día a día, pero el marco ya está construido: solo hay que operarlo.','Eje C');
-    no('igualaArranque','El marco ya existe. La de arranque es para cuando además hay que construirlo.','');
     no('acompanamiento','No tienen a quién acompañar: necesitan que alguien lo opere.','Eje C');
   }else if(g.quien==='despacho'){
-    no('iguala','Ya tienen despacho especializado. Si el despacho es el cliente, se complementa.','N1');
     op('acompanamiento','Acompañamiento acotado, si el despacho lo pide.','');
     A.push({t:'Ya tienen despacho',d:'Si el despacho es el cliente, la propuesta se posiciona como complemento. Si es competencia, aplica el argumento de que los generalistas no están al día con el Acuerdo 115.'});
   }else if(g.quien==='persona'){
     si('acompanamiento','Tienen una persona dedicada: se le dan herramientas y acompañamiento, no se le quita el trabajo.','Eje C');
-    no('iguala','Contrataron a alguien para llevar el tema. Tercerizar sería quitarle su trabajo.','Eje C · N1');
   }else{
-    no('iguala','Tienen área con equipo propio.','Eje C');
     op('acompanamiento','Acompañamiento y calibración sobre lo que ya tienen.','Eje C');
   }
 
@@ -1562,9 +1437,13 @@ function calcular(id,ctx,g,idxEnt,totalEnt){
        con 500 y otro con 10,000 pagaban lo mismo. */
     case 'integracion':{ if(!ctx.clientes||ctx.nsClientes) return sinDato(s,'clientes');
       const n=ctx.clientes; imp=n*s.importe; txt=n+' expedientes'; break;}
+    /* La iguala se contrata por meses y se paga por mes. En el desglose se
+       ve el mensual y el total, para no tener que dividir a mano en la junta. */
     case 'mensual':{ if(!g.meses) return sinDato(s,'meses');
       const m=s.topeMeses?Math.min(g.meses,s.topeMeses):g.meses;
-      imp=m*s.importe; txt=m+' meses'+(s.topeMeses&&g.meses>s.topeMeses?' · topada a '+s.topeMeses:''); break;}
+      imp=m*s.importe;
+      txt=m+' meses × '+mx(s.importe)+' al mes'+(s.topeMeses&&g.meses>s.topeMeses?' · topada a '+s.topeMeses:'');
+      break;}
     case 'sesiones':{ if(!g.sesiones) return sinDato(s,'sesiones');
       imp=g.sesiones*s.importe; txt=g.sesiones+' sesiones'; break;}
     case 'personas':{const n=g[s.campo]||0; if(!n) return sinDato(s,s.campo);
@@ -1603,12 +1482,11 @@ function calcular(id,ctx,g,idxEnt,totalEnt){
      —personas, horas, sesiones— no se tocan: cien personas ya se cobran
      como cien personas, y descontarlos por número de empresas los hundía
      bajo el precio de lista publicado de 360educa. */
-  if(s.ambito==='grupo'&&totalEnt>1){
-    if(['manual','mebr','paquete'].includes(s.base))
-      imp*=(1+CONFIG.marcoPorEntidadExtra*(totalEnt-1));
-    else if(s.base==='mensual')
-      imp*=(1+CONFIG.igualaPorEntidadExtra*(totalEnt-1));
-  }
+  /* Ya no hay servicios de grupo que escalen: el marco y las igualas se
+     cotizan por empresa, y lo que se reutiliza entre empresas está
+     reconocido en el descuento por entidad adicional de arriba. Lo que
+     queda de grupo se cobra por unidad —personas, horas, sesiones— y no
+     se toca. */
 
   /* La urgencia dobla el honorario de un entregable puntual. No aplica a lo
      que se presta a lo largo del tiempo —igualas, bolsas de horas— ni a los
@@ -1618,6 +1496,11 @@ function calcular(id,ctx,g,idxEnt,totalEnt){
   const admiteUrgencia=!['mensual','personas','horas','assessment','sesiones'].includes(s.base);
   if(g.urgente && admiteUrgencia) imp*=CONFIG.urgenciaFactor;
   if(g.renovacion) imp*=(1+CONFIG.renovacionInflacion);
+  /* El mensual se dice DESPUÉS de aplicar factores, si no la división no cuadra. */
+  if(s.base==='mensual'){
+    const m=s.topeMeses?Math.min(g.meses,s.topeMeses):g.meses;
+    if(m>0) txt=m+' meses × '+mx(Math.round(imp/m))+' al mes';
+  }
   return{imp,txt,s};
 }
 
@@ -1634,9 +1517,14 @@ $('g-descuento').innerHTML=opts(CONFIG.descuentos);
 $('g-pago').innerHTML=CONFIG.pagos.map(o=>`<option value="${o.id}">${o.n}</option>`).join('');
 
 function pintarEntidades(){
+  /* ── LA FICHA DE LA EMPRESA ──
+     Arriba, lo que mueve el número o decide qué se le vende. Abajo, en un
+     desplegable cerrado, lo que solo genera alertas o contexto. El padrón y
+     los avisos se preguntan aquí, con sus matices, y ya no se vuelven a
+     preguntar en el Eje A: se calculan de estas dos respuestas. */
   $('entidades').innerHTML=ENT.map((e,i)=>`
   <div class="card ent">
-    <div class="entHead"><div class="tit">Entidad ${i+1}</div>
+    <div class="entHead"><div class="tit">${e.nombre||('Entidad '+(i+1))}</div>
       ${ENT.length>1?`<button class="b3 noprint" onclick="quitar(${i})">Quitar</button>`:''}</div>
     <div class="grid">
       <div><label>Razón social</label><input type="text" data-i="${i}" data-k="nombre" value="${e.nombre}"></div>
@@ -1646,8 +1534,9 @@ function pintarEntidades(){
           <option value="duda"${e.sabe==='duda'?' selected':''}>Tiene dudas del encuadre</option></select></div>
       <div><label>Actividad vulnerable principal</label>
         <select data-i="${i}" data-k="actividad">${opts(CONFIG.actividades,e.actividad)}</select></div>
-      <div><label>Actividades vulnerables adicionales<span class="fund">+$30,000 auditoría · +$20,000 marco</span></label>
+      <div><label>Actividades vulnerables adicionales<span class="fund">Suben auditoría y marco</span></label>
         <input type="number" min="0" max="6" data-i="${i}" data-k="actExtra" value="${e.actExtra}"></div>
+
       <div><label>¿Está en el padrón del SAT?</label>
         <select data-i="${i}" data-k="padron">
           <option value="si"${e.padron==='si'?' selected':''}>Sí, actualizado</option>
@@ -1663,25 +1552,46 @@ function pintarEntidades(){
           <option value="ninguno"${e.avisos==='ninguno'?' selected':''}>Ninguno</option>
           <option value="ceros"${e.avisos==='ceros'?' selected':''}>En ceros, operando sobre umbral</option>
           <option value="nose"${e.avisos==='nose'?' selected':''}>No sé</option></select></div>
+
       <div><label>Avisos al año<span class="fund">Uno por OPERACIÓN reportable, no uno por mes.
         Si presentan mes con mes sin operaciones que reportar, aquí va cero</span></label>
         <input type="number" min="0" step="10" data-i="${i}" data-k="avisosAnio" value="${e.avisosAnio}"${e.nsAvisos?' disabled':''}>
         <label class="ns"><input type="checkbox" data-i="${i}" data-k="nsAvisos"${e.nsAvisos?' checked':''}> No sé todavía</label></div>
-      <div><label>Clientes activos<span class="fund">Escalón de la auditoría</span></label>
+      <div><label>Clientes activos<span class="fund">Escalón de la auditoría y de expedientes</span></label>
         <input type="number" min="0" step="10" data-i="${i}" data-k="clientes" value="${e.clientes}"${e.nsClientes?' disabled':''}>
         <label class="ns"><input type="checkbox" data-i="${i}" data-k="nsClientes"${e.nsClientes?' checked':''}> No sé todavía</label></div>
-      <div><label>Operaciones sobre umbral de <b>identificación</b> al mes
-        <span class="fund">Dimensiona expedientes</span></label>
+
+      <div><label>Ejercicios sin revisar</label>
+        <input type="number" min="0" max="5" data-i="${i}" data-k="ejercicios" value="${e.ejercicios}"${e.nsEjercicios?' disabled':''}>
+        <label class="ns"><input type="checkbox" data-i="${i}" data-k="nsEjercicios"${e.nsEjercicios?' checked':''}> No sé todavía</label></div>
+      <div><label>Avisos por regularizar</label>
+        <input type="number" min="0" step="100" data-i="${i}" data-k="avisosReg" value="${e.avisosReg}"${e.nsAvisosReg?' disabled':''}>
+        <label class="ns"><input type="checkbox" data-i="${i}" data-k="nsAvisosReg"${e.nsAvisosReg?' checked':''}> No sé todavía</label></div>
+
+      <div><label>¿A quién le vende o le renta?</label>
+        <select data-i="${i}" data-k="tipoClientes">
+          <option value="terceros"${e.tipoClientes==='terceros'?' selected':''}>A terceros</option>
+          <option value="ambos"${e.tipoClientes==='ambos'?' selected':''}>A terceros y a su grupo</option>
+          <option value="grupo"${e.tipoClientes==='grupo'?' selected':''}>Solo a su grupo</option></select></div>
+      <div style="grid-column:1/-1"><label>¿Cuál de estos hay en la operación?
+        <span class="fund">El efectivo restringe umbrales; las divisas y los activos virtuales suben el riesgo</span></label>
+        <div class="chks">
+          <label class="chk"><input type="checkbox" data-i="${i}" data-k="rEfectivo"${e.rEfectivo?' checked':''}><span>Efectivo</span></label>
+          <label class="chk"><input type="checkbox" data-i="${i}" data-k="rDivisas"${e.rDivisas?' checked':''}><span>Divisas o comercio exterior</span></label>
+          <label class="chk"><input type="checkbox" data-i="${i}" data-k="rVirtuales"${e.rVirtuales?' checked':''}><span>Activos virtuales</span></label>
+        </div></div>
+    </div>
+
+    <details class="mas"><summary>Más datos · solo si los traes de la junta</summary><div class="grid">
+      <div><label>Operaciones sobre umbral de <b>identificación</b> al mes</label>
         <select data-i="${i}" data-k="opsIdent">
-          ${['a','1 a 10','b','11 a 100','c','101 a 1,000','d','Más de 1,000'].reduce((a,x,j,A)=>
-            j%2?a+`<option value="${A[j-1]}"${e.opsIdent===A[j-1]?' selected':''}>${x}</option>`:a,'')}</select></div>
-      <div><label>Operaciones sobre umbral de <b>aviso</b> al mes
-        <span class="fund">Dimensiona avisos</span></label>
+          ${[['a','1 a 10'],['b','11 a 100'],['c','101 a 1,000'],['d','Más de 1,000']].map(([k,t])=>
+            `<option value="${k}"${e.opsIdent===k?' selected':''}>${t}</option>`).join('')}</select></div>
+      <div><label>Operaciones sobre umbral de <b>aviso</b> al mes</label>
         <select data-i="${i}" data-k="opsAviso">
-          ${['a','1 a 10','b','11 a 100','c','101 a 1,000','d','Más de 1,000'].reduce((a,x,j,A)=>
-            j%2?a+`<option value="${A[j-1]}"${e.opsAviso===A[j-1]?' selected':''}>${x}</option>`:a,'')}</select></div>
-      <div><label>¿Opera en otros países o es parte de un grupo internacional?
-        <span class="fund">Si hay matriz extranjera con programa propio, se escala</span></label>
+          ${[['a','1 a 10'],['b','11 a 100'],['c','101 a 1,000'],['d','Más de 1,000']].map(([k,t])=>
+            `<option value="${k}"${e.opsAviso===k?' selected':''}>${t}</option>`).join('')}</select></div>
+      <div><label>¿Opera en otros países o es parte de un grupo internacional?</label>
         <select data-i="${i}" data-k="paises">
           <option value="no"${e.paises==='no'?' selected':''}>No, solo México</option>
           <option value="opera"${e.paises==='opera'?' selected':''}>Sí, opera en otros países</option>
@@ -1694,54 +1604,30 @@ function pintarEntidades(){
           <option value="hoja"${e.control==='hoja'?' selected':''}>Hoja de cálculo</option>
           <option value="sistema"${e.control==='sistema'?' selected':''}>Un sistema</option>
           <option value="nada"${e.control==='nada'?' selected':''}>No lleva control</option></select></div>
-      <div style="grid-column:1/-1"><label>¿Cuál de estos hay en la operación?
-        <span class="fund">El efectivo restringe umbrales; las divisas y los activos virtuales suben el riesgo</span></label>
-        <div class="chks">
-          <label class="chk"><input type="checkbox" data-i="${i}" data-k="rEfectivo"${e.rEfectivo?' checked':''}><span>Efectivo</span></label>
-          <label class="chk"><input type="checkbox" data-i="${i}" data-k="rDivisas"${e.rDivisas?' checked':''}><span>Divisas o comercio exterior</span></label>
-          <label class="chk"><input type="checkbox" data-i="${i}" data-k="rVirtuales"${e.rVirtuales?' checked':''}><span>Activos virtuales</span></label>
-        </div></div>
-      <div><label>Ejercicios sin revisar</label>
-        <input type="number" min="0" max="5" data-i="${i}" data-k="ejercicios" value="${e.ejercicios}"${e.nsEjercicios?' disabled':''}>
-        <label class="ns"><input type="checkbox" data-i="${i}" data-k="nsEjercicios"${e.nsEjercicios?' checked':''}> No sé todavía</label></div>
-      <div><label>Avisos por regularizar</label>
-        <input type="number" min="0" step="100" data-i="${i}" data-k="avisosReg" value="${e.avisosReg}"${e.nsAvisosReg?' disabled':''}>
-        <label class="ns"><input type="checkbox" data-i="${i}" data-k="nsAvisosReg"${e.nsAvisosReg?' checked':''}> No sé todavía</label></div>
-      <div><label>¿A quién le vende o le renta?</label>
-        <select data-i="${i}" data-k="tipoClientes">
-          <option value="terceros"${e.tipoClientes==='terceros'?' selected':''}>A terceros</option>
-          <option value="ambos"${e.tipoClientes==='ambos'?' selected':''}>A terceros y a su grupo</option>
-          <option value="grupo"${e.tipoClientes==='grupo'?' selected':''}>Solo a su grupo</option></select></div>
-    </div>
+    </div></details>
+
     <div class="grupo-tit">Eje A · Brecha normativa
-      <span class="ejeq">Trece preguntas. Se contestan en una junta.</span></div>
+      <span class="ejeq">Ocho preguntas. El padrón y los avisos ya se contestaron arriba.</span></div>
     <p class="hint" style="margin:-4px 0 10px">Contesta lo que sepas hoy. Si algo está a medias, ponlo a medias:
-       eso ya cambia el diagnóstico. El detalle punto por punto solo se abre cuando hay biopsia o auditoría de por medio,
-       y entonces manda sobre la respuesta rápida.</p>
-    ${CONFIG.obligaciones.map(o=>{
-      const v=pct(e,o.id), es=escalaDe(v,!!o.desde), abierto=e.det[o.id];
-      const m=(e.chk[o.id]||[]).filter(Boolean).length;
+       eso ya cambia el diagnóstico y cambia el precio.</p>
+    ${CONFIG.obligaciones.filter(o=>!CALCULADAS.includes(o.id)).map(o=>{
+      const v=pct(e,o.id), es=escalaDe(v,!!o.desde);
       return `<div class="obq">
         <div class="obqh">
           <span class="obn">${o.q}</span>
-          <span class="est ${es.c}">${es.t}${abierto?` · ${m} de ${o.puntos.length}`:''}</span>
+          <span class="est ${es.c}">${es.t}</span>
         </div>
         <div class="obqr">
-          ${abierto?`<span class="detOn">Contestado a detalle</span>`:
-            [['no','No tiene'],['parcial','A medias'],['si','Completo']].map(([k,t])=>
+          ${[['no','No tiene'],['parcial','A medias'],['si','Completo']].map(([k,t])=>
             `<label class="rd"><input type="radio" name="n${i}-${o.id}" data-i="${i}" data-n="${o.id}" value="${k}"${
               e.niv[o.id]===k?' checked':''}><span>${t}</span></label>`).join('')}
-          <button class="verDet" data-i="${i}" data-d="${o.id}">${abierto?'Volver a la respuesta rápida':`Ver los ${o.puntos.length} puntos`}</button>
         </div>
-        ${abierto?`<div class="obp">${o.puntos.map((pt,j)=>`<label class="chk"><input type="checkbox"
-            data-i="${i}" data-c="${o.id}" data-j="${j}"${e.chk[o.id][j]?' checked':''}>
-            <span>${pt.p}<em class="fu2">${pt.f}</em></span></label>`).join('')}</div>`:''}
       </div>`;}).join('')}
     <div class="nota">Nivel de cumplimiento calculado: <b>${nivelDe(e).n.nombre}</b> ·
-      muestra que se revisaría: <b>${muestraDe(e)}</b> de <b>${e.clientes||0}</b> expediente${(e.clientes||0)===1?'':'s'}${
-      (e.clientes||0)>CONFIG.muestra.piso?` (piso ${CONFIG.muestra.piso}, tope ${CONFIG.muestra.tope})`:''}</div>
+      muestra que se revisaría: <b>${muestraDe(e)}</b> de <b>${e.clientes||0}</b> expediente${(e.clientes||0)===1?'':'s'}</div>
   </div>`).join('');
 }
+
 function agregar(){ENT.push(nuevaEnt());pintarEntidades();render();}
 function quitar(i){ENT.splice(i,1);pintarEntidades();render();}
 
@@ -1828,7 +1714,7 @@ function render(){
   let sub=0; const filas=[]; let hayIguala=false, hayAcomp=false;
   /* Servicios activos que todavía no se pueden calcular. Se acumulan aquí
      para avisarlo arriba y para no dejar salir la cotización en silencio. */
-  const pendientes=[];
+  const pendientes=[], porEmpresa=[];
   const filaFalta=c=>`<tr class="falta"><td>${c.s.nombre}</td>
       <td>falta capturar ${c.falta}</td>
       <td class="num">por definir</td></tr>`;
@@ -1839,25 +1725,33 @@ function render(){
       .filter(o=>o.r.id!=='*'&&activo('e'+i,o.r,o.def));
     if(!lista.length) return;
     filas.push(`<tr class="sec"><td colspan="3">${x.e.nombre||('Entidad '+(i+1))} — riesgo ${x.r.riesgo.n}</td></tr>`);
-    const v=new Set();
+    const v=new Set(); let subEnt=0, filasEnt=0;
     lista.forEach(({r})=>{if(v.has(r.id))return; v.add(r.id);
       const c=calcular(r.id,ctx,g,i,nOb); if(!c)return;
       if(c.falta){ pendientes.push(c); filas.push(filaFalta(c)); return; }
-      sub+=c.imp;
+      sub+=c.imp; subEnt+=c.imp; filasEnt++;
+      if(r.id==='iguala'||r.id==='igualaArranque') hayIguala=true;
       filas.push(`<tr><td>${c.s.nombre}</td><td>${c.txt}</td><td class="num">${mx(c.imp)}</td></tr>`);});
+    /* Cada empresa cierra con su propio subtotal: es lo que se le enseña al
+       dueño cuando pregunta "¿y esta cuánto me cuesta?". */
+    if(filasEnt) filas.push(`<tr class="subEnt"><td colspan="2">Subtotal ${x.e.nombre||('Entidad '+(i+1))}</td>
+      <td class="num">${mx(subEnt)}</td></tr>`);
+    porEmpresa.push({nombre:x.e.nombre||('Entidad '+(i+1)), sub:subEnt});
   });
   const listaG=[...rg.R.map(r=>({r,def:true})),...rg.O.map(r=>({r,def:false})),...rg.N.map(r=>({r,def:false}))]
     .filter(o=>o.r.id!=='*'&&activo('g',o.r,o.def));
   if(listaG.length){
-    filas.push('<tr class="sec"><td colspan="3">Comunes al grupo</td></tr>');
-    const v=new Set();
+    filas.push('<tr class="sec"><td colspan="3">Comunes al grupo · se cotizan una sola vez</td></tr>');
+    const v=new Set(); let subG=0;
     listaG.forEach(({r})=>{if(v.has(r.id))return; v.add(r.id);
       const c=calcular(r.id,ctxG,g,0,nOb); if(!c)return;
       if(c.falta){ pendientes.push(c); filas.push(filaFalta(c)); return; }
-      sub+=c.imp;
-      if(r.id==='iguala'||r.id==='igualaArranque') hayIguala=true;
+      sub+=c.imp; subG+=c.imp;
       if(r.id==='acompanamiento') hayAcomp=true;
       filas.push(`<tr><td>${c.s.nombre}</td><td>${c.txt}</td><td class="num">${mx(c.imp)}</td></tr>`);});
+    if(subG) filas.push(`<tr class="subEnt"><td colspan="2">Subtotal común al grupo</td>
+      <td class="num">${mx(subG)}</td></tr>`);
+    if(subG) porEmpresa.push({nombre:'Común al grupo', sub:subG});
   }
   if(g.impresion&&filas.length){sub+=CONFIG.impresion;
     filas.push(`<tr><td>Informe impreso</td><td>importe fijo</td><td class="num">${mx(CONFIG.impresion)}</td></tr>`);}
@@ -1876,7 +1770,7 @@ function render(){
      · vigencia 30 días naturales`:'';
   $('kpis').innerHTML=filas.length?`
     <div class="kpi"><div class="v">${mx(sub)}</div><div class="l">Honorarios sin IVA</div></div>
-    <div class="kpi"><div class="v">${ENT.length}</div><div class="l">Entidades cotizadas</div></div>
+    <div class="kpi"><div class="v">${nOb}</div><div class="l">Empresas cotizadas</div></div>
     <div class="kpi"><div class="v">${g.modalidad.f.toFixed(2)}×</div><div class="l">Factor de modalidad</div></div>
     <div class="kpi"><div class="v">${g.urgente?'2.00×':'—'}</div><div class="l">Recargo por urgencia</div></div>`:'';
 
@@ -1923,27 +1817,18 @@ const handler=ev=>{
     const i=+t.dataset.i; ENT[i].niv[t.dataset.n]=t.value;
     sincronizar(ENT[i]); pintarEntidades(); render(); return;
   }
-  if(t.dataset.c!==undefined){
-    const i=+t.dataset.i; ENT[i].chk[t.dataset.c][+t.dataset.j]=t.checked;
-    sincronizar(ENT[i]); pintarEntidades(); render(); return;
+  if(t.dataset.m!==undefined){       // los 14 contenidos del Manual, en la hoja de diagnóstico
+    MANUAL14[t.dataset.m]=t.value; pintarManual14(); return;
   }
   if(t.dataset.i!==undefined){
     const i=+t.dataset.i,k=t.dataset.k;
     ENT[i][k]=t.type==='checkbox'?t.checked:(t.type==='number'?+t.value:t.value);
     if(['clientes','nivel'].includes(k)) pintarEntidades();
+    /* El encabezado de la tarjeta sigue el nombre mientras se escribe. */
+    if(k==='nombre'){ const h=t.closest('.ent'); if(h) h.querySelector('.tit').textContent=t.value||('Entidad '+(i+1)); }
   }
   render();
 };
-document.addEventListener('click',ev=>{
-  const b=ev.target.closest('.verDet'); if(!b) return;
-  const i=+b.dataset.i, id=b.dataset.d;
-  const e=ENT[i];
-  /* Al abrir el detalle por primera vez, se precarga con la respuesta rápida:
-     "completo" marca todo, "a medias" no marca nada y hay que ir punto por punto. */
-  if(!e.det[id] && e.niv[id]==='si') e.chk[id]=e.chk[id].map(()=>true);
-  e.det[id]=!e.det[id];
-  sincronizar(e); pintarEntidades(); render();
-});
 document.addEventListener('input',handler);
 document.addEventListener('change',handler);
 /* El calendario se pinta una vez: no depende de lo que capture el ejecutivo. */
@@ -1985,7 +1870,7 @@ const GUION=[
     porq:'Cada entidad se diagnostica por separado. Dos empresas del mismo dueño pueden estar en situaciones completamente distintas, y así se presentan en la propuesta.',
     oido:'Busca a la persona física del grupo. En la práctica suele traer el problema, porque su contador no atendió el tema.'}]}]},
 
- {t:'Eje A · Qué le falta', eje:'La brecha normativa. Trece preguntas, una por obligación. Se contestan con lo que sepan hoy: "a medias" es una respuesta válida y cambia el diagnóstico.',
+ {t:'Eje A · Qué le falta', eje:'La brecha normativa. Ocho preguntas, una por obligación (el padrón y los avisos ya se contestaron arriba, en la ficha de la empresa). Se contestan con lo que sepan hoy: "a medias" es una respuesta válida y cambia el diagnóstico.',
   bloques:[{ps:[
    {p:'¿Están dados de alta en el padrón, y con la e.firma de la empresa o con la del representante legal?',
     porq:'Es de las tres cosas exigibles hoy. Y el alta hecha con la e.firma del representante legal en vez de la de la persona moral es un error frecuente que invalida el trámite.',
@@ -2058,6 +1943,141 @@ const GUION=[
     oido:''}]}]}
 ];
 
+
+/* ══════════════════════════════════════════════════════════════
+   HOJA DE DIAGNÓSTICO · los contenidos del Manual
+   Vive aquí y NO en la captura de la cotización: no mueve el precio,
+   pero es lo que el cliente quiere ver y lo que pedía el equipo para
+   poder sostener la conversación del manual.
+   Se llena solo si hay papel de por medio. Si nadie lo toca, el informe
+   dice que no se revisó punto por punto, que es la verdad.
+   ══════════════════════════════════════════════════════════════ */
+const CONTENIDOS37BIS=[
+  {p:'Existe el Manual, está fechado y aprobado por la dirección', f:'RCG art. 37'},
+  {p:'Criterios de identificación y conocimiento de clientes', f:'RCG art. 37 Bis fr. I'},
+  {p:'Clasificación de clientes por grado de riesgo', f:'RCG art. 37 Bis fr. II'},
+  {p:'Debida diligencia diferenciada según el grado de riesgo', f:'RCG art. 37 Bis fr. III'},
+  {p:'Tratamiento de Personas Políticamente Expuestas', f:'RCG art. 37 Bis fr. IV'},
+  {p:'Perfil transaccional de los clientes', f:'RCG art. 37 Bis fr. V'},
+  {p:'Procedimiento de presentación de avisos', f:'RCG art. 37 Bis fr. VI'},
+  {p:'Criterios de conservación de la información', f:'RCG art. 37 Bis fr. VII'},
+  {p:'Acumulación de operaciones para umbrales', f:'RCG art. 37 Bis fr. VIII'},
+  {p:'Consulta de listas de personas bloqueadas', f:'RCG art. 37 Bis fr. IX'},
+  {p:'Funciones y responsabilidades del Representante', f:'RCG art. 37 Bis fr. X'},
+  {p:'Programas de capacitación', f:'RCG art. 37 Bis fr. XI'},
+  {p:'Control interno y auditoría', f:'RCG art. 37 Bis fr. XII'},
+  {p:'Confidencialidad y prohibición de avisar al cliente', f:'RCG art. 37 Bis fr. XIII'},
+  {p:'Procedimiento de actualización del propio Manual', f:'RCG art. 37 Bis fr. XIV'},
+  {p:'Si es grupo empresarial, hay manual del grupo con las particularidades de cada empresa', f:'RCG art. 37 Bis 1'}
+];
+let MANUAL14={};
+let MANUAL14_ENT=0;
+
+function pintarManual14(){
+  const marcados=Object.keys(MANUAL14).length, N=CONTENIDOS37BIS.length;
+  const cumple=Object.values(MANUAL14).filter(v=>v==='si').length;
+  const medias=Object.values(MANUAL14).filter(v=>v==='parcial').length;
+  const opciones=(j)=>[['no','No lo trae'],['parcial','Incompleto'],['si','Sí lo trae']].map(([k,t])=>
+    `<label class="rd"><input type="radio" name="m${j}" data-m="${j}" value="${k}"${
+      MANUAL14[j]===k?' checked':''}><span>${t}</span></label>`).join('');
+  $('manual14').innerHTML=`
+   <div class="card">
+     <div class="grid" style="margin-bottom:12px">
+       <div><label>¿De cuál empresa es el manual que estás revisando?</label>
+         <select id="m14ent">${ENT.map((e,j)=>`<option value="${j}"${j===MANUAL14_ENT?' selected':''}>${e.nombre||('Entidad '+(j+1))}</option>`).join('')}</select></div>
+     </div>
+     <div class="aviso" style="margin:0 0 14px">
+       <b>Esto no se captura para cotizar.</b> Sirve para sostener la conversación del manual con el
+       cliente y para el informe. Si no tienes el manual enfrente, no lo llenes: el informe lo dirá así.
+     </div>
+     ${CONTENIDOS37BIS.map((c,j)=>`
+       <div class="obq">
+         <div class="obqh"><span class="obn">${j+1}. ${c.p}</span>
+           <span class="fund">${c.f}</span></div>
+         <div class="obqr">${opciones(j)}</div>
+       </div>`).join('')}
+     <div class="nota">Revisados <b>${marcados}</b> de <b>${N}</b> ·
+       los trae <b>${cumple}</b> · incompletos <b>${medias}</b> ·
+       le faltan <b>${Math.max(0,marcados-cumple-medias)}</b></div>
+     <div class="btns noprint">
+       <button class="b1" id="btnInfManual">Informe del manual en PDF</button>
+       <button class="b2" id="btnInfManualWord">Descargar para Word</button>
+       <button class="b3" id="btnLimpiar14">Limpiar</button>
+     </div>
+   </div>`;
+  const sel=$('m14ent'); if(sel) sel.onchange=()=>{ MANUAL14_ENT=+sel.value; pintarManual14(); };
+  $('btnLimpiar14').onclick=()=>{ MANUAL14={}; pintarManual14(); };
+  $('btnInfManual').onclick=()=>{ $('informe').innerHTML=informeManual();
+    imprimirCon(()=>{$('informe').innerHTML='';}, `Diagnostico del Manual ${nombreCliente()} ${hoyCorto()}`); };
+  $('btnInfManualWord').onclick=descargarInformeManual;
+}
+
+function informeManual(){
+  const e=ENT[MANUAL14_ENT]||ENT[0]||{};
+  const nom=e.nombre||('Entidad '+(MANUAL14_ENT+1));
+  const cli=$('g-nombre').value||'[Cliente por confirmar]';
+  const hoy=new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+  const marcados=Object.keys(MANUAL14).length, N=CONTENIDOS37BIS.length;
+  const trae=CONTENIDOS37BIS.filter((c,j)=>MANUAL14[j]==='si');
+  const medias=CONTENIDOS37BIS.filter((c,j)=>MANUAL14[j]==='parcial');
+  const faltan=CONTENIDOS37BIS.filter((c,j)=>MANUAL14[j]==='no');
+  const sinRev=CONTENIDOS37BIS.filter((c,j)=>MANUAL14[j]===undefined);
+  const lista=(t,arr)=>arr.length?`<h2>${t} · ${arr.length}</h2>
+    <table><tbody>${arr.map(c=>`<tr><td class="ob">${c.p}<div class="fu">${c.f}</div></td></tr>`).join('')}</tbody></table>`:'';
+  const cierre = marcados===0
+    ? `<p>Este informe se emitió <b>sin haber revisado el Manual punto por punto</b>. Lo que antecede es
+       la lista de los contenidos que exigen las Reglas, no una evaluación del documento de la empresa.</p>`
+    : `<p>Se revisaron <b>${marcados}</b> de <b>${N}</b> contenidos.
+       ${sinRev.length?`Los otros <b>${sinRev.length}</b> no se revisaron y no se opina sobre ellos.`:''}</p>`;
+  return `<div class="inf">
+    <div class="marca">GMC360 · LEX-GMC · 360EDUCA</div>
+    <h1>Diagnóstico del Manual de Políticas Internas</h1>
+    <div class="meta"><b>${cli}</b> · ${nom} · ${hoy}
+      <span class="conf">DOCUMENTO CONFIDENCIAL</span></div>
+    <p>El artículo 37 Bis de las Reglas de Carácter General enumera los contenidos mínimos que debe
+    tener el Manual de Políticas Internas. Este documento los revisa uno por uno y dice, de cada uno,
+    si el Manual vigente de la empresa lo trae, lo trae incompleto o no lo trae.</p>
+    <div class="res"><b>Por qué importa el orden.</b> La autoridad revisa el Manual buscando los
+    contenidos en el orden del artículo. Cuando no los encuentra donde los busca, los da por ausentes,
+    aunque estén escritos más adelante dentro de otro capítulo. Reordenar el Manual conforme al 37 Bis
+    no es cuestión de forma: es lo que hace que se pueda verificar.</div>
+    ${lista('Contenidos que el Manual sí trae', trae)}
+    ${lista('Contenidos incompletos', medias)}
+    ${lista('Contenidos que faltan', faltan)}
+    ${lista('No revisados', sinRev)}
+    ${cierre}
+    <div class="leg"><b>Alcance y limitaciones.</b> Este diagnóstico se elaboró con la información y la
+    documentación que proporcionó el cliente y con lo que declaró durante la sesión de diagnóstico.
+    <b>No constituye asesoría jurídica, dictamen de auditoría en términos del Capítulo XIV de las Reglas
+    de Carácter General, ni opinión sobre la configuración de actividad vulnerable.</b> No incluye
+    verificación documental de expedientes, revisión de avisos presentados ni pruebas sustantivas.
+    Sus conclusiones dependen de la veracidad y la integridad de lo declarado por el cliente y cambian
+    si cambia esa información. Las disposiciones citadas son las vigentes a la fecha de emisión y pueden
+    modificarse por reformas posteriores. Documento confidencial, para uso exclusivo del destinatario.</div>
+  </div>`;
+}
+
+function descargarInformeManual(){
+  $('informe').innerHTML=informeManual();
+  const cli=nombreCliente();
+  const doc=`<!DOCTYPE html><html xmlns:w="urn:schemas-microsoft-com:office:word"><head>
+    <meta charset="utf-8"><title>Diagnostico del Manual ${cli}</title><style>
+    body{font-family:Arial,sans-serif;font-size:10.5pt;line-height:1.55;color:#1b1b1e}
+    h1{font-size:16pt} h2{color:#64c27b;font-size:12pt}
+    table{border-collapse:collapse;width:100%}
+    td{border-bottom:1px solid #ddd;padding:5px;font-size:9.5pt}
+    .marca{color:#64c27b;font-weight:bold;font-size:8pt;letter-spacing:2px}
+    .res{background:#f0f9f2;border-left:3px solid #64c27b;padding:8px}
+    .fu{display:block;font-size:8pt;color:#888;font-style:italic}
+    .leg{font-size:8pt;color:#666;border-top:1px solid #ddd;padding-top:8px}
+    </style></head><body>${$('informe').innerHTML}</body></html>`;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+doc],{type:'application/msword'}));
+  a.download=`Diagnostico del Manual ${cli}.doc`;
+  a.click(); URL.revokeObjectURL(a.href);
+  $('informe').innerHTML='';
+}
+
 /* ══ CÓMO SE USA · la guía del consultor, dentro de la herramienta ══
    Se puede imprimir desde aquí con el botón de arriba, para llevarla a la
    junta o dársela a alguien que entra nuevo. */
@@ -2081,7 +2101,7 @@ const GUIA_HTML = `
 
   <div class="preg">2 · Entidades</div>
   <p class="porq">Una tarjeta por empresa. Arriba el Eje B, que dimensiona el trabajo; abajo el Eje A,
-    que son trece preguntas, una por obligación.</p>
+    que son ocho preguntas, una por obligación. El padrón y los avisos ya se contestaron arriba.</p>
   <p class="oido"><b>Tres cosas que hay que hacer bien.</b> «A medias» es respuesta válida y cambia el
     diagnóstico. El botón de «ver los N puntos» solo se abre cuando hay biopsia o auditoría de por medio.
     Y las casillas de <b>«No sé todavía»</b> se usan: un cero capturado por desconocimiento hace que la
@@ -2275,11 +2295,13 @@ function pintarGuion(){
   $('t-guia').innerHTML = GUIA_HTML;
 }
 pintarGuion();
+pintarManual14();
 
 document.querySelectorAll('.tab').forEach(b=>{
   b.onclick=()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
-    ['cotizar','guion','consejos','guia'].forEach(t=>$('t-'+t).hidden = (t!==b.dataset.t));
+    ['cotizar','guion','consejos','guia','manual'].forEach(t=>$('t-'+t).hidden = (t!==b.dataset.t));
+    if(b.dataset.t==='manual') pintarManual14();
     window.scrollTo({top:0,behavior:'smooth'});
   };
 });
@@ -2416,9 +2438,7 @@ async function usarComoBase(folio){
       /* Si el catálogo de obligaciones creció desde que se guardó, las nuevas
          entran vacías en vez de romper. */
       CONFIG.obligaciones.forEach(o=>{
-        if(!c.chk||!c.chk[o.id]) { c.chk=c.chk||{}; c.chk[o.id]=o.puntos.map(()=>false); }
         if(!c.niv||!c.niv[o.id]) { c.niv=c.niv||{}; c.niv[o.id]='no'; }
-        if(!c.det||c.det[o.id]===undefined){ c.det=c.det||{}; c.det[o.id]=false; }
       });
       return {...base, ...c};
     });
@@ -2966,9 +2986,7 @@ function armarInforme(){
       <table><thead><tr><th style="width:62%">Obligación y fundamento</th>
         <th style="width:16%">Exigible desde</th><th style="width:22%">Cómo se encuentra hoy</th></tr></thead><tbody>
       ${d.map(x=>`<tr>
-        <td class="o">${x.q}<div class="fu">${x.f}</div>
-          ${x.faltantes.length&&x.faltantes.length<x.total
-            ? `<span class="pend">Pendiente: ${x.faltantes.map(z=>z.p).join(' · ')}</span>`:''}</td>
+        <td class="o">${x.q}<div class="fu">${x.f}</div></td>
         <td class="fecha ${x.futura?'f':'v'}">${x.desde}</td>
         <td>${pill(x)}
           <span class="med"><i style="width:${Math.round(x.pct*100)}%;background:${
