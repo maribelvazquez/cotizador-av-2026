@@ -547,7 +547,7 @@ porque antes no sabíamos qué se iba a vender.</p>
         <option value="12" selected>12 meses</option>
         <option value="18">18 meses</option>
         <option value="24">24 meses</option></select></div>
-    <div><label>Sesiones a la medida<span class="fund">En la empresa, por sesión</span></label>
+    <div><label>Cursos a la medida<span class="fund">Se cobra por curso, no por persona</span></label>
       <input type="number" id="g-sesiones" min="0" max="12" value="0"></div>
     <div><label>Horas de assessment<span class="fund">Revisar un entregable que ya tienen</span></label>
       <input type="number" id="g-hAssessment" min="0" max="200" step="4" value="0"></div>
@@ -562,8 +562,10 @@ porque antes no sabíamos qué se iba a vender.</p>
   <div class="grupo-tit">Capacitación · cuántas personas
     <span class="ejeq">El RCG art. 39 Bis exige capacitar por perfil, no a todos igual</span></div>
   <div class="grid">
-    <div><label>Todo el personal<span class="fund">Curso general</span></label>
+    <div><label>Todo el personal<span class="fund">Anual General · 8 h</span></label>
       <input type="number" id="g-nPersonal" min="0" value="0"></div>
+    <div><label>Área comercial y promoción<span class="fund">Bienvenido al mundo de PLD/FT · 4 h</span></label>
+      <input type="number" id="g-nComercial" min="0" value="0"></div>
     <div><label>Área de cumplimiento<span class="fund">Con el Representante</span></label>
       <input type="number" id="g-nCumplimiento" min="0" value="0"></div>
     <div><label>Consejo y dirección<span class="fund">Alta dirección</span></label>
@@ -655,9 +657,9 @@ const CONFIG={
     la barra de arriba mientras se trabaja, en el pie del informe y dentro de
     cada cotización que se guarda. Así, al abrir la página se ve de inmediato
     si es la versión nueva o la que traía el navegador en caché. */
- version:'7.0',
+ version:'7.1',
  versionFecha:'8 de septiembre de 2026',
- versionNota:'captura corta · cotización por empresa · hoja de diagnóstico del Manual · condiciones de pago',
+ versionNota:'capacitación con el modelo de 360educa: tramos por volumen, precios de lista sin doble IVA, curso a la medida por curso',
  versionPrecios:'2026-09-07',
 
  /* ── QUIÉN PUEDE AUTORIZAR ──
@@ -800,14 +802,40 @@ const CONFIG={
     que exige capacitar al consejo y la dirección, al Representante y al área de
     cumplimiento, y a quien atiende clientes, identifica o envía avisos.
     La sesión a la medida es distinta: se cobra por sesión, no por persona. */
+ /* ── PRECIOS DE 360EDUCA ──
+    Son los PUBLICADOS en 360educa.com y vienen CON IVA INCLUIDO. Este
+    cotizador maneja todo sin IVA y lo suma al final, así que aquí se
+    dividen entre 1.16 antes de entrar al desglose. Hasta el 8-sep-2026 se
+    tomaban como si fueran sin IVA y la capacitación salía 16% cara: un
+    curso de lista de $1,619 se cotizaba en $1,878 con IVA.
+    Modelo tomado del cotizador de capacitación anual de 360educa, que ya
+    está probado con el sector financiero. */
  capacitacion:{
-   general:1619,        // Anual PLD/FT General · todo el personal
-   especializada:3469,  // Anual PLD/FT Especializada · área de cumplimiento
-   altaDireccion:3019,  // Anual PLD/FT Alta Dirección
-   induccion:638,       // Inducción · personal de nuevo ingreso
+   conIVA:true,
+   induccion:638,       // Inducción PLD/FT · 2 h · personal de nuevo ingreso
+   comercial:1249,      // Bienvenido al mundo de PLD/FT · 4 h · ventas y promoción
+   general:1619,        // Anual General · 8 h · plantilla general
+   altaDireccion:3019,  // Anual Alta Dirección · 3 h · consejo, dirección y gerencia
+   especializada:3469,  // Anual Especializada · 16 h · cumplimiento, auditoría y comité
    membresiaUIF:14599,  // Membresía 360 UIF · certificación ante la UIF
-   sesionMedida:40000   // Sesión en la empresa, a la medida · por sesión
+   /* A la medida NO es por persona ni por sesión: es POR CURSO, con piso.
+      El alcance no tiene tope; lo que tiene piso es el honorario. */
+   cursoMedida:40000
  },
+
+ /* ── DESCUENTO POR VOLUMEN DE CAPACITACIÓN ──
+    Corre sobre el precio de lista y se calcula con el TOTAL de personas
+    sumando todos los perfiles: premia cubrir la plantilla completa, que es
+    justo lo que pide el RCG art. 39 Bis. Es la misma política que ya opera
+    360educa con el sector financiero. Se cambia solo aquí.
+    No se le encima el descuento comercial A/B/C: esta es su propia política. */
+ tramosCapacitacion:[
+   {min:100, pct:.50, n:'100 o más personas · 50%'},
+   {min:51,  pct:.40, n:'51 a 100 personas · 40%'},
+   {min:16,  pct:.30, n:'16 a 50 personas · 30%'},
+   {min:5,   pct:.20, n:'5 a 15 personas · 20%'},
+   {min:0,   pct:0,   n:'1 a 4 personas · precio de lista'}
+ ],
 
  /* ── MARCO NORMATIVO ── */
  marco:{ manual:70000, mebr:60000, paquete:110000, porActividadExtra:20000 },
@@ -958,6 +986,10 @@ const CONFIG={
     alcance:'Revisión de un entregable que el cliente ya tiene —manual, metodología de riesgos, modelo de grado de riesgo de clientes o programa de capacitación— contra lo que exigen la Ley, el Reglamento y las Reglas de Carácter General vigentes. No incluye revisión de expedientes ni de avisos presentados: eso es la Biopsia',
     entregables:'Informe de brechas contenido por contenido · qué se conserva, qué se corrige y qué se rehace · estimación del esfuerzo de corrección',
     base:'assessment'},
+  capComercial:{sello:'360educa',ambito:'grupo',nombre:'Bienvenido al mundo de PLD/FT · área comercial',
+    alcance:'Curso en línea de cuatro horas para el área de ventas y promoción, dirigido a quien no tiene base previa en prevención de lavado. Explica qué es una actividad vulnerable, por qué la empresa lo es y qué tiene que hacer quien trae al cliente',
+    entregables:'Acceso al curso por persona · evaluación · constancia individual · reporte de avance del grupo',
+    base:'personas',campo:'nComercial',precio:'comercial'},
   capGeneral:{sello:'360educa',ambito:'grupo',nombre:'Capacitación anual PLD/FT · General',
     alcance:'Curso en línea de capacitación anual para todo el personal, sin importar el área. Cubre el marco de la LFPIORPI, las obligaciones de la empresa y qué debe hacer cada colaborador',
     entregables:'Acceso al curso por persona · evaluación · constancia individual · reporte de avance del grupo',
@@ -978,9 +1010,10 @@ const CONFIG={
     alcance:'Programa de preparación de un año para quien va a presentar el examen de certificación de la UIF: 117 lecciones, 70 horas de video, sesiones en vivo, dos simuladores actualizados dos veces al año y taller de repaso de cuatro días. La certificación la otorga la UIF conforme al artículo 34 Bis de las RCG, con su propio examen y sus propios requisitos: 360educa prepara para el examen, no lo aplica ni interviene en su resultado. No incluye la cuota que en su caso cobre la autoridad',
     entregables:'Acceso por un año a la plataforma · cuatro libros digitales de consulta · dos simuladores de examen · reporte de desempeño por tema · constancia de conclusión del programa, emitida por 360educa',
     base:'personas',campo:'nCertUIF',precio:'membresiaUIF'},
-  capacitacion:{sello:'360educa',ambito:'grupo',nombre:'Sesión de capacitación a la medida, en la empresa',
-    alcance:'Sesión de dos horas con material propio, apoyo en plataforma, examen, constancia y seguimiento del grupo',
-    entregables:'Sesión · material · examen · constancias · seguimiento',base:'sesiones',importe:40000,modalidad:true},
+  capacitacion:{sello:'360educa',ambito:'grupo',nombre:'Curso a la medida, con el temario de la empresa',
+    alcance:'Programa diseñado sobre las políticas, el manual y los casos reales del cliente, en vez de casos genéricos. Se cotiza POR CURSO y no por persona: el temario cuesta lo mismo lo tomen quince personas o cincuenta. Las horas y el número de sesiones se definen con el cliente; el alcance no tiene tope. Incluye material propio, apoyo en plataforma, evaluación, constancias y seguimiento del grupo',
+    entregables:'Temario construido con el cliente · material propio con su marca · sesiones impartidas · evaluación · constancias individuales · reporte de avance y asistencia',
+    base:'sesiones',importe:40000,modalidad:true},
   acompanamiento:{sello:'GMC360',ambito:'grupo',nombre:'Bolsa de horas de acompañamiento',
     alcance:'Bolsa de horas de asesoría: el cliente ejecuta y GMC360 revisa y comenta lo que produce, en sesiones con su dirección. Las horas se aplican contra un registro con fecha, tema y persona que las prestó, y tienen vigencia de seis meses desde la contratación. Los comentarios son opinión técnica sobre el documento revisado: no son aprobación de la autoridad ni sustituyen la auditoría de cumplimiento',
     entregables:'Registro de horas con fecha, tema y responsable · minuta de cada sesión con acuerdos, responsable y fecha compromiso · comentarios por escrito sobre cada documento revisado, con lo que se conserva, lo que se corrige y su fundamento',base:'horas'},
@@ -1100,7 +1133,8 @@ function grupo(){return{
  renovacion:$('g-renovacion').value==='1',
  meses:+$('g-meses').value||0, sesiones:+$('g-sesiones').value||0,
  horas:+$('g-horas').value||0, impresion:$('g-impresion').value==='1',
- nPersonal:+$('g-nPersonal').value||0, nCumplimiento:+$('g-nCumplimiento').value||0,
+ nPersonal:+$('g-nPersonal').value||0, nComercial:+$('g-nComercial').value||0,
+ nCumplimiento:+$('g-nCumplimiento').value||0,
  nDireccion:+$('g-nDireccion').value||0, nIngreso:+$('g-nIngreso').value||0,
  nCertUIF:+$('g-nCertUIF').value||0,
  hAssessment:+$('g-hAssessment').value||0,
@@ -1338,6 +1372,7 @@ function recGrupo(ents,g){
 
   if(faltaCap){
     si('capGeneral','Todo el personal necesita el curso anual, sin importar el área.','RCG art. 39 Bis fr. I');
+    op('capComercial','Si tienen área de ventas o promoción sin base previa en prevención de lavado, este es su curso: no necesitan el general completo.','RCG art. 39 Bis fr. I');
     si('capEspecializada','El Representante Encargado y el área de cumplimiento necesitan el curso especializado.','RCG art. 39 Bis fr. I · quien imparte debe acreditar 5 años de experiencia');
     si('capDireccion','El consejo de administración o el administrador único están nombrados expresamente en la norma.','RCG art. 39 Bis fr. I');
     op('capInduccion','Para el personal que entre durante el año a áreas de atención al público.','RCG art. 39 Bis 1');
@@ -1391,6 +1426,7 @@ const FALTANTES={
   nDireccion:    'cuántas personas de consejo y dirección van a capacitación',
   nIngreso:      'cuántas personas de nuevo ingreso van a inducción',
   nCertUIF:      'cuántas personas se van a certificar ante la UIF',
+  nComercial:    'cuántas personas del área comercial van a capacitación',
   horas:         'cuántas horas de acompañamiento al mes',
   hAssessment:   'cuántas horas de assessment',
   ejercicios:    'cuántos ejercicios hay sin revisar',
@@ -1399,11 +1435,26 @@ const FALTANTES={
   sesiones:      'cuántas sesiones a la medida',
   meses:         'cuántos meses de iguala'
 };
+/* El tramo se resuelve con el total de personas de todos los perfiles.
+   Así está en el cotizador de 360educa y así se sostiene la política. */
+function totalPersonasCap(g){
+  return (g.nPersonal||0)+(g.nComercial||0)+(g.nCumplimiento||0)
+        +(g.nDireccion||0)+(g.nIngreso||0)+(g.nCertUIF||0);
+}
+function tramoCap(g){
+  const t=totalPersonasCap(g);
+  return CONFIG.tramosCapacitacion.find(x=>t>=x.min)||CONFIG.tramosCapacitacion.slice(-1)[0];
+}
+
 const sinDato=(s,campo)=>({imp:0, txt:'falta un dato', s, falta:FALTANTES[campo]||'un dato'});
 
 function calcular(id,ctx,g,idxEnt,totalEnt){
   const s=CONFIG.servicios[id]; if(!s) return null;
-  const desc=s.topeB?Math.min(g.descuento.pct,CONFIG.topeDescuentoAuditoria):g.descuento.pct;
+  /* La capacitación no lleva descuento comercial: ya trae el suyo por
+     volumen, y encimarlos regalaría hasta 57% sobre el precio publicado. */
+  const desc = s.base==='personas' ? 0
+             : s.topeB ? Math.min(g.descuento.pct,CONFIG.topeDescuentoAuditoria)
+             : g.descuento.pct;
   let imp=0, txt='';
 
   switch(s.base){
@@ -1444,11 +1495,25 @@ function calcular(id,ctx,g,idxEnt,totalEnt){
       imp=m*s.importe;
       txt=m+' meses × '+mx(s.importe)+' al mes'+(s.topeMeses&&g.meses>s.topeMeses?' · topada a '+s.topeMeses:'');
       break;}
+    /* A la medida se cobra POR CURSO, con piso. No por persona ni por hora:
+       el temario se construye sobre el manual y los casos del cliente, y eso
+       cuesta lo mismo lo tomen quince personas o cincuenta. */
     case 'sesiones':{ if(!g.sesiones) return sinDato(s,'sesiones');
-      imp=g.sesiones*s.importe; txt=g.sesiones+' sesiones'; break;}
+      imp=g.sesiones*s.importe;
+      txt=g.sesiones+(g.sesiones===1?' curso a la medida × ':' cursos a la medida × ')+mx(s.importe);
+      break;}
+    /* Capacitación: precio de lista de 360educa, menos el tramo por volumen
+       que corresponde al TOTAL de personas del grupo, y convertido a sin IVA
+       porque el desglose suma el IVA hasta abajo. */
     case 'personas':{const n=g[s.campo]||0; if(!n) return sinDato(s,s.campo);
-      const pu=CONFIG.capacitacion[s.precio];
-      imp=n*pu; txt=n+(n===1?' persona':' personas')+' × '+mx(pu); break;}
+      const lista=CONFIG.capacitacion[s.precio];
+      const t=tramoCap(g);
+      const unit=lista*(1-t.pct)/(CONFIG.capacitacion.conIVA?1.16:1);
+      imp=n*unit;
+      txt=n+(n===1?' persona':' personas')+' × '+mx(lista)+' de lista'
+         +(t.pct?' · '+Math.round(t.pct*100)+'% por volumen':'')
+         +' · sin IVA '+mx(Math.round(unit));
+      break;}
     case 'assessment':{ if(!g.hAssessment) return sinDato(s,'hAssessment');
       const ha=CONFIG.horaAssessmentUSD*CONFIG.tcUSD;
       imp=g.hAssessment*ha; txt=g.hAssessment+' horas × '+mx(ha); break;}
@@ -1768,11 +1833,13 @@ function render(){
      · versión del cotizador v${CONFIG.version} · precios ${CONFIG.versionPrecios}
      · cotiza ${($('g-ejecutivo').value||quienCotiza()||'—')}
      · vigencia 30 días naturales`:'';
+  const tCap=tramoCap(g), nCap=totalPersonasCap(g);
   $('kpis').innerHTML=filas.length?`
     <div class="kpi"><div class="v">${mx(sub)}</div><div class="l">Honorarios sin IVA</div></div>
     <div class="kpi"><div class="v">${nOb}</div><div class="l">Empresas cotizadas</div></div>
     <div class="kpi"><div class="v">${g.modalidad.f.toFixed(2)}×</div><div class="l">Factor de modalidad</div></div>
-    <div class="kpi"><div class="v">${g.urgente?'2.00×':'—'}</div><div class="l">Recargo por urgencia</div></div>`:'';
+    <div class="kpi"><div class="v">${nCap?Math.round(tCap.pct*100)+'%':'—'}</div>
+      <div class="l">${nCap?'Descuento por volumen · '+nCap+' personas':'Sin capacitación cotizada'}</div></div>`:'';
 
   /* Lo que falta capturar para poder cotizar lo que ya está palomeado. */
   if(pendientes.length){
@@ -3217,7 +3284,7 @@ const campos=['g-nombre','g-contacto','g-correo','g-tel','g-ejecutivo','g-lider'
   'g-quien','g-postura','g-conting','g-fideicomiso','g-riesgoBanc','g-repTiempo','g-presupuesto',
   'g-atencion','g-iniciativa','g-modalidad','g-urgencia','g-descuento','g-renovacion','g-meses',
   'g-sesiones','g-horas','g-hAssessment','g-impresion','g-nPersonal','g-nCumplimiento','g-nDireccion',
-  'g-nIngreso','g-nCertUIF','p-dest','p-desc'];
+  'g-nIngreso','g-nCertUIF','g-nComercial','g-pago','p-dest','p-desc'];
 
 function guardarBorrador(){
   try{
