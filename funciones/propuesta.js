@@ -75,6 +75,20 @@ export default async (request) => {
          Lo que NO puede: inventar hechos, cifras, fundamentos o alcances.
          Todo eso va aquí abajo ya resuelto. ── */
     const contexto = `
+FECHA DE HOY — úsala. NO inventes ninguna otra.
+${d.fecha || '(no recibida — escribe [POR CONFIRMAR])'}
+La portada lleva: ${d.mesEmision || '[POR CONFIRMAR]'}
+
+MODALIDAD CONTRATADA
+${d.modalidad || '(no capturada)'}
+
+CONDICIONES DE PAGO — cópialas literales en la sección 6
+${d.condicionesPago || '[POR CONFIRMAR]'}
+
+ACTIVIDADES VULNERABLES Y SU FRACCIÓN, YA RESUELTAS
+No deduzcas ni corrijas estas fracciones: son las correctas y son las únicas que puedes citar.
+${JSON.stringify(d.actividades || [], null, 1)}
+
 DESTINATARIO DE LA PROPUESTA
 ${d.destinatario || '(no especificado — usa una fórmula neutra y marca [POR CONFIRMAR])'}
 
@@ -125,12 +139,23 @@ treinta años de experiencia y más de seiscientas auditorías. Escribe la propu
 ═══ REGLAS QUE NO PUEDES ROMPER ═══
 1. NO INVENTES NINGÚN HECHO. Nombres, cifras, fechas, artículos, plazos y alcances: solo los de abajo.
    Si te falta un dato, escribe [POR CONFIRMAR] y sigue. Nunca lo rellenes con algo verosímil.
+1 Bis. FECHAS. Usa la fecha de hoy que viene arriba. El cronograma se cuenta en MESES A PARTIR DE LA
+   FIRMA —"mes 1", "mes 2"—, nunca en meses de calendario, y jamás en un año anterior al de hoy.
+1 Ter. FRACCIONES DEL ARTÍCULO 17. Solo las del bloque de actividades. Si una entidad no viene ahí,
+   escribe [POR CONFIRMAR]. Está prohibido deducir la fracción del nombre de la actividad.
+1 Quáter. NO EXPLIQUES POR QUÉ una obligación aplica o no aplica a una entidad más allá de lo que
+   diga el diagnóstico. Si el diagnóstico dice que algo está en cierto estado, dilo y ya: no
+   construyas la razón jurídica. Inventar el motivo es el error más caro que puedes cometer aquí.
 2. NO INVENTES FUNDAMENTOS. Cita solo los artículos del diagnóstico, tal como vienen, con su
    ordenamiento (Ley, Reglamento o RCG). Si una afirmación no tiene fundamento abajo, márcala como
    zona abierta; no le inventes uno.
 3. NINGUNA PROPUESTA MENCIONA A OTRO CLIENTE. Ni por nombre, ni por descripción reconocible, ni como
    caso de éxito. La experiencia se acredita por método, no por clientela.
-4. NO CAMBIES LOS HONORARIOS ni inventes descuentos, anticipos, plazos de pago ni condiciones.
+4. NO CAMBIES LOS HONORARIOS ni inventes descuentos ni condiciones. Cada servicio trae su campo
+   "honorario": ese importe va TAL CUAL en la tabla de la sección 6, renglón por renglón. Está
+   PROHIBIDO escribir [POR DEFINIR] en un renglón que sí trae importe. Solo el renglón cuyo
+   honorario venga vacío o diga "por definir" lleva esa leyenda. Las condiciones de pago son las
+   que vienen arriba, literales.
 5. La sección 3 se ENSAMBLA con los textos de alcance y entregables de abajo, literales. Puedes
    ordenarlos y darles hilo; no puedes reescribir lo que prometen. Si a un servicio le falta alcance,
    escribe [ALCANCE POR CAPTURAR EN EL CATÁLOGO]. No lo inventes.
@@ -144,7 +169,8 @@ treinta años de experiencia y más de seiscientas auditorías. Escribe la propu
 10. Los viáticos nunca van dentro del honorario.
 
 ═══ ESTRUCTURA · SIETE SECCIONES, EN ESTE ORDEN ═══
-PORTADA — Título del plan, entidades destinatarias, mes y año, y la leyenda "Documento Confidencial".
+PORTADA — Título del plan, entidades destinatarias, el mes y año que vienen arriba, y la leyenda
+"Documento Confidencial".
 ÍNDICE — Las siete secciones.
 
 1. RESUMEN EJECUTIVO
@@ -162,7 +188,10 @@ PORTADA — Título del plan, entidades destinatarias, mes y año, y la leyenda 
    separada se marca "Servicio opcional (cotización separada)".
 
 4. CRONOGRAMA
-   Tabla de fases contra meses, anclada a las fechas de exigibilidad del diagnóstico.
+   Escribe SOLO uno o dos párrafos: qué se hace primero, qué depende de qué, y contra qué fecha de
+   exigibilidad se está corriendo. NO DIBUJES NINGUNA TABLA NI NINGUNA LISTA DE MESES: el motor
+   inserta el cronograma gráfico justo debajo de este encabezado, y si tú escribes otro, la
+   propuesta sale con dos cronogramas que no coinciden. Ya pasó.
 
 5. EQUIPO DE TRABAJO
    Usa los nombres del bloque EQUIPO DE TRABAJO, tal como vienen. Si vienen vacíos, escribe
@@ -172,8 +201,11 @@ PORTADA — Título del plan, entidades destinatarias, mes y año, y la leyenda 
 6. INVERSIÓN Y CONDICIONES
    Tabla por fase con los honorarios tal cual, tomados del campo "honorario" de cada servicio.
    Si un servicio trae el honorario vacío o dice "por definir", va en la tabla con la leyenda
-   "por definir" — no le pongas un número ni lo escondas. Vigencia de treinta días naturales. IVA. Viáticos aparte.
-   Exclusiones.
+   "por definir" — no le pongas un número ni lo escondas. El subtotal, el IVA y el total van tal como
+   vienen en HONORARIOS.
+   Después de la tabla: vigencia de treinta días naturales contados desde la fecha de la portada;
+   condiciones de pago, copiadas literales del bloque de arriba; IVA; viáticos aparte cuando la sede
+   esté fuera de la Ciudad de México; y las exclusiones.
 
 7. PRÓXIMOS PASOS
    Revisión y aprobación, formalización, arranque. Corto.

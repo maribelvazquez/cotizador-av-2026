@@ -7,7 +7,10 @@
 <style>
 /* ══════════════════════════════════════════════════════════════
    GMC360 · COTIZADOR DE ACTIVIDADES VULNERABLES — VISTA INTERNA
-   v4.0 · 7 de septiembre de 2026 · con acceso y guardado
+   v5.0 · 8 de septiembre de 2026
+   La versión vive en CONFIG.version, abajo. Cambiarla ahí la cambia en
+   todos lados: encabezado, pestaña del navegador, barra de trabajo,
+   pantalla de acceso y dentro de cada cotización guardada.
 
    Precios autorizados por dirección. El motor de horas del
    cotizador 2025 quedó atrás: ahora es base más escalones.
@@ -342,6 +345,12 @@ label.ns input{margin:0}
   margin-top:34px;padding-top:13px;line-height:1.65;max-width:700px}
 .inf .leg b{color:var(--gris)}
 
+.barra .ver{background:var(--negro);color:#fff;font-weight:700;font-size:11px;letter-spacing:.4px;
+  padding:3px 8px;border-radius:5px;flex-shrink:0}
+.g-ver{margin-top:16px;font-size:11.5px;color:#8a918c;letter-spacing:.3px}
+.fechaCoti:empty{display:none}
+.fechaCoti{font-size:11.5px;color:var(--gris);line-height:1.6;margin:2px 0 8px;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
 .selloInterno{background:#1b1b1e;color:#fff;font-size:11.5px;font-weight:600;letter-spacing:.3px;
   padding:9px 13px;border-radius:6px 6px 0 0;margin-bottom:-1px;line-height:1.5;
   -webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -381,6 +390,7 @@ label.ns input{margin:0}
      quede guardada a tu nombre.</p>
   <button id="btnEntrar">Entrar con mi correo de GMC360</button>
   <div class="g-err" id="gateErr"></div>
+  <div class="g-ver" id="gateVer"></div>
 </div>
 
 <div class="wrap">
@@ -388,7 +398,7 @@ label.ns input{margin:0}
 <header>
   <div class="marca">GMC360 · LEX-QUO · 360EDUCA</div>
   <h1>Cotizador de Actividades Vulnerables</h1>
-  <div class="sub">Vista interna · v4.0 · precios autorizados por dirección</div>
+  <div class="sub" id="subVersion">Vista interna</div>
 </header>
 
 <div class="barra noprint" id="barra"></div>
@@ -527,6 +537,8 @@ porque antes no sabíamos qué se iba a vender.</p>
     <div><label>Horas de acompañamiento al mes<span class="fund">12, 20 o 40 · 6 meses</span></label>
       <select id="g-horas"><option value="0">No aplica</option><option value="12">12 horas</option>
       <option value="20">20 horas</option><option value="40">40 horas</option></select></div>
+    <div><label>Condiciones de pago<span class="fund">Va literal a la propuesta</span></label>
+      <select id="g-pago"></select></div>
     <div><label>¿Informe impreso?</label><select id="g-impresion">
       <option value="0">No</option><option value="1">Sí · $2,500</option></select></div>
   </div>
@@ -548,6 +560,7 @@ porque antes no sabíamos qué se iba a vender.</p>
 
 <!-- 4 · HONORARIOS -->
 <h2><span class="n">6</span>Desglose de honorarios</h2>
+<div class="fechaCoti" id="fechaCoti"></div>
 <div class="selloInterno">DOCUMENTO INTERNO · no se le entrega al cliente.
   Trae la estructura de costos completa. Lo que ve el cliente es el informe de diagnóstico
   y la propuesta, no esta hoja.</div>
@@ -558,8 +571,8 @@ porque antes no sabíamos qué se iba a vender.</p>
   <div class="kpis" id="kpis"></div>
   <div id="notaInterna"></div>
   <div class="btns noprint">
-    <button class="b1" onclick="window.print()">Imprimir o guardar en PDF</button>
-    <button class="b2" onclick="location.reload()">Empezar de nuevo</button>
+    <button class="b1" id="btnCotiPdf">Guardar la cotización interna en PDF</button>
+    <button class="b2" id="btnNueva">Empezar de nuevo</button>
   </div>
   <p class="nota" style="margin-bottom:0">Importes sin IVA salvo donde se indique. Vigencia sugerida: 30 días naturales.
   Los viáticos se cotizan aparte cuando la sede es fuera de CDMX.</p>
@@ -613,6 +626,14 @@ const CONFIG={
  /* Sella cada cotización guardada con la versión de precios que la produjo.
     Cámbiala cada vez que dirección autorice un precio nuevo. Sin esto, en
     enero no vas a poder saber con qué números se cotizó en octubre. */
+ /* ── LA VERSIÓN ──
+    Se cambia AQUÍ y en ningún otro lado: aparece sola en el encabezado, en
+    la barra de arriba mientras se trabaja, en el pie del informe y dentro de
+    cada cotización que se guarda. Así, al abrir la página se ve de inmediato
+    si es la versión nueva o la que traía el navegador en caché. */
+ version:'6.0',
+ versionFecha:'8 de septiembre de 2026',
+ versionNota:'auditoría completa: fórmulas de escala, alcances de servicio, fechas de la propuesta y condiciones de pago',
  versionPrecios:'2026-09-07',
 
  /* ── QUIÉN PUEDE AUTORIZAR ──
@@ -711,33 +732,47 @@ const CONFIG={
     {p:'No hay ejercicios anteriores sin presentar', f:'Ley art. 53 fr. VI'},
     {p:'Se conservan acuses y documentación soporte por diez años', f:'Regl. art. 20'}]},
 
-  {id:'aviso24', corto:'Aviso de 24 horas', q:'Aviso dentro de 24 horas por sospecha o por indicios',
-   desde:'30 de noviembre de 2026', ord:1,
-   f:'RCG arts. 26 Bis a 26 Bis 2',
+/* Igual que el beneficiario controlador: el PROCEDIMIENTO va dentro del
+     Manual. Lo que se mide aquí es si el circuito existe y quién lo opera.
+     Y va en renglón aparte por una razón que no es de forma: es la fecha
+     más próxima de toda la reforma —30 de noviembre de 2026, cuatro meses
+     antes que el Manual—. Metida dentro de la pregunta del Manual, el
+     cliente vería marzo de 2027 y no vería noviembre. */
+  {id:'aviso24', corto:'Aviso de 24 horas', q:'¿Podrían presentar un aviso de 24 horas si mañana detectaran algo?',
+   /* CORREGIDO EL 8-SEP-2026. Estaba con fecha de noviembre de 2026 y ESO ERA
+      FALSO: la obligación vive en la Ley art. 18 fr. VI, segundo párrafo,
+      reformada el 16 de julio de 2025, y ya está vigente. Los arts. 26 Bis
+      a 26 Bis 2 de las RCG solo desarrollan el procedimiento —empiezan
+      diciendo "Para efectos del segundo párrafo de la fracción VI del
+      artículo 18 de la Ley"—. Decirle a un cliente que tiene hasta noviembre
+      lo dejaba expuesto a la multa del art. 54 fr. III por algo que ya le
+      obliga hoy. */
+   desde:null, ord:0,
+   f:'Ley art. 18 fr. VI, segundo párrafo (reforma DOF 16-07-2025, vigente) · Reglamento art. 7 Bis · RCG arts. 26 Bis a 26 Bis 2 · la obligación ya rige; lo que entra el 30 de noviembre de 2026 es el procedimiento reglado de las RCG · el procedimiento se escribe DENTRO del Manual y no se construye aparte',
    puntos:[
-    {p:'Hay un procedimiento escrito para detectar y escalar la sospecha', f:'RCG art. 26 Bis'},
-    {p:'El personal de trato directo sabe qué hacer y a quién avisar', f:'RCG art. 26 Bis'},
-    {p:'Se entiende que procede aunque no se alcance el umbral', f:'RCG art. 26 Bis 2'},
-    {p:'Se entiende que procede aunque la operación no se haya celebrado', f:'Regl. art. 7 Bis'}]},
+    {p:'Hay una persona identificable a quien se le escala la sospecha, y el personal de trato directo sabe quién es', f:'RCG art. 26 Bis'},
+    {p:'Queda constancia de la hora en que se detectó: de ahí corren las 24 horas, no del cierre del mes', f:'RCG art. 26 Bis'},
+    {p:'Está claro que procede aunque la operación no llegue al umbral', f:'RCG art. 26 Bis 2'},
+    {p:'Está claro que procede aunque la operación al final no se haya celebrado', f:'Regl. art. 7 Bis'}]},
 
   {id:'manual', corto:'Manual', q:'Manual de Políticas Internas', desde:'1 de marzo de 2027', ord:2,
    f:'Ley art. 18 fr. VIII · RCG arts. 37 y 37 Bis',
    puntos:[
     {p:'Existe el Manual, está fechado y aprobado por la dirección', f:'RCG art. 37'},
-    {p:'Criterios de identificación y conocimiento de clientes', f:'37 Bis fr. I'},
-    {p:'Clasificación de clientes por grado de riesgo', f:'37 Bis fr. II'},
-    {p:'Debida diligencia diferenciada según el grado de riesgo', f:'37 Bis fr. III'},
-    {p:'Tratamiento de Personas Políticamente Expuestas', f:'37 Bis fr. IV'},
-    {p:'Perfil transaccional de los clientes', f:'37 Bis fr. V'},
-    {p:'Procedimiento de presentación de avisos', f:'37 Bis fr. VI'},
-    {p:'Criterios de conservación de la información', f:'37 Bis fr. VII'},
-    {p:'Acumulación de operaciones para umbrales', f:'37 Bis fr. VIII'},
-    {p:'Consulta de listas de personas bloqueadas', f:'37 Bis fr. IX'},
-    {p:'Funciones y responsabilidades del Representante', f:'37 Bis fr. X'},
-    {p:'Programas de capacitación', f:'37 Bis fr. XI'},
-    {p:'Control interno y auditoría', f:'37 Bis fr. XII'},
-    {p:'Confidencialidad y prohibición de avisar al cliente', f:'37 Bis fr. XIII'},
-    {p:'Procedimiento de actualización del propio Manual', f:'37 Bis fr. XIV'},
+    {p:'Criterios de identificación y conocimiento de clientes', f:'RCG art. 37 Bis fr. I'},
+    {p:'Clasificación de clientes por grado de riesgo', f:'RCG art. 37 Bis fr. II'},
+    {p:'Debida diligencia diferenciada según el grado de riesgo', f:'RCG art. 37 Bis fr. III'},
+    {p:'Tratamiento de Personas Políticamente Expuestas', f:'RCG art. 37 Bis fr. IV'},
+    {p:'Perfil transaccional de los clientes', f:'RCG art. 37 Bis fr. V'},
+    {p:'Procedimiento de presentación de avisos', f:'RCG art. 37 Bis fr. VI'},
+    {p:'Criterios de conservación de la información', f:'RCG art. 37 Bis fr. VII'},
+    {p:'Acumulación de operaciones para umbrales', f:'RCG art. 37 Bis fr. VIII'},
+    {p:'Consulta de listas de personas bloqueadas', f:'RCG art. 37 Bis fr. IX'},
+    {p:'Funciones y responsabilidades del Representante', f:'RCG art. 37 Bis fr. X'},
+    {p:'Programas de capacitación', f:'RCG art. 37 Bis fr. XI'},
+    {p:'Control interno y auditoría', f:'RCG art. 37 Bis fr. XII'},
+    {p:'Confidencialidad y prohibición de avisar al cliente', f:'RCG art. 37 Bis fr. XIII'},
+    {p:'Procedimiento de actualización del propio Manual', f:'RCG art. 37 Bis fr. XIV'},
     {p:'Si es grupo empresarial, hay manual del grupo con las particularidades de cada empresa', f:'RCG art. 37 Bis 1'}]},
 
   {id:'ebr', corto:'Metodología de riesgos', q:'Metodología de evaluación de riesgos de la entidad',
@@ -745,15 +780,15 @@ const CONFIG={
    f:'Ley art. 18 fr. VII · RCG arts. 10 Septies a 10 Septies 6',
    puntos:[
     {p:'Existe una metodología escrita, no solo una matriz suelta', f:'RCG art. 10 Septies'},
-    {p:'Considera los actos u operaciones que realiza', f:'10 Septies 1'},
-    {p:'Considera el tipo de clientes', f:'10 Septies 1'},
-    {p:'Considera países y áreas geográficas', f:'10 Septies 1'},
-    {p:'Considera los canales de contratación y entrega', f:'10 Septies 1'},
-    {p:'Tiene un método explícito de medición del riesgo', f:'10 Septies 1'},
-    {p:'Se alimenta de una base de datos de al menos doce meses', f:'10 Septies 2 fr. II'},
-    {p:'Se revisa y actualiza al menos cada doce meses', f:'10 Septies 3'},
-    {p:'Hay mitigantes definidos para los riesgos identificados', f:'10 Septies'},
-    {p:'La documentación se conserva diez años', f:'10 Septies 3'}]},
+    {p:'Considera los actos u operaciones que realiza', f:'RCG art. 10 Septies 1'},
+    {p:'Considera el tipo de clientes', f:'RCG art. 10 Septies 1'},
+    {p:'Considera países y áreas geográficas', f:'RCG art. 10 Septies 1'},
+    {p:'Considera los canales de contratación y entrega', f:'RCG art. 10 Septies 1'},
+    {p:'Tiene un método explícito de medición del riesgo', f:'RCG art. 10 Septies 1'},
+    {p:'Se alimenta de una base de datos de al menos doce meses', f:'RCG art. 10 Septies 2 fr. II'},
+    {p:'Se revisa y actualiza al menos cada doce meses', f:'RCG art. 10 Septies 3'},
+    {p:'Hay mitigantes definidos para los riesgos identificados', f:'RCG art. 10 Septies'},
+    {p:'La documentación se conserva diez años', f:'RCG art. 10 Septies 3'}]},
 
   {id:'matriz', corto:'Riesgo de clientes', q:'Modelo de grado de riesgo de clientes',
    desde:'1 de marzo de 2027', ord:2,
@@ -768,16 +803,22 @@ const CONFIG={
     {p:'Hay perfil transaccional y alertas por desviación', f:'RCG arts. 23 Ter 1 y 23 Ter 2'},
     {p:'Se consulta PEP y hay debida diligencia reforzada', f:'RCG arts. 23 Quáter y 23 Ter 4'}]},
 
-  {id:'bc', corto:'BC del cliente', q:'Identificación del beneficiario controlador del CLIENTE',
+  /* Esta pregunta NO es «¿el Manual habla del beneficiario controlador?».
+     Eso ya lo mide la pregunta del Manual, y sería preguntar dos veces lo
+     mismo. Lo que mide aquí es si además de estar escrito, se está HACIENDO:
+     si a cada cliente se le identifica y queda en su expediente. Un manual
+     impecable con cero declaraciones recabadas es el hallazgo más común de
+     todos, y es exactamente lo que busca un auditor. */
+  {id:'bc', corto:'BC del cliente', q:'¿De verdad identifican al beneficiario controlador de cada cliente?',
    desde:'1 de marzo de 2027', ord:2,
-   f:'Ley art. 18 fr. III · RCG Cap. III Quinquies arts. 23 Quinquies a 23 Quinquies 3 · umbral 25% · sus criterios van DENTRO del Manual, no se construye aparte',
+   f:'Ley art. 18 fr. III · RCG Cap. III Quinquies arts. 23 Quinquies a 23 Quinquies 3 · umbral 25% · los CRITERIOS van dentro del Manual y no se construyen aparte; esto mide si se aplican en la operación y quedan en el expediente',
    puntos:[
-    {p:'Hay criterios escritos en el Manual para identificarlo', f:'RCG art. 23 Quinquies'},
+    {p:'Los criterios del Manual se están aplicando de verdad, no solo escritos', f:'RCG art. 23 Quinquies'},
     {p:'Se aplica la prelación: 25% o más del capital, luego control por otros medios, luego alta dirección', f:'RCG art. 23 Quinquies fr. I a III'},
     {p:'A las personas físicas se les recaba declaración firmada de si conocen a un beneficiario controlador', f:'Ley art. 18 fr. III'},
     {p:'Hay tratamiento específico para fideicomisos', f:'RCG art. 23 Quinquies 1'},
     {p:'Se aplican las excepciones que la norma permite, sin excederse', f:'RCG art. 23 Quinquies 2'},
-    {p:'El soporte se conserva diez años y se actualiza durante la relación de negocios', f:'Ley art. 18 fr. IV'}]},
+    {p:'El soporte se conserva cinco años y se mantiene actualizado mientras dure la relación de negocios', f:'Ley art. 18 fr. IV · RCG art. 23 Quinquies, último párrafo'}]},
 
   {id:'bcRegistro', corto:'Registro ante Economía', q:'Registro del beneficiario controlador ante el sistema de la Secretaría de Economía',
    desde:null, ord:0,
@@ -850,6 +891,16 @@ const CONFIG={
  ],
  iva:.16, renovacionInflacion:.05, impresion:2500,
  tcUSD:18, horaAcompUSD:300, mesesBolsa:6,
+ /* ── CÓMO ESCALA EL TRABAJO CON MÁS EMPRESAS ──
+    Corregido el 8-sep-2026. Antes, un servicio de ámbito grupo se ABARATABA
+    con cada empresa que se agregaba: un grupo de once pagaba menos por el
+    marco que una sola empresa. Está al revés. El RCG art. 37 Bis 1 permite
+    manual de grupo pero "con las particularidades de cada empresa": cada
+    entidad adicional es trabajo de adaptación, no ahorro.
+    marcoPorEntidadExtra: cuánto suma cada empresa adicional al marco.
+    igualaPorEntidadExtra: cada empresa opera su propio padrón y su e.firma. */
+ marcoPorEntidadExtra:0.35,
+ igualaPorEntidadExtra:0.60,
  /* El assessment se cobra por hora: no es construir un entregable, es
     revisar el que el cliente ya tiene y decir qué le falta. Es el caso de
     quien dice "mi manual está bien" — y con la reforma casi nunca lo está. */
@@ -894,19 +945,40 @@ const CONFIG={
             {id:'inicial',nombre:'30 a 54% · Inicial',pct:.15},
             {id:'arranque',nombre:'Menos de 30% · Sin arranque',pct:.20}]},
 
+ /* Cada actividad lleva su fracción del artículo 17 de la Ley. Va así para
+    que el redactor de propuestas NO la invente: en una prueba real escribió
+    que el cash pooling era la fracción X, que es traslado de valores. */
  actividades:[
-  {id:'arrendamiento',nombre:'Arrendamiento de inmuebles'},{id:'mutuo',nombre:'Préstamo, mutuo o crédito'},
-  {id:'vehiculos',nombre:'Vehículos'},{id:'donativos',nombre:'Donativos'},
-  {id:'joyas',nombre:'Joyas, metales y piedras preciosas'},{id:'prepago',nombre:'Tarjetas de prepago, vales y monederos'},
-  {id:'blindaje',nombre:'Blindaje'},{id:'juegos',nombre:'Casinos, juegos y sorteos'},
-  {id:'valores',nombre:'Traslado o custodia de valores'},{id:'inmuebles',nombre:'Compraventa de inmuebles'},
-  {id:'desarrollo',nombre:'Desarrollo inmobiliario y construcción'},{id:'aduanal',nombre:'Agentes aduanales'},
-  {id:'profesionales',nombre:'Servicios profesionales'},{id:'virtuales',nombre:'Activos virtuales'},
-  {id:'fedatarios',nombre:'Fe pública · notarios y corredores'},{id:'ninguna',nombre:'No realiza actividad vulnerable'}],
+  {id:'arrendamiento',nombre:'Arrendamiento de inmuebles',fr:'XV'},
+  {id:'mutuo',nombre:'Préstamo, mutuo o crédito',fr:'IV'},
+  {id:'vehiculos',nombre:'Vehículos',fr:'VIII'},
+  {id:'donativos',nombre:'Donativos',fr:'XIII'},
+  {id:'joyas',nombre:'Joyas, metales y piedras preciosas',fr:'VI'},
+  {id:'prepago',nombre:'Tarjetas de prepago, vales y monederos',fr:'II'},
+  {id:'blindaje',nombre:'Blindaje',fr:'IX'},
+  {id:'juegos',nombre:'Casinos, juegos y sorteos',fr:'I'},
+  {id:'valores',nombre:'Traslado o custodia de valores',fr:'X'},
+  {id:'inmuebles',nombre:'Compraventa de inmuebles',fr:'V'},
+  {id:'desarrollo',nombre:'Desarrollo inmobiliario y construcción',fr:'V Bis'},
+  {id:'aduanal',nombre:'Agentes aduanales',fr:'XIV'},
+  {id:'profesionales',nombre:'Servicios profesionales',fr:'XI'},
+  {id:'virtuales',nombre:'Activos virtuales',fr:'XVI'},
+  {id:'fedatarios',nombre:'Fe pública · notarios y corredores',fr:'XII'},
+  {id:'ninguna',nombre:'No realiza actividad vulnerable',fr:null}],
 
  modalidad:[{id:'remota',nombre:'Vía remota',f:1.00},
             {id:'hibrida',nombre:'Híbrida · hasta 3 sesiones presenciales',f:1.35},
             {id:'presencial',nombre:'Presencial · 4 sesiones o más',f:1.75}],
+ /* Cómo se cobra. Va literal a la propuesta; antes salía [POR CONFIRMAR]. */
+ pagos:[
+  {id:'5050',  n:'50% de anticipo y 50% contra entrega'},
+  {id:'404020',n:'40% de anticipo, 40% a la mitad del proyecto y 20% contra entrega'},
+  {id:'3070',  n:'30% de anticipo y 70% contra entrega'},
+  {id:'fases', n:'Por fase: cada fase se factura contra su entregable'},
+  {id:'mensual',n:'Mensual por adelantado, dentro de los primeros cinco días de cada mes'},
+  {id:'contado',n:'100% contra entrega'},
+  {id:'convenir',n:'A convenir · lo define dirección'}
+ ],
  descuentos:[{id:'A',nombre:'Precio A · sin descuento',pct:0},
              {id:'B',nombre:'Precio B · 10%',pct:.10},{id:'C',nombre:'Precio C · 15%',pct:.15}],
  topeDescuentoAuditoria:.10,
@@ -920,7 +992,22 @@ const CONFIG={
    {a:'igualaArranque',b:['paqueteMarco','manual','mebr','programaCap','iguala'],
     msj:'La iguala de arranque ya incluye el marco, el programa de capacitación y la operación mensual.'},
    {a:'paqueteMarco',b:['manual','mebr'],
-    msj:'El paquete ya incluye manual y metodología.'}
+    msj:'El paquete ya incluye manual y metodología.'},
+   /* La auditoría de la Ley art. 18 fr. XI es la MISMA auditoría; lo que
+      cambia es quién la firma. En riesgo alto tiene que ser externa; en bajo
+      y medio basta la interna independiente. Cotizar las dos es cobrar dos
+      veces el mismo trabajo, y en una prueba real salieron juntas. */
+   {a:'auditoriaExterna',b:['auditoria'],
+    msj:'La auditoría externa anual y la auditoría PLD/FT son el mismo trabajo: lo que cambia es quién la firma.'},
+   /* La auditoría de avisos se calcula como el 60% de la integral: es un
+      pedazo de ella, no un servicio aparte. Juntas cobran 160% de la integral. */
+   {a:'auditoriaAvisos',b:['auditoria','auditoriaExterna'],
+    msj:'La auditoría de avisos es una parte de la auditoría integral, no un encargo aparte.'},
+   /* Biopsia y auditoría miran los mismos expedientes, los mismos avisos y
+      las mismas altas. Se puede vender una después de la otra en el tiempo,
+      pero no las dos en la misma cotización. */
+   {a:'biopsia',b:['auditoria','auditoriaExterna'],
+    msj:'La Biopsia y la auditoría revisan lo mismo: expedientes, avisos y altas. Van en momentos distintos, no en la misma cotización.'}
  ],
 
  /* ── DESCUENTO POR ENTIDAD ADICIONAL ──
@@ -931,43 +1018,43 @@ const CONFIG={
 
  servicios:{
   biopsia:{sello:'GMC360',ambito:'entidad',nombre:'Biopsia de Cumplimiento',
-    alcance:'Diagnóstico integral: qué actividades vulnerables aplican, si el alta está correcta, estado de expedientes y brechas frente al marco vigente',
-    entregables:'Informe con hallazgos priorizados · matriz de actividades aplicables · gap analysis · estimación de exposición · recomendación de ruta',base:'fijo',importe:100000},
-  determinacion:{sello:'LEX-QUO',ambito:'entidad',nombre:'Dictamen de determinación de actividad vulnerable',
-    alcance:'Determina si la operación configura actividad vulnerable y en qué fracción, con fundamento',
-    entregables:'Dictamen firmado · matriz de obligaciones · hoja de ruta',base:'fijo',importe:96000},
+    alcance:'Diagnóstico de partida: qué fracciones del artículo 17 de la Ley le aplican, si el alta en el padrón y la designación del Representante están correctas, estado de los expedientes de identificación y de los avisos presentados, y qué falta frente a la Ley, el Reglamento y las RCG, con la fecha desde la que cada obligación es exigible. Expedientes y avisos se revisan sobre muestra; el tamaño se pacta por escrito antes de iniciar. No incluye la corrección de lo que se encuentre, ni la reconstrucción de periodos anteriores, ni representación ante la autoridad',
+    entregables:'Informe con los hallazgos ordenados por prioridad y por fecha de exigibilidad · matriz de actividades vulnerables aplicables con su fundamento · brecha obligación por obligación, con lo que existe y lo que falta · rango de sanción asociado a los hallazgos, en UMA y a título orientativo · ruta de trabajo por fases con tiempos',base:'fijo',importe:100000},
+  determinacion:{sello:'LEX-GMC',ambito:'entidad',nombre:'Dictamen de determinación de actividad vulnerable',
+    alcance:'Opinión jurídica sobre si la operación configura actividad vulnerable y en qué fracción del artículo 17 de la Ley, con su fundamento. Es opinión de la firma: no vincula al SAT ni a la UIF, y no sustituye una consulta formal ante la autoridad',
+    entregables:'Dictamen firmado por abogado, con el análisis de cada supuesto considerado · relación de las obligaciones que se activan si configura, con su fecha de exigibilidad · recomendación sobre el siguiente paso',base:'fijo',importe:96000},
   padron:{sello:'GMC360',ambito:'entidad',nombre:'Alta en Padrón y designación del Representante',
-    alcance:'Nombramiento, registro y aceptación en el Portal con e.firma',
-    entregables:'Acuse de alta · acta de designación · acuse de aceptación',base:'fijo',importe:15000},
+    alcance:'Preparación y acompañamiento del alta en el padrón y de la designación del Representante Encargado de Cumplimiento: integración de la información de los Anexos, captura en el Portal y seguimiento hasta el acuse. El alta se hace con la e.firma de la propia entidad y la aceptación del cargo con la de la persona designada; las dos las aporta el cliente y sin ellas el trámite no se puede concluir. Los tiempos de respuesta y las prevenciones del SAT no dependen de GMC360. No incluye obtener ni renovar la e.firma',
+    entregables:'Acuse de alta y registro en el padrón · acta de designación para firma del órgano de administración · acuse de aceptación del cargo en el Portal · relación de las actividades vulnerables dadas de alta',base:'fijo',importe:15000},
   auditoria:{sello:'GMC360',ambito:'entidad',nombre:'Auditoría PLD/FT de actividad vulnerable',
-    alcance:'Revisión integral bajo metodología 360Audit: expedientes, avisos, manual, altas y documentación soporte',
-    entregables:'Informe · matriz de hallazgos por criticidad · plan de acción · formatos de control',base:'auditoria',modalidad:true,topeB:true},
+    alcance:'Revisión de cumplimiento bajo metodología 360Audit sobre las obligaciones de la Ley, su Reglamento y las RCG: alta y registro, expediente único de identificación, presentación de avisos, manual de políticas internas y documentación soporte. Expedientes y avisos se revisan sobre muestra; el tamaño y el criterio de selección se pactan por escrito antes de iniciar y se declaran en el informe. No incluye integrar ni corregir los expedientes o los avisos revisados, ni representación ante la autoridad. Es un encargo de medios: se emite opinión sobre el cumplimiento observado, no se garantiza un resultado ante el SAT',
+    entregables:'Informe con el alcance, la muestra revisada y su porcentaje sobre el total · matriz de hallazgos calificados por criticidad, cada uno con su fundamento · acciones correctivas con responsable y plazo · formatos de control para la operación · carta de cierre',base:'auditoria',modalidad:true,topeB:true},
   auditoriaAvisos:{sello:'GMC360',ambito:'entidad',nombre:'Auditoría de avisos',
     alcance:'Revisión acotada a la presentación de avisos, sin expedientes de clientes',
     entregables:'Informe de avisos · conciliación · plan de regularización',base:'auditoriaAvisos',modalidad:true,topeB:true},
-  auditoriaExterna:{sello:'GMC360',ambito:'entidad',nombre:'Auditoría externa anual (Ley art. 18 fr. XI)',
-    alcance:'Dictamen con opinión independiente conforme a Boletines 7010 y 7040 IMCP',
-    entregables:'Informe · opinión profesional · cédulas y evidencia',base:'auditoria',modalidad:true,topeB:true},
+  auditoriaExterna:{sello:'GMC360',ambito:'entidad',nombre:'Dictamen de auditoría por auditor externo independiente (RCG Cap. XIV)',
+    alcance:'Dictamen anual de cumplimiento firmado por auditor externo independiente, con las secciones y la escala de calificación de los artículos 47 y 48 de las RCG y la proyección económica de multas del artículo 49. El auditor acredita título, cédula, tres años de experiencia y certificación vigente de la UIF (RCG art. 45). El dictamen EXTERNO solo es obligatorio cuando el riesgo de la entidad es alto; en riesgo bajo o medio basta auditoría interna independiente y es decisión de la entidad (Ley art. 18 fr. XI · RCG arts. 44 y 45). Quien construyó el marco no lo dictamina: si GMC360 elaboró el manual o la metodología, el dictamen lo firma otra firma. No sustituye a la auditoría PLD/FT: es la misma revisión, con otra firma',
+    entregables:'Dictamen con las secciones del RCG art. 47 · calificación obligación por obligación en la escala del art. 48 · hallazgos con acción correctiva, responsable y plazo · proyección económica de multas (art. 49) · cédulas de trabajo y evidencia · carta de independencia del auditor',base:'auditoria',modalidad:true,topeB:true},
   reconstruccion:{sello:'GMC360',ambito:'entidad',nombre:'Reconstrucción retroactiva de ejercicios',
     alcance:'Extracción, conciliación contra depósitos y calificación con UMA por ejercicio',
     entregables:'Informe de reconstrucción · matriz por periodo · base conciliada',base:'ejercicios',importe:180000,ejerciciosBase:5},
   avisosExt:{sello:'GMC360',ambito:'entidad',nombre:'Preparación y carga de avisos extemporáneos',
-    alcance:'Por bloque de 1,000 avisos',
-    entregables:'Avisos presentados con acuse · bitácora',base:'bloques',importe:40000,porBloque:1000},
-  art55:{sello:'LEX-QUO',ambito:'entidad',nombre:'Escrito y expediente de autocorrección (Ley art. 55 · Regl. art. 55 Bis)',
-    alcance:'Escrito libre con la totalidad de faltas por operación y periodo, bajo protesta de decir verdad',
-    entregables:'Escrito presentado · expediente probatorio · calendario',base:'fijo',importe:70000},
+    alcance:'Preparación, validación y carga de avisos de periodos ya vencidos, en bloques de mil. Se trabaja sobre la información que entrega el cliente: no se audita ni se reconstruye su integridad, eso es la reconstrucción retroactiva. La carga se hace en el Portal con los accesos y la e.firma del cliente o de su Representante. Presentar avisos vencidos no extingue por sí solo la infracción: el beneficio del artículo 55 se gestiona en el servicio de autocorrección. No incluye representación ante el SAT',
+    entregables:'Avisos cargados en el Portal, con su acuse electrónico · bitácora de carga por periodo, con aceptados y rechazados · relación de rechazos con su causa y su reproceso',base:'bloques',importe:40000,porBloque:1000},
+  art55:{sello:'LEX-GMC',ambito:'entidad',nombre:'Escrito y expediente de autocorrección (Ley art. 55 · Regl. art. 55 Bis)',
+    alcance:'Elaboración y presentación del escrito libre de autocorrección ante el SAT, con la totalidad de las faltas detalladas por operación y periodo y la manifestación bajo protesta de decir verdad, más el expediente que acredita el cumplimiento de lo regularizado. La abstención de sanción del artículo 55 de la Ley procede POR ÚNICA OCASIÓN y solo si la regularización es espontánea y previa al inicio de facultades de verificación; ejercido ese beneficio, la reducción posterior es de hasta el cincuenta por ciento y la determina la autoridad. Es un encargo de medios: se prepara y se presenta el escrito, no se garantiza la resolución. No incluye representación en procedimientos de verificación o sancionadores ya iniciados',
+    entregables:'Escrito de autocorrección presentado, con acuse · expediente probatorio del cumplimiento de cada obligación regularizada, indexado por operación y periodo · calendario de regularización con responsable y fecha · nota de seguimiento',base:'fijo',importe:70000},
   expedientes:{sello:'GMC360',ambito:'entidad',nombre:'Integración de expedientes de identificación',
-    alcance:'Por expediente de cliente con operaciones sobre umbral',
-    entregables:'Expedientes integrados · índice · constancias',base:'muestra',importe:600},
+    alcance:'Integración del expediente único de identificación, por cada cliente que alcanza el umbral de identificación: armado conforme al Anexo que corresponde al tipo de cliente, cotejo de los documentos contra el original que exhiba el cliente y recabado de la declaración sobre el beneficiario controlador. El cliente aporta los documentos y los originales para cotejo. No se verifica la autenticidad de los documentos ante la autoridad emisora ni se responde por la veracidad de lo que el cliente declare',
+    entregables:'Expedientes integrados y foliados, con la lista de verificación del Anexo aplicable · índice por cliente con fecha de integración · constancia de cotejo contra original · relación de documentos faltantes por expediente',base:'integracion',importe:600},
   /* El BC del CLIENTE no es servicio aparte: sus criterios van dentro del Manual.
      Lo que sí se vende solo es el expediente para el registro del Capítulo IV Bis,
      que obliga a toda sociedad mercantil aunque no sea sujeto obligado.
      Precio autorizado por dirección: bajó de 103,000 a 60,000. */
   bcRegistro:{sello:'GMC360',ambito:'entidad',
-    nombre:'Expediente de beneficiario controlador para el registro (Ley Cap. IV Bis)',
-    alcance:'Desdoblamiento de la estructura accionaria hasta la persona física de control efectivo, con la prelación de la Ley: 25% o más del capital, control por otros medios, o alta dirección. Integración del expediente documental fechado y del acta que deja constancia de que el sistema de registro aún no está habilitado',
-    entregables:'Expediente de beneficiario controlador · desdoblamiento accionario documentado · constancia fechada de imposibilidad de registro · procedimiento de actualización ante transmisión de acciones',
+    nombre:'Identificación y expediente del beneficiario controlador de la sociedad (Ley Cap. IV Bis)',
+    alcance:'Identificación de la persona física que ejerce el control efectivo de la sociedad, con la prelación de la Ley: 25% o más del capital social, control por otros medios, o alta dirección. Integración del expediente documental con el desdoblamiento accionario y la memoria del procedimiento seguido. NO incluye la presentación en el sistema electrónico de la Secretaría de Economía: a la fecha de esta propuesta ese sistema no está habilitado y los lineamientos del artículo 33 Ter de la Ley no se han publicado. Cuando se habilite, la carga se cotiza aparte',
+    entregables:'Expediente de beneficiario controlador · desdoblamiento accionario documentado · memoria del procedimiento de identificación · procedimiento interno de actualización ante transmisión de acciones o partes sociales',
     base:'fijo',importe:60000},
   manualVol:{sello:'GMC360',ambito:'entidad',nombre:'Manual de cumplimiento voluntario',
     alcance:'Manual para entidad que no actualiza los supuestos, con su justificación',
@@ -996,7 +1083,7 @@ const CONFIG={
      tiene manual, lo cree bueno, y hay que decirle qué le falta frente a
      los catorce contenidos nuevos. No es biopsia —no se tocan expedientes
      ni avisos— y no es construir. Es revisar un entregable existente. */
-  assessment:{sello:'GMC360',ambito:'entidad',nombre:'Assessment de un entregable existente',
+  assessment:{sello:'GMC360',ambito:'grupo',nombre:'Assessment de un entregable existente',
     alcance:'Revisión de un entregable que el cliente ya tiene —manual, metodología de riesgos, modelo de grado de riesgo de clientes o programa de capacitación— contra lo que exigen la Ley, el Reglamento y las Reglas de Carácter General vigentes. No incluye revisión de expedientes ni de avisos presentados: eso es la Biopsia',
     entregables:'Informe de brechas contenido por contenido · qué se conserva, qué se corrige y qué se rehace · estimación del esfuerzo de corrección',
     base:'assessment'},
@@ -1017,18 +1104,18 @@ const CONFIG={
     entregables:'Acceso al curso por persona · evaluación · constancia individual',
     base:'personas',campo:'nIngreso',precio:'induccion'},
   certUIF:{sello:'360educa',ambito:'grupo',nombre:'Membresía 360 UIF · certificación ante la UIF',
-    alcance:'Programa de un año para presentar la certificación de actividades vulnerables ante la UIF: 117 lecciones, 70 horas de video, sesiones en vivo, dos simuladores de examen actualizados dos veces al año y taller intensivo de repaso de cuatro días',
-    entregables:'Acceso por un año · cuatro libros digitales de consulta · simuladores · reportes de desempeño por tema · constancia',
+    alcance:'Programa de preparación de un año para quien va a presentar el examen de certificación de la UIF: 117 lecciones, 70 horas de video, sesiones en vivo, dos simuladores actualizados dos veces al año y taller de repaso de cuatro días. La certificación la otorga la UIF conforme al artículo 34 Bis de las RCG, con su propio examen y sus propios requisitos: 360educa prepara para el examen, no lo aplica ni interviene en su resultado. No incluye la cuota que en su caso cobre la autoridad',
+    entregables:'Acceso por un año a la plataforma · cuatro libros digitales de consulta · dos simuladores de examen · reporte de desempeño por tema · constancia de conclusión del programa, emitida por 360educa',
     base:'personas',campo:'nCertUIF',precio:'membresiaUIF'},
   capacitacion:{sello:'360educa',ambito:'grupo',nombre:'Sesión de capacitación a la medida, en la empresa',
     alcance:'Sesión de dos horas con material propio, apoyo en plataforma, examen, constancia y seguimiento del grupo',
     entregables:'Sesión · material · examen · constancias · seguimiento',base:'sesiones',importe:40000,modalidad:true},
   acompanamiento:{sello:'GMC360',ambito:'grupo',nombre:'Bolsa de horas de acompañamiento',
-    alcance:'El cliente ejecuta y GMC360 asesora, revisa y valida. Sesiones con dirección y con las directoras',
-    entregables:'Horas aplicadas · minutas · validaciones documentadas',base:'horas'},
+    alcance:'Bolsa de horas de asesoría: el cliente ejecuta y GMC360 revisa y comenta lo que produce, en sesiones con su dirección. Las horas se aplican contra un registro con fecha, tema y persona que las prestó, y tienen vigencia de seis meses desde la contratación. Los comentarios son opinión técnica sobre el documento revisado: no son aprobación de la autoridad ni sustituyen la auditoría de cumplimiento',
+    entregables:'Registro de horas con fecha, tema y responsable · minuta de cada sesión con acuerdos, responsable y fecha compromiso · comentarios por escrito sobre cada documento revisado, con lo que se conserva, lo que se corrige y su fundamento',base:'horas'},
   iguala:{sello:'GMC360',ambito:'grupo',nombre:'Iguala de operación mensual',
-    alcance:'Avisos mensuales en tiempo, monitoreo de umbrales y de operaciones fuera de perfil, actualización de padrón, consultas y reporte mensual. El Representante Encargado sigue siendo del cliente',
-    entregables:'Avisos presentados · minutas · reporte mensual',base:'mensual',importe:40000},
+    alcance:'Operación mensual del cumplimiento: preparación y carga de los avisos del periodo, seguimiento de umbrales y de operaciones que se apartan del perfil transaccional, actualización de datos en el padrón y consultas del día a día. La presentación en plazo depende de que el cliente entregue la información de sus operaciones dentro de los primeros cinco días hábiles del mes; el calendario y el responsable de cada entrega se pactan por escrito. El Representante Encargado sigue siendo del cliente y es quien firma. No incluye integrar expedientes, construir el marco normativo ni representación ante la autoridad',
+    entregables:'Avisos del periodo cargados en el Portal, con su acuse · relación de operaciones revisadas y de las que se apartaron del perfil · minuta de la sesión mensual con acuerdos y responsables · reporte mensual con avisos presentados, pendientes, alertas atendidas y cambios en el padrón',base:'mensual',importe:40000},
   /* IGUALA DE ARRANQUE · autorizada por dirección el 7-sep-2026.
      Sustituye a la iguala con Representante Encargado, que se dio de baja:
      era cara y al cliente le conviene más tener su propio oficial de planta.
@@ -1048,7 +1135,10 @@ const CONFIG={
 const $=id=>document.getElementById(id);
 const mx=n=>'$'+Math.round(n).toLocaleString('es-MX');
 const buscar=(a,i)=>a.find(o=>o.id===i)||a[0];
-const sc=s=>s==='GMC360'?'s-gmc':s==='LEX-QUO'?'s-lex':'s-edu';
+/* Los servicios jurídicos llevan el sello LEX-GMC, que es la línea de
+   dictámenes y opiniones. LEX-QUO se sigue reconociendo por si queda alguno
+   capturado con el nombre anterior. */
+const sc=s=>s==='GMC360'?'s-gmc':(s==='LEX-GMC'||s==='LEX-QUO')?'s-lex':'s-edu';
 const escalon=(tabla,v)=>{for(const e of tabla){if(v<=e.h)return e.s}return tabla[tabla.length-1].s};
 
 let ENT=[], OV={};
@@ -1133,12 +1223,18 @@ function grupo(){return{
  nDireccion:+$('g-nDireccion').value||0, nIngreso:+$('g-nIngreso').value||0,
  nCertUIF:+$('g-nCertUIF').value||0,
  hAssessment:+$('g-hAssessment').value||0,
+ pago:(CONFIG.pagos.find(x=>x.id===$('g-pago').value)||CONFIG.pagos[0]).n,
  lider:$('g-lider').value.trim(), equipo:$('g-equipo').value.trim()};}
 
+/* La muestra no puede pasarse del universo. Antes, un cliente con UNA sola
+   contraparte intragrupo salía con "muestra de 20 expedientes" por el piso,
+   y se cotizaban veinte expedientes que no existen. */
 const muestraDe=e=>{
   const n=buscar(CONFIG.muestra.niveles,e.nivel);
-  const cruda=Math.round((e.clientes||0)*n.pct);
-  return Math.max(CONFIG.muestra.piso, Math.min(CONFIG.muestra.tope, cruda));
+  const univ=e.clientes||0;
+  const cruda=Math.round(univ*n.pct);
+  const conPiso=Math.max(CONFIG.muestra.piso, Math.min(CONFIG.muestra.tope, cruda));
+  return univ>0 ? Math.min(univ, conPiso) : 0;
 };
 function riesgoDe(e,g){
   if(e.actividad==='ninguna') return{n:'BAJO',c:'r-bajo'};
@@ -1281,15 +1377,17 @@ function recEntidad(e,g){
   if(pct(e,'bc')<1)
     no('*','El beneficiario controlador del CLIENTE no se cotiza aparte: sus criterios van dentro del Manual de Políticas Internas, y ahí se construyen.','RCG art. 23 Quinquies · Ley art. 18 fr. III');
 
-  /* Si el cliente dice que su manual o su metodología ya están completos,
-     casi nunca lo están frente a la reforma: se construyeron con la norma
-     anterior. No se le discute — se le ofrece revisarlo y demostrarlo. */
-  const dicenCompleto=['manual','ebr','matriz','cap'].filter(id=>pct(e,id)>=1);
-  if(dicenCompleto.length)
-    si('assessment','Dicen que ya lo tienen completo, y puede ser cierto — pero se construyó con la norma anterior. El Manual pasó a catorce contenidos mínimos y la metodología cambió de capítulo. Revisarlo cuesta una fracción de rehacerlo, y si sale bien, el cliente se queda con la constancia de que sí cumple.','Ley art. 18 · RCG arts. 37 y 37 Bis · reforma en vigor el 30 de noviembre de 2026');
-  else op('assessment','Por si aparece un entregable que el cliente cree terminado y conviene revisarlo antes de cotizarlo como nuevo.','Se cobra por horas, no por entregable');
-
-  if(g.postura==='mejora') si('biopsia','No se venden productos sueltos: primero la Biopsia. El manual sin diagnóstico es recetar sin examinar.','R10');
+  /* La Biopsia mira hacia atrás: expedientes, avisos presentados, ejercicios
+     sin revisar. Si no hay pasado que revisar —al corriente, sin ejercicios
+     abiertos, sin avisos por regularizar— no hay qué biopsiar, por muy de
+     mejora continua que sea el cliente. Antes se recomendaba solo por la
+     postura y salía en propuestas donde no tenía nada que hacer. */
+  const hayPasado = e.ejercicios>0 || e.nsEjercicios || e.avisosReg>0 || e.nsAvisosReg
+    || e.padron!=='si' || !['ok'].includes(e.avisos) || pct(e,'exp')<1;
+  if(g.postura==='mejora' && hayPasado)
+    si('biopsia','No se venden productos sueltos: primero la Biopsia. El manual sin diagnóstico es recetar sin examinar.','R10');
+  else if(g.postura==='mejora')
+    op('biopsia','El pasado se ve limpio: al corriente, sin ejercicios abiertos y sin avisos por regularizar. La Biopsia se ofrece, no se empuja — aquí no hay qué corregir hacia atrás.','R10 · acotada');
   else no('biopsia','Postura de cumplir el mínimo: la Biopsia se lee como un gasto previo al gasto.','N11');
 
   if(g.quien==='area') si('auditoriaExterna','Tienen capacidad instalada: lo que necesitan de un tercero es verificación independiente.','Eje C · RCG art. 45 · externa obligatoria solo en riesgo alto');
@@ -1306,6 +1404,17 @@ function recGrupo(ents,g){
   const faltaManual=alguna(e=>!e.manual), faltaEbr=alguna(e=>!e.ebr||!e.matriz);
 
   const faltaCap=alguna(e=>!e.cap);
+
+  /* ASSESSMENT · si el cliente dice que su manual o su metodología ya están
+     completos, casi nunca lo están frente a la reforma: se construyeron con
+     la norma anterior. No se le discute — se le ofrece revisarlo y
+     demostrarlo. Va por grupo porque se cobra por horas, y las horas ya
+     absorben cuántos entregables y de cuántas empresas se revisan. */
+  const dicenCompleto=alguna(e=>['manual','ebr','matriz','cap'].some(id=>pct(e,id)>=1));
+  if(dicenCompleto)
+    si('assessment','Dicen que ya lo tienen completo, y puede ser cierto — pero se construyó con la norma anterior. El Manual pasó a catorce contenidos mínimos y la metodología cambió de capítulo. Revisarlo cuesta una fracción de rehacerlo, y si sale bien, el cliente se queda con la constancia de que sí cumple. Las horas cubren todos los entregables y todas las empresas del grupo.','Ley art. 18 · RCG arts. 37 y 37 Bis · reforma en vigor el 30 de noviembre de 2026');
+  else op('assessment','Por si aparece un entregable que el cliente cree terminado y conviene revisarlo antes de cotizarlo como nuevo.','Se cobra por horas, no por entregable');
+
   const nadieOpera=(g.quien==='nadie'||g.quien==='contador');
   /* La iguala de arranque aplica cuando se juntan las dos carencias: no hay
      quien opere Y falta construir el marco. Si el marco ya existe, no hay nada
@@ -1409,6 +1518,9 @@ const FALTANTES={
   nCertUIF:      'cuántas personas se van a certificar ante la UIF',
   horas:         'cuántas horas de acompañamiento al mes',
   hAssessment:   'cuántas horas de assessment',
+  ejercicios:    'cuántos ejercicios hay sin revisar',
+  clientes:      'cuántos clientes activos tiene la entidad',
+  avisosAnio:    'cuántos avisos presenta al año',
   sesiones:      'cuántas sesiones a la medida',
   meses:         'cuántos meses de iguala'
 };
@@ -1420,14 +1532,36 @@ function calcular(id,ctx,g,idxEnt,totalEnt){
   let imp=0, txt='';
 
   switch(s.base){
-    case 'auditoria': imp=costoAuditoria(ctx); txt='base + escalones'; break;
-    case 'auditoriaAvisos': imp=costoAuditoria(ctx)*CONFIG.auditoria.factorAvisos; txt='60% de la integral'; break;
+    /* Sin el volumen no hay escalón, y el escalón cero no es un precio: es
+       el piso. Una empresa de 5,000 clientes que contesta "no sé" salía en
+       el escalón más barato y ese número ya lo vio el cliente. */
+    case 'auditoria':
+      if(ctx.nsAvisos||ctx.nsClientes||!ctx.clientes) return sinDato(s, ctx.nsAvisos?'avisosAnio':'clientes');
+      imp=costoAuditoria(ctx); txt='base + escalones'; break;
+    case 'auditoriaAvisos':
+      if(ctx.nsAvisos) return sinDato(s,'avisosAnio');
+      imp=costoAuditoria(ctx)*CONFIG.auditoria.factorAvisos; txt='60% de la integral'; break;
     case 'manual': imp=CONFIG.marco.manual+CONFIG.marco.porActividadExtra*(ctx.actExtraGrupo||0); txt='base + actividades'; break;
-    case 'mebr': imp=CONFIG.marco.mebr+CONFIG.marco.porActividadExtra*(ctx.actExtraGrupo||0); txt='base + actividades'; break;
+    /* El recargo por actividad vulnerable adicional se cobra UNA vez a nivel
+       marco: va en el manual y en el paquete, no también aquí. Antes, manual
+       y metodología por separado lo cobraban los dos, y la diferencia contra
+       el paquete se cuadruplicaba sin que nadie lo hubiera decidido. */
+    case 'mebr': imp=CONFIG.marco.mebr; txt='importe cerrado'; break;
     case 'paquete': imp=CONFIG.marco.paquete+CONFIG.marco.porActividadExtra*(ctx.actExtraGrupo||0); txt='paquete + actividades'; break;
-    case 'ejercicios':{const n=Math.max(ctx.ejercicios||1,1); imp=s.importe*(n/s.ejerciciosBase); txt=n+' ejercicio'+(n===1?'':'s'); break;}
+    /* El texto que va a la propuesta habla de cinco ejercicios, que es el
+       plazo de las facultades de comprobación. Con el campo en cero se
+       cotizaba UNO —la quinta parte del alcance escrito—. Ahora se pide. */
+    case 'ejercicios':{ if(!ctx.ejercicios||ctx.nsEjercicios) return sinDato(s,'ejercicios');
+      const n=ctx.ejercicios; imp=s.importe*(n/s.ejerciciosBase); txt=n+' ejercicio'+(n===1?'':'s'); break;}
     case 'bloques':{const b=Math.max(1,Math.ceil((ctx.avisosReg||0)/s.porBloque)); imp=b*s.importe; txt=b+' bloque'+(b===1?'':'s'); break;}
-    case 'muestra':{const m=muestraDe(ctx); imp=m*s.importe; txt=m+' expedientes de muestra'; break;}
+    case 'muestra':{ if(!ctx.clientes||ctx.nsClientes) return sinDato(s,'clientes');
+      const m=muestraDe(ctx); imp=m*s.importe; txt=m+' expedientes de muestra'; break;}
+    /* INTEGRAR no es MUESTREAR. El entregable de este servicio son los
+       expedientes armados, y el RCG art. 12 pide expediente para CADA
+       cliente. Antes se cobraba la muestra topada en 100, así que un cliente
+       con 500 y otro con 10,000 pagaban lo mismo. */
+    case 'integracion':{ if(!ctx.clientes||ctx.nsClientes) return sinDato(s,'clientes');
+      const n=ctx.clientes; imp=n*s.importe; txt=n+' expedientes'; break;}
     case 'mensual':{ if(!g.meses) return sinDato(s,'meses');
       const m=s.topeMeses?Math.min(g.meses,s.topeMeses):g.meses;
       imp=m*s.importe; txt=m+' meses'+(s.topeMeses&&g.meses>s.topeMeses?' · topada a '+s.topeMeses:''); break;}
@@ -1449,25 +1583,55 @@ function calcular(id,ctx,g,idxEnt,totalEnt){
   imp*=(1-desc);
   /* (los factores de abajo no aplican a un servicio sin dato: nunca llega aquí) */
 
-  /* descuento por entidad adicional */
+  /* ── DESCUENTO POR ENTIDAD ADICIONAL ──
+     Se resuelve con la POSICIÓN de la entidad, no con el total del grupo.
+     Antes se usaba el total y se aplicaba a todas por igual, así que agregar
+     la empresa 11 hacía que el grupo entero pagara menos que con 10: once
+     entidades costaban $130,000 menos que diez. Ahora la segunda y la
+     tercera bajan 15%, de la cuarta a la décima 30%, de la once en adelante
+     50%, y cada una conserva su propio escalón. Nunca baja al agregar. */
   if(s.ambito==='entidad'&&idxEnt>0){
     if(s.base==='auditoria'||s.base==='auditoriaAvisos') imp*=(1-CONFIG.entidadAdicional.auditoria);
-    else{const t=CONFIG.entidadAdicional.otros.find(x=>totalEnt<=x.hasta)||CONFIG.entidadAdicional.otros.slice(-1)[0];
+    else{const pos=idxEnt+1;
+         const t=CONFIG.entidadAdicional.otros.find(x=>pos<=x.hasta)||CONFIG.entidadAdicional.otros.slice(-1)[0];
          imp*=(1-t.d);}
   }
+
+  /* ── SERVICIOS DE GRUPO ──
+     Solo escalan los que producen un entregable por empresa: el marco
+     documental y la iguala de operación. Los que ya se cobran por unidad
+     —personas, horas, sesiones— no se tocan: cien personas ya se cobran
+     como cien personas, y descontarlos por número de empresas los hundía
+     bajo el precio de lista publicado de 360educa. */
   if(s.ambito==='grupo'&&totalEnt>1){
-    const t=CONFIG.entidadAdicional.otros.find(x=>totalEnt<=x.hasta)||CONFIG.entidadAdicional.otros.slice(-1)[0];
-    imp*=(1-t.d*0.5);   // el marco ya se cobra una vez; el descuento reconoce la adaptación por entidad
+    if(['manual','mebr','paquete'].includes(s.base))
+      imp*=(1+CONFIG.marcoPorEntidadExtra*(totalEnt-1));
+    else if(s.base==='mensual')
+      imp*=(1+CONFIG.igualaPorEntidadExtra*(totalEnt-1));
   }
-  if(g.urgente) imp*=CONFIG.urgenciaFactor;
+
+  /* La urgencia dobla el honorario de un entregable puntual. No aplica a lo
+     que se presta a lo largo del tiempo —igualas, bolsas de horas— ni a los
+     precios de lista de 360educa: una iguala de doce meses no puede estar
+     urgente doce meses, y un curso publicado en $1,619 no vale $3,238 por
+     la prisa del cliente. */
+  const admiteUrgencia=!['mensual','personas','horas','assessment','sesiones'].includes(s.base);
+  if(g.urgente && admiteUrgencia) imp*=CONFIG.urgenciaFactor;
   if(g.renovacion) imp*=(1+CONFIG.renovacionInflacion);
   return{imp,txt,s};
 }
 
 /* ══ INTERFAZ ══ */
+/* La versión se escribe sola, para que nunca vuelva a quedarse vieja. */
+$('gateVer').textContent=`versión ${CONFIG.version} · ${CONFIG.versionFecha}`;
+$('subVersion').innerHTML=`Vista interna · <b>v${CONFIG.version}</b> · ${CONFIG.versionFecha}
+  · precios ${CONFIG.versionPrecios}`;
+document.title=`Cotizador de Actividades Vulnerables · v${CONFIG.version} · GMC360`;
+
 const opts=(a,sel)=>a.map(o=>`<option value="${o.id}"${o.id===sel?' selected':''}>${o.nombre}</option>`).join('');
 $('g-modalidad').innerHTML=opts(CONFIG.modalidad);
 $('g-descuento').innerHTML=opts(CONFIG.descuentos);
+$('g-pago').innerHTML=CONFIG.pagos.map(o=>`<option value="${o.id}">${o.n}</option>`).join('');
 
 function pintarEntidades(){
   $('entidades').innerHTML=ENT.map((e,i)=>`
@@ -1499,7 +1663,8 @@ function pintarEntidades(){
           <option value="ninguno"${e.avisos==='ninguno'?' selected':''}>Ninguno</option>
           <option value="ceros"${e.avisos==='ceros'?' selected':''}>En ceros, operando sobre umbral</option>
           <option value="nose"${e.avisos==='nose'?' selected':''}>No sé</option></select></div>
-      <div><label>Avisos al año<span class="fund">Escalón de la auditoría</span></label>
+      <div><label>Avisos al año<span class="fund">Uno por OPERACIÓN reportable, no uno por mes.
+        Si presentan mes con mes sin operaciones que reportar, aquí va cero</span></label>
         <input type="number" min="0" step="10" data-i="${i}" data-k="avisosAnio" value="${e.avisosAnio}"${e.nsAvisos?' disabled':''}>
         <label class="ns"><input type="checkbox" data-i="${i}" data-k="nsAvisos"${e.nsAvisos?' checked':''}> No sé todavía</label></div>
       <div><label>Clientes activos<span class="fund">Escalón de la auditoría</span></label>
@@ -1549,7 +1714,7 @@ function pintarEntidades(){
           <option value="grupo"${e.tipoClientes==='grupo'?' selected':''}>Solo a su grupo</option></select></div>
     </div>
     <div class="grupo-tit">Eje A · Brecha normativa
-      <span class="ejeq">Doce preguntas. Se contestan en una junta.</span></div>
+      <span class="ejeq">Trece preguntas. Se contestan en una junta.</span></div>
     <p class="hint" style="margin:-4px 0 10px">Contesta lo que sepas hoy. Si algo está a medias, ponlo a medias:
        eso ya cambia el diagnóstico. El detalle punto por punto solo se abre cuando hay biopsia o auditoría de por medio,
        y entonces manda sobre la respuesta rápida.</p>
@@ -1573,7 +1738,8 @@ function pintarEntidades(){
             <span>${pt.p}<em class="fu2">${pt.f}</em></span></label>`).join('')}</div>`:''}
       </div>`;}).join('')}
     <div class="nota">Nivel de cumplimiento calculado: <b>${nivelDe(e).n.nombre}</b> ·
-      muestra que se revisaría: <b>${muestraDe(e)} expedientes</b> (piso ${CONFIG.muestra.piso}, tope ${CONFIG.muestra.tope})</div>
+      muestra que se revisaría: <b>${muestraDe(e)}</b> de <b>${e.clientes||0}</b> expediente${(e.clientes||0)===1?'':'s'}${
+      (e.clientes||0)>CONFIG.muestra.piso?` (piso ${CONFIG.muestra.piso}, tope ${CONFIG.muestra.tope})`:''}</div>
   </div>`).join('');
 }
 function agregar(){ENT.push(nuevaEnt());pintarEntidades();render();}
@@ -1601,7 +1767,10 @@ function filaRec(r,clase,ctx,g,pref,idx,tot){
 function render(){
   const g=grupo();
   const ob=ENT.filter(e=>e.actividad!=='ninguna'&&e.sabe==='si');
-  const actExtraGrupo=ob.reduce((a,e)=>Math.max(a,e.actExtra||0),0);
+  /* Si una empresa tiene dos actividades adicionales y otra tiene tres
+     distintas, el manual del grupo cubre cinco, no tres. Antes se tomaba el
+     máximo y se dejaban de cobrar las de las demás. */
+  const actExtraGrupo=ob.reduce((a,e)=>a+(e.actExtra||0),0);
   ENT.forEach(sincronizar);
   const porEnt=ENT.map(e=>({e,r:recEntidad(e,g)}));
   const rg=recGrupo(ENT,g);
@@ -1609,9 +1778,22 @@ function render(){
   $('alertas').innerHTML=alertas.map(a=>`<div class="alerta"><b>${a.t}.</b> ${a.d}</div>`).join('');
   pintarDiagnostico();
 
+  /* El arquetipo miraba solo postura y brecha, y le armaba "plan integral
+     por fases con corrección del pasado" a un cliente que ya tiene área de
+     cumplimiento propia y el pasado limpio. La pestaña de criterio dice lo
+     contrario para ese perfil: a un área con equipo propio se le vende
+     verificación y calibración, no marco básico. */
   let arq;
   const brecha=ob.some(e=>!e.manual||!e.ebr||e.padron==='no');
+  const hayPasadoGrupo=ob.some(e=>e.ejercicios>0||e.nsEjercicios||e.avisosReg>0||e.nsAvisosReg
+    ||e.padron!=='si'||e.avisos!=='ok');
   if(g.conting!=='c0') arq={v:'Caso a la medida',d:'Hay acto de autoridad. Dirección arma la propuesta.'};
+  else if(g.quien==='area'||g.quien==='persona') arq=brecha
+    ?{v:'Construcción sobre lo que ya opera',d:'Tienen quién lo lleve y el pasado en orden. La propuesta cierra los huecos que quedan y no reconstruye lo que ya funciona. Sin corrección del pasado y sin operación tercerizada.'}
+    :{v:'Consolidación y verificación',d:'Ya no hay qué construir. Auditoría, calibración y riesgos emergentes.'};
+  else if(!hayPasadoGrupo && g.postura==='mejora') arq=brecha
+    ?{v:'Construcción del marco, sin mirar atrás',d:'El pasado está limpio: no hay ejercicios abiertos ni avisos por regularizar. La propuesta va hacia adelante, anclada a las fechas de exigibilidad.'}
+    :{v:'Consolidación',d:'Auditoría, calibración y verificación. Ya no hay qué construir.'};
   else if(g.postura==='minimo') arq=brecha
     ?{v:'Remediación acotada',d:'Alcance y precio cerrados, sin iguala. La propuesta larga aquí se lee como cara y sobrada.'}
     :{v:'Auditoría anual y nada más',d:'Cumple y quiere seguir cumpliendo sin más. Una sola línea, precio cerrado.'};
@@ -1621,22 +1803,26 @@ function render(){
   $('arquetipo').innerHTML=`<div class="arquetipo"><div class="t">ARQUETIPO DE PROPUESTA</div>
     <div class="v">${arq.v}</div><div class="d">${arq.d}</div></div>`;
 
+  /* Para los escalones cuenta el número de entidades que de verdad se
+     cotizan. Una holding capturada solo para dejar constancia de que NO
+     realiza actividad vulnerable no debe mover el precio de las demás. */
+  const nOb=Math.max(1, ob.length);
   let html='';
   porEnt.forEach((x,i)=>{
     const nom=x.e.nombre||('Entidad '+(i+1));
     html+=`<div class="card"><div class="entHead"><div class="tit">${nom}</div>
       <span class="riesgo ${x.r.riesgo.c}">Nivel de riesgo: ${x.r.riesgo.n}</span></div>`;
     const ctx={...x.e};
-    if(x.r.R.length) html+='<div class="grupo-tit">Se recomienda cotizar</div>'+x.r.R.map(r=>filaRec(r,'si',ctx,g,'e'+i,i,ENT.length)).join('');
-    if(x.r.O.length) html+='<div class="grupo-tit">A considerar</div>'+x.r.O.map(r=>filaRec(r,'op',ctx,g,'e'+i,i,ENT.length)).join('');
-    if(x.r.N.length) html+='<div class="grupo-tit">No se recomienda, y por qué</div>'+x.r.N.map(r=>filaRec(r,'no',ctx,g,'e'+i,i,ENT.length)).join('');
+    if(x.r.R.length) html+='<div class="grupo-tit">Se recomienda cotizar</div>'+x.r.R.map(r=>filaRec(r,'si',ctx,g,'e'+i,i,nOb)).join('');
+    if(x.r.O.length) html+='<div class="grupo-tit">A considerar</div>'+x.r.O.map(r=>filaRec(r,'op',ctx,g,'e'+i,i,nOb)).join('');
+    if(x.r.N.length) html+='<div class="grupo-tit">No se recomienda, y por qué</div>'+x.r.N.map(r=>filaRec(r,'no',ctx,g,'e'+i,i,nOb)).join('');
     html+='</div>';
   });
   const ctxG={actExtraGrupo};
   html+=`<div class="card"><div class="entHead"><div class="tit">Comunes al grupo · se cotizan una sola vez</div></div>`;
-  if(rg.R.length) html+='<div class="grupo-tit">Se recomienda cotizar</div>'+rg.R.map(r=>filaRec(r,'si',ctxG,g,'g',0,ENT.length)).join('');
-  if(rg.O.length) html+='<div class="grupo-tit">A considerar</div>'+rg.O.map(r=>filaRec(r,'op',ctxG,g,'g',0,ENT.length)).join('');
-  if(rg.N.length) html+='<div class="grupo-tit">No se recomienda, y por qué</div>'+rg.N.map(r=>filaRec(r,'no',ctxG,g,'g',0,ENT.length)).join('');
+  if(rg.R.length) html+='<div class="grupo-tit">Se recomienda cotizar</div>'+rg.R.map(r=>filaRec(r,'si',ctxG,g,'g',0,nOb)).join('');
+  if(rg.O.length) html+='<div class="grupo-tit">A considerar</div>'+rg.O.map(r=>filaRec(r,'op',ctxG,g,'g',0,nOb)).join('');
+  if(rg.N.length) html+='<div class="grupo-tit">No se recomienda, y por qué</div>'+rg.N.map(r=>filaRec(r,'no',ctxG,g,'g',0,nOb)).join('');
   html+='</div>'; $('recos').innerHTML=html;
 
   let sub=0; const filas=[]; let hayIguala=false, hayAcomp=false;
@@ -1655,7 +1841,7 @@ function render(){
     filas.push(`<tr class="sec"><td colspan="3">${x.e.nombre||('Entidad '+(i+1))} — riesgo ${x.r.riesgo.n}</td></tr>`);
     const v=new Set();
     lista.forEach(({r})=>{if(v.has(r.id))return; v.add(r.id);
-      const c=calcular(r.id,ctx,g,i,ENT.length); if(!c)return;
+      const c=calcular(r.id,ctx,g,i,nOb); if(!c)return;
       if(c.falta){ pendientes.push(c); filas.push(filaFalta(c)); return; }
       sub+=c.imp;
       filas.push(`<tr><td>${c.s.nombre}</td><td>${c.txt}</td><td class="num">${mx(c.imp)}</td></tr>`);});
@@ -1666,7 +1852,7 @@ function render(){
     filas.push('<tr class="sec"><td colspan="3">Comunes al grupo</td></tr>');
     const v=new Set();
     listaG.forEach(({r})=>{if(v.has(r.id))return; v.add(r.id);
-      const c=calcular(r.id,ctxG,g,0,ENT.length); if(!c)return;
+      const c=calcular(r.id,ctxG,g,0,nOb); if(!c)return;
       if(c.falta){ pendientes.push(c); filas.push(filaFalta(c)); return; }
       sub+=c.imp;
       if(r.id==='iguala'||r.id==='igualaArranque') hayIguala=true;
@@ -1681,6 +1867,13 @@ function render(){
   $('tfoot').innerHTML=filas.length?`<tr><td colspan="2">Subtotal</td><td class="num">${mx(sub)}</td></tr>
     <tr><td colspan="2">IVA 16%</td><td class="num">${mx(iva)}</td></tr>
     <tr class="total"><td colspan="2">Total</td><td class="num">${mx(sub+iva)}</td></tr>`:'';
+  /* Una cotización sin fecha no sirve para calibrar: en enero nadie va a
+     saber con qué precios se cotizó. */
+  $('fechaCoti').innerHTML=filas.length?`<b>${$('g-nombre').value||'Cliente por capturar'}</b>
+     · ${new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})}
+     · versión del cotizador v${CONFIG.version} · precios ${CONFIG.versionPrecios}
+     · cotiza ${($('g-ejecutivo').value||quienCotiza()||'—')}
+     · vigencia 30 días naturales`:'';
   $('kpis').innerHTML=filas.length?`
     <div class="kpi"><div class="v">${mx(sub)}</div><div class="l">Honorarios sin IVA</div></div>
     <div class="kpi"><div class="v">${ENT.length}</div><div class="l">Entidades cotizadas</div></div>
@@ -1700,13 +1893,21 @@ function render(){
 
   /* Aviso de traslape: recorre la tabla CONFIG.incompatibles y avisa si dos
      servicios que se traslapan quedaron activos en la misma cotización. */
-  const act=id=>{const k='g|'+id; const enR=rg.R.some(r=>r.id===id); return OV[k]!==undefined?OV[k]:enR;};
-  CONFIG.incompatibles.forEach(x=>{
-    if(!act(x.a)) return;
-    const ch=x.b.filter(act); if(!ch.length) return;
-    const noms=ch.map(id=>CONFIG.servicios[id].nombre).join(', ');
-    $('alertas').innerHTML += `<div class="alerta"><b>Traslape.</b> ${x.msj} Quítale ${noms}: así como está, se cobra dos veces.</div>`;
-  });
+  /* El traslape se revisa en el grupo y TAMBIÉN dentro de cada entidad:
+     dos servicios de entidad pueden pisarse entre sí —la auditoría y la
+     auditoría externa son el caso— y antes esto solo miraba el grupo. */
+  const activoEn=(pref,lista,id)=>{
+    const k=pref+'|'+id, enR=lista.some(r=>r.id===id);
+    return OV[k]!==undefined?OV[k]:enR;};
+  const revisar=(pref,lista,donde)=>{
+    CONFIG.incompatibles.forEach(x=>{
+      if(!activoEn(pref,lista,x.a)) return;
+      const ch=x.b.filter(id=>activoEn(pref,lista,id)); if(!ch.length) return;
+      const noms=ch.map(id=>CONFIG.servicios[id].nombre).join(', ');
+      $('alertas').innerHTML += `<div class="alerta"><b>Traslape${donde?' en '+donde:''}.</b> ${x.msj} Quítale ${noms}: así como está, se cobra dos veces.</div>`;
+    });};
+  revisar('g',rg.R,'');
+  porEnt.forEach((x,i)=>revisar('e'+i,x.r.R,x.e.nombre||('entidad '+(i+1))));
 
   $('notaInterna').innerHTML = (hayIguala&&hayAcomp)
     ? `<div class="interna"><b>Nota interna, no va en la propuesta.</b> Van iguala y bolsa de horas en la misma cotización.
@@ -1784,7 +1985,7 @@ const GUION=[
     porq:'Cada entidad se diagnostica por separado. Dos empresas del mismo dueño pueden estar en situaciones completamente distintas, y así se presentan en la propuesta.',
     oido:'Busca a la persona física del grupo. En la práctica suele traer el problema, porque su contador no atendió el tema.'}]}]},
 
- {t:'Eje A · Qué le falta', eje:'La brecha normativa. Doce preguntas, una por obligación. Se contestan con lo que sepan hoy: "a medias" es una respuesta válida y cambia el diagnóstico.',
+ {t:'Eje A · Qué le falta', eje:'La brecha normativa. Trece preguntas, una por obligación. Se contestan con lo que sepan hoy: "a medias" es una respuesta válida y cambia el diagnóstico.',
   bloques:[{ps:[
    {p:'¿Están dados de alta en el padrón, y con la e.firma de la empresa o con la del representante legal?',
     porq:'Es de las tres cosas exigibles hoy. Y el alta hecha con la e.firma del representante legal en vez de la de la persona moral es un error frecuente que invalida el trámite.',
@@ -1806,7 +2007,7 @@ const GUION=[
   bloques:[{ps:[
    {p:'¿Cuántos avisos presentan al año? ¿Cuántos clientes activos tienen?',
     porq:'Son los dos escalones de la auditoría. Sin ellos la auditoría no se puede cotizar, y así hay que decirlo.',
-    oido:'Si no lo saben de memoria, pídelo por correo antes de mandar la propuesta. No lo estimes.'},
+    oido:'<b>Cuidado con esta.</b> El aviso es <b>por operación</b> que rebasa el umbral, no por periodo presentado. El día 17 es la fecha límite, no la unidad de conteo. Si el cliente dice "presentamos todos los meses", eso son doce presentaciones, no doce avisos: pregunta cuántas operaciones reportaron. Un cliente que presenta mes con mes sin operaciones que reportar tiene <b>cero</b> avisos al año, y así se captura. Si no lo saben de memoria, pídelo por correo. No lo estimes.'},
    {p:'¿Cuántas operaciones sobre el umbral hacen al mes? ¿En cuántos estados operan?',
     porq:'El volumen dimensiona el trabajo; los estados definen si la modalidad es remota, híbrida o presencial, y los viáticos van aparte del honorario.',
     oido:''},
@@ -1847,7 +2048,7 @@ const GUION=[
     porq:'Un número concreto, dicho una vez, y se sigue adelante. Repetirlo suena a amenaza y la amenaza se cae en cuanto lo consultan con su abogado.',
     oido:''},
    {p:'Usa la fecha, no la multa.',
-    porq:'De las doce obligaciones, solo tres son exigibles hoy. Las demás vencen entre noviembre de 2026 y 2029. "Tienen hasta el 1 de marzo y construirlo bien toma meses" mueve más que cualquier cifra de sanción, y es verdad.',
+    porq:'De las trece obligaciones que revisa el motor, seis ya son exigibles hoy. Las demás vencen entre noviembre de 2026 y 2029. "Tienen hasta el 1 de marzo y construirlo bien toma meses" mueve más que cualquier cifra de sanción, y es verdad.',
     oido:'<b>Nunca les digas que están en falta de algo que todavía no los obliga.</b>'},
    {p:'Di qué NO tienen que hacer.',
     porq:'Si una empresa del grupo no actualiza los supuestos, se dice con todas sus letras y se le dedica espacio. Eso construye la credibilidad de todo lo demás.',
@@ -1880,7 +2081,7 @@ const GUIA_HTML = `
 
   <div class="preg">2 · Entidades</div>
   <p class="porq">Una tarjeta por empresa. Arriba el Eje B, que dimensiona el trabajo; abajo el Eje A,
-    que son doce preguntas, una por obligación.</p>
+    que son trece preguntas, una por obligación.</p>
   <p class="oido"><b>Tres cosas que hay que hacer bien.</b> «A medias» es respuesta válida y cambia el
     diagnóstico. El botón de «ver los N puntos» solo se abre cuando hay biopsia o auditoría de por medio.
     Y las casillas de <b>«No sé todavía»</b> se usan: un cero capturado por desconocimiento hace que la
@@ -1889,7 +2090,7 @@ const GUIA_HTML = `
   <div class="preg">3 · Diagnóstico de obligaciones</div>
   <p class="porq">Se llena solo. De aquí sale el informe que <b>sí</b> se le entrega al cliente: no lleva
     honorarios ni notas internas, solo qué le aplica, desde cuándo y cómo va.</p>
-  <p class="oido">De las doce obligaciones, solo tres son exigibles hoy. Lo demás tiene fecha futura, y a
+  <p class="oido">De las trece obligaciones que revisa el motor, seis ya son exigibles hoy. Lo demás tiene fecha futura, y a
     eso <b>no se le llama incumplimiento</b>: es un pendiente con fecha, y esa fecha es el argumento.</p>
 
   <div class="preg">4 · Lo que recomienda la herramienta</div>
@@ -2127,7 +2328,8 @@ function pintarBarra(){
   }
   if(!USUARIO){ b.innerHTML=''; return; }
   b.className='barra noprint';
-  b.innerHTML=`<span>Cotiza <span class="quien">${USUARIO.displayName||USUARIO.email}</span></span>
+  b.innerHTML=`<span class="ver" title="${CONFIG.versionNota}">v${CONFIG.version}</span>
+    <span>Cotiza <span class="quien">${USUARIO.displayName||USUARIO.email}</span></span>
     <span class="sep"></span>
     <span id="estadoGuardado"></span>
     <button class="salir" id="btnLista">Ver cotizaciones guardadas</button>
@@ -2323,6 +2525,7 @@ function armarRegistro(){
   return {
     folio:nuevoFolio(),
     derivadaDe:DERIVADA_DE||null,   // de qué cotización salió, si es una versión nueva
+    versionApp:CONFIG.version,
     versionPrecios:CONFIG.versionPrecios,
     capturadaPor:USUARIO.email,          // las reglas exigen que coincida con quien entró
     capturadaEl:firebase.firestore.FieldValue.serverTimestamp(),
@@ -2408,6 +2611,20 @@ function insumosPropuesta(){
     destinatario:$('p-dest').value.trim(),
     contactoCorreo:$('g-correo').value.trim(),
     equipo:{lider:g.lider||'', integrantes:g.equipo||''},
+    /* Sin fecha, el redactor la inventaba: una propuesta salió fechada en
+       mayo de 2025 con un cronograma que empezaba en junio de 2025, o sea
+       en el pasado. Ahora recibe la fecha de hoy y el mes de arranque. */
+    fecha:new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}),
+    mesEmision:new Date().toLocaleDateString('es-MX',{month:'long',year:'numeric'}),
+    condicionesPago:g.pago,
+    modalidad:g.modalidad.nombre,
+    /* Las fracciones del artículo 17, ya resueltas por entidad. */
+    actividades:ENT.filter(e=>e.actividad!=='ninguna'&&e.sabe==='si').map(e=>{
+      const a=CONFIG.actividades.find(x=>x.id===e.actividad)||{};
+      return {entidad:e.nombre||'la entidad', actividad:a.nombre||'',
+              fraccion:a.fr?('artículo 17, fracción '+a.fr+' de la Ley'):'[POR CONFIRMAR]',
+              actividadesAdicionales:e.actExtra||0,
+              soloGrupo:e.tipoClientes==='grupo'};}),
     contexto:$('p-desc').value.trim(),
     arquetipo:$('arquetipo').innerText.trim(),
     diagnostico:ENT.filter(e=>e.actividad!=='ninguna'&&e.sabe==='si')
@@ -2573,6 +2790,9 @@ function aHtml(t){
     .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
     .replace(/(?<![*\w])\*([^*\n]+)\*(?!\*)/g,'<em>$1</em>');
 }
+
+/* USUARIO se declara más abajo; render() corre antes de que exista. */
+function quienCotiza(){ try{ return USUARIO ? USUARIO.email : ''; }catch(e){ return ''; } }
 
 /* ── LAS GRÁFICAS TIENEN DOS VERSIONES ──
    La de pantalla, con barras, que se lee mejor; y la de tabla, que es la
@@ -2895,19 +3115,30 @@ function lineaExigibilidad(d){
 /* Imprime dejando la marca puesta hasta que el navegador avisa que
    terminó. Con un cronómetro fijo se quitaba antes de tiempo en las
    máquinas lentas y salía la página completa en vez del informe. */
-function imprimirCon(quitar){
+/* El navegador nombra el PDF con el título de la pestaña. Como los dos
+   botones imprimían con el mismo título, salían dos archivos llamados
+   igual con contenidos distintos, y no había forma de saber cuál era cuál.
+   Ahora cada impresión pone su propio título y lo devuelve al terminar. */
+function imprimirCon(quitar, titulo){
+  const previo=document.title;
+  if(titulo) document.title=titulo;
   const limpia=()=>{ document.body.classList.remove('pr-inf');
+    document.title=previo;
     window.removeEventListener('afterprint',limpia); if(quitar) quitar(); };
   window.addEventListener('afterprint',limpia);
   document.body.classList.add('pr-inf');
   window.print();
   setTimeout(limpia,60000);   // red de seguridad, por si nunca avisa
 }
+/* Nombre de archivo: sin caracteres que el sistema no acepte. */
+const limpio=t=>(t||'').replace(/[^\w áéíóúñÁÉÍÓÚÑ.-]/g,'').replace(/\s+/g,' ').trim();
+const nombreCliente=()=>limpio($('g-nombre').value)||'Cliente';
+const hoyCorto=()=>new Date().toISOString().slice(0,10);
 
 function imprimirInforme(){
   if(!ENT.length) return;
   $('informe').innerHTML=armarInforme();
-  imprimirCon();
+  imprimirCon(null, `Diagnostico ${nombreCliente()} ${FOLIO_INFORME||hoyCorto()}`);
 }
 
 function informeWord(){
@@ -2931,13 +3162,26 @@ function informeWord(){
   a.click(); URL.revokeObjectURL(a.href);
 }
 
+/* La cotización interna imprime la página completa, con su propio nombre. */
+$('btnCotiPdf').onclick=()=>{
+  const previo=document.title;
+  document.title=`COTIZACION INTERNA ${nombreCliente()} ${hoyCorto()}`;
+  const limpia=()=>{ document.title=previo; window.removeEventListener('afterprint',limpia); };
+  window.addEventListener('afterprint',limpia);
+  window.print(); setTimeout(limpia,60000);
+};
+$('btnNueva').onclick=()=>{
+  if(confirm('Se va a borrar todo lo capturado y empezar de cero.\n\n¿Seguro?')){
+    borrarBorrador(); location.reload();
+  }
+};
 $('btnInforme').onclick=imprimirInforme;
 $('btnInformeWord').onclick=informeWord;
 
 function propuestaPdf(){
   if(!ULTIMA_PROPUESTA) return;
   $('informe').innerHTML='<div class="inf">'+ULTIMA_PROPUESTA+'</div>';
-  imprimirCon(()=>{ $('informe').innerHTML=''; });
+  imprimirCon(()=>{ $('informe').innerHTML=''; }, `Propuesta ${nombreCliente()} ${hoyCorto()}`);
 }
 $('btnPropPdf').onclick=propuestaPdf;
 $('btnPropuesta').onclick=redactar;
