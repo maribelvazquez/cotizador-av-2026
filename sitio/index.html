@@ -192,6 +192,8 @@ label.ns{display:flex;gap:5px;align-items:center;font-size:11px;color:#8a918c;ma
   font-weight:400;cursor:pointer}
 label.ns input{margin:0}
 .obq{border:1px solid var(--linea);border-radius:7px;margin-bottom:7px;background:#fff;padding:9px 12px}
+.obq.ok{border-color:var(--verde);background:#fbfefc}
+.p3{display:inline-block;background:#fdecea;color:#8a2b20;border:1px solid #f0c2ba;border-radius:4px;font-size:9.5px;font-weight:800;letter-spacing:.4px;padding:1px 5px;vertical-align:middle;margin-left:6px}
 .obqh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
 .obq .obn{font-weight:600;font-size:13px;color:var(--negro);flex:1;min-width:170px}
 .obq .est{font-size:11.5px;font-weight:600;white-space:nowrap}
@@ -348,6 +350,14 @@ label.ns input{margin:0}
 .barra .ver{background:var(--negro);color:#fff;font-weight:700;font-size:11px;letter-spacing:.4px;
   padding:3px 8px;border-radius:5px;flex-shrink:0}
 .g-ver{margin-top:16px;font-size:11.5px;color:#8a918c;letter-spacing:.3px}
+details.dbloque{border:1px solid var(--linea);border-radius:8px;margin-bottom:10px;overflow:hidden}
+details.dbloque summary{cursor:pointer;padding:11px 14px;font-weight:600;font-size:13px;
+  background:#f7faf8;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.dbloque summary::-webkit-details-marker{display:none}
+details.dbloque summary::before{content:'+';color:var(--verde);font-weight:700;margin-right:8px}
+details.dbloque[open] summary::before{content:'–'}
+details.dbloque .dcnt{font-size:11px;font-weight:500;color:#8a918c}
+details.dbloque .dcuerpo{padding:12px 14px 4px}
 .ent details.mas{margin:2px 0 14px;border-top:1px solid var(--linea);padding-top:10px}
 .ent details.mas summary{cursor:pointer;font-size:12px;color:var(--verde);font-weight:600;
   list-style:none;padding:2px 0}
@@ -420,7 +430,7 @@ tbody tr.subEnt td{background:#f6faf7;font-weight:600;border-top:1px solid var(-
   <button class="tab on" data-t="cotizar">Cotizar</button>
   <button class="tab" data-t="guion">Guion de la junta</button>
   <button class="tab" data-t="consejos">Cómo se conduce</button>
-  <button class="tab" data-t="manual">Diagnóstico del Manual</button>
+  <button class="tab" data-t="manual">Diagnóstico · 30 preguntas</button>
   <button class="tab" data-t="guia">Cómo se usa</button>
 </nav>
 <div id="t-cotizar">
@@ -549,6 +559,12 @@ porque antes no sabíamos qué se iba a vender.</p>
         <option value="24">24 meses</option></select></div>
     <div><label>Cursos a la medida<span class="fund">Se cobra por curso, no por persona</span></label>
       <input type="number" id="g-sesiones" min="0" max="12" value="0"></div>
+    <div><label>Precio por curso a la medida
+      <span class="fund">Sugerido $40,000. Es el único que se ajusta a mano</span></label>
+      <input type="number" id="g-medidaPrecio" min="0" step="1000" value="40000"></div>
+    <div style="grid-column:1/-1"><label>¿Qué lleva ese curso a la medida?
+      <span class="fund">Va literal a la propuesta, en lugar del texto de catálogo. Si se deja vacío, va el genérico</span></label>
+      <textarea id="g-medidaDesc" rows="3" placeholder="Ocho horas en dos sesiones, sobre el manual y los casos de la empresa. Alta dirección aparte, en inglés, 45 minutos. Material con su marca."></textarea></div>
     <div><label>Horas de assessment<span class="fund">Revisar un entregable que ya tienen</span></label>
       <input type="number" id="g-hAssessment" min="0" max="200" step="4" value="0"></div>
     <div><label>Horas de acompañamiento al mes<span class="fund">12, 20 o 40 · 6 meses</span></label>
@@ -631,11 +647,13 @@ Si no la grabaste, escribe aquí lo que recuerdes: sirve, pero menos.</div>
 <div id="t-guion" hidden class="guia"></div>
 <div id="t-consejos" hidden class="guia"></div>
 <div id="t-manual" hidden>
-  <h2><span class="n">·</span>Diagnóstico del Manual de Políticas Internas</h2>
-  <p class="hint">Los contenidos que exige el artículo 37 Bis de las Reglas, uno por uno.
-     No se captura para cotizar: se usa cuando tienes el manual del cliente enfrente y sale
-     como informe aparte, con su aclaración de que depende de lo que el cliente declaró.</p>
-  <div id="manual14"></div>
+  <h2><span class="n">·</span>Diagnóstico de brecha · 30 preguntas</h2>
+  <p class="hint">Treinta preguntas que cubren la reforma completa. Son las mismas del
+     autodiagnóstico publicado más tres que aquella no traía. Cada una con su artículo y su fecha.
+     De aquí sale el informe de brecha con calificación, y con un botón se llena el Eje A de la
+     cotización, con su aclaración de que depende de lo que el cliente declaró y de que no es
+     asesoría legal.</p>
+  <div id="listaDiag"></div>
 </div>
 <div id="t-guia" hidden class="guia"></div>
 </div>
@@ -659,9 +677,9 @@ const CONFIG={
     la barra de arriba mientras se trabaja, en el pie del informe y dentro de
     cada cotización que se guarda. Así, al abrir la página se ve de inmediato
     si es la versión nueva o la que traía el navegador en caché. */
- version:'7.2',
+ version:'8.6',
  versionFecha:'8 de septiembre de 2026',
- versionNota:'capacitación con el modelo de 360educa · todo sin IVA, el IVA se suma al final',
+ versionNota:'diagnóstico de treinta preguntas que llena el Eje A · los 79 puntos son el papel de trabajo de la biopsia, no del cotizador',
  versionPrecios:'2026-09-07',
 
  /* ── QUIÉN PUEDE AUTORIZAR ──
@@ -720,9 +738,120 @@ const CONFIG={
         Manual y ya se miden ahí.
     Las tres siguen en el calendario de exigibilidad del informe, que aplica a
     todo sujeto obligado con independencia del diagnóstico.
-    Los 94 puntos de detalle salieron a un papel de trabajo aparte: no movían
-    el precio y volvían impracticable la captura. */
- obligaciones:[
+    El detalle punto por punto (los 79 puntos de la versión anterior) salió a
+    un papel de trabajo aparte, para biopsia y auditoría: no movía el precio y
+    volvía impracticable el llenado. */
+ /* ── DIAGNÓSTICO · 30 preguntas ─────────────────────────────────────
+    Es el mismo instrumento que el autodiagnóstico publicado, con tres
+    preguntas más que la versión pública no traía: oportunidad del aviso,
+    beneficiario controlador propio y plazos de conservación.
+    b = bloque · t = pregunta · f = fundamento · w = cuándo · p = peso
+    o = obligación a la que pertenece (con eso el diagnóstico alimenta
+    el Eje A de la cotización y el informe se agrupa por obligación).
+    ─────────────────────────────────────────────────────────────────── */
+ diagnostico:[
+  {b:'Alcance', o:'padron', p:3,
+   t:'¿Sabe con certeza en qué fracciones del artículo 17 de la Ley está su operación —todas, no sólo la principal?',
+   f:'Ley art. 17', w:'Empiece por aquí: todo lo demás depende de esto.'},
+  {b:'Alcance', o:'padron', p:2,
+   t:'¿Su alta y registro refleja la forma real en que opera hoy, incluidos fideicomisos u otras figuras jurídicas?',
+   f:'RCG art. 4 frs. III y IV · Anexos 2 Bis y 2 Ter', w:'Antes del 30 de noviembre de 2026.'},
+
+  {b:'El dato de 2026', o:'ebr', p:3,
+   t:'¿Tiene identificado quién resguarda los datos de 2026: número de clientes, número de operaciones y monto operado?',
+   f:'Transitorio Segundo · RCG art. 10 Septies 2', w:'Esta semana. Es lo único que no se recupera después.'},
+  {b:'El dato de 2026', o:'ebr', p:2,
+   t:'¿Puede reconstruir hoy doce meses continuos de esa información?',
+   f:'RCG art. 10 Septies 2', w:'Si no, empiece a capturarla desde este mes.'},
+
+  {b:'Cliente y expediente', o:'exp', p:2,
+   t:'¿Integra un expediente único por cliente, con todos los datos y documentos en un mismo archivo?',
+   f:'RCG art. 12', w:'Desde el 30 de noviembre de 2026.'},
+  {b:'Cliente y expediente', o:'matriz', p:3,
+   t:'¿Clasifica a cada cliente en al menos tres grados de riesgo y lo reevalúa cada seis meses?',
+   f:'RCG arts. 23 Bis y 23 Bis 1', w:'1 de marzo de 2027, hacia adelante.'},
+  {b:'Cliente y expediente', o:'matriz', p:3,
+   t:'¿Determina el perfil transaccional de cada cliente y tiene alertas cuando la operación se aparta de él?',
+   f:'RCG arts. 23 Ter 1 y 23 Ter 2', w:'1 de marzo de 2027.'},
+  {b:'Cliente y expediente', o:'exp', p:2,
+   t:'¿Verifica al menos una vez al año que los expedientes de clientes con relación de negocios estén completos y actualizados?',
+   f:'RCG art. 21', w:'Anual, desde la entrada en vigor.'},
+  {b:'Cliente y expediente', o:'exp', p:2,
+   t:'¿Conserva la información y su soporte por los plazos que le exigen: cinco años los expedientes, diez años los avisos, la capacitación y la metodología?',
+   f:'Ley art. 18 fr. IV · Regl. art. 20 · RCG arts. 10 Septies 3 y 39 Bis 1',
+   w:'El plazo corre desde el acto u operación, no desde el cierre del ejercicio.'},
+
+  {b:'Beneficiario controlador', o:'exp', p:3,
+   t:'¿Aplica y documenta el orden de prelación para identificar al beneficiario controlador de sus clientes persona moral?',
+   f:'RCG art. 23 Quinquies', w:'1 de marzo de 2027.'},
+  {b:'Beneficiario controlador', o:'exp', p:2,
+   t:'¿Tiene por escrito el criterio de hasta dónde asciende en la cadena de control y cómo trata a los fideicomisos?',
+   f:'RCG art. 23 Quinquies 1', w:'Es criterio propio: si no está escrito, no existe.'},
+  {b:'Beneficiario controlador', o:'bcRegistro', p:2,
+   t:'Como sociedad mercantil, ¿tiene identificado a su propio beneficiario controlador y las transmisiones de acciones que detonan aviso, aunque no realizara actividad vulnerable?',
+   f:'Ley arts. 3 fr. III, 33 Bis y 33 Ter · lineamientos aún no publicados',
+   w:'Zona abierta: el sistema todavía no abre. El expediente se arma antes.'},
+
+  {b:'Avisos', o:'avisos', p:3,
+   t:'¿Presenta cada aviso a más tardar el día 17 del mes siguiente, uno por operación, y el informe en ceros cuando no hubo nada que reportar?',
+   f:'Ley art. 23 · RCG arts. 24 Bis 1 y 25', w:'Mensual. Es la falta que más se sanciona.'},
+  {b:'Avisos', o:'avisos', p:3,
+   t:'¿Concilia su facturación —CFDI— contra los avisos presentados, para detectar operaciones que rebasaron el umbral y no se avisaron?',
+   f:'Ley arts. 17 y 23 · control interno', w:'Hágalo antes de que lo haga la autoridad: es el cruce más fácil de correr desde afuera.'},
+  {b:'Avisos', o:'avisos', p:2,
+   t:'¿Tiene definido cómo acumula las operaciones de un mismo cliente en periodos de hasta seis meses?',
+   f:'Ley art. 17 penúltimo párrafo · Regl. art. 7', w:'Desde el 30 de noviembre de 2026.'},
+  {b:'Avisos', o:'avisos', p:2,
+   t:'¿Sabe qué fecha del acto u operación aplica a cada una de sus actividades para computar el plazo del aviso?',
+   f:'RCG art. 24 Bis', w:'No todas las fracciones están en el artículo: algunas se buscan en el Reglamento.'},
+  {b:'Avisos', o:'avisos', p:2,
+   t:'¿Tiene un procedimiento escrito para el aviso de veinticuatro horas por sospecha o por hechos e indicios?',
+   f:'RCG arts. 26 Bis, 26 Bis 1 y 26 Bis 2', w:'El plazo corre desde que se reconoce el hecho, no desde la operación.'},
+  {b:'Avisos', o:'avisos', p:2,
+   t:'¿Revisó los avisos de los últimos dos años, antes de que alguien más los revise?',
+   f:'Ley art. 55', w:'Ahora, mientras la autocorrección siga disponible.'},
+
+  {b:'Manual', o:'manual', p:3,
+   t:'¿Su manual contiene las catorce fracciones del artículo 37 Bis —y dice lo que su organización realmente hace?',
+   f:'RCG art. 37 Bis', w:'Antes del 1 de marzo de 2027. Un manual que no describe la operación real se cae en la primera prueba.'},
+  {b:'Manual', o:'manual', p:2,
+   t:'¿Incluye el diseño de la metodología y los criterios de apertura, limitación y terminación de relaciones comerciales?',
+   f:'RCG art. 37, párrafos segundo y tercero', w:'Puede ir en el manual o en otro documento propio, pero tiene que existir.'},
+  {b:'Manual', o:'manual', p:2,
+   t:'¿Dice qué funciones, qué autoridad y qué suplencia tiene la persona Representante Encargada de Cumplimiento?',
+   f:'RCG art. 37 Bis fr. X', w:'Antes del 30 de noviembre de 2026.'},
+
+  {b:'Metodología y sistemas', o:'ebr', p:3,
+   t:'¿Tiene una metodología escrita de riesgos con los cuatro elementos, sus indicadores, un método de medición y los mitigantes?',
+   f:'RCG Capítulo II Quáter · art. 10 Septies 1', w:'1 de marzo de 2027 — pero se construye con datos de 2026.'},
+  {b:'Metodología y sistemas', o:'ebr', p:2,
+   t:'¿Incluye indicadores relacionados con los delitos de los artículos 139 Quáter y 400 Bis del Código Penal Federal, para cada elemento de riesgo?',
+   f:'RCG art. 10 Septies 1 fr. III', w:'Es requisito expreso, no opcional.'},
+  {b:'Metodología y sistemas', o:'ebr', p:3,
+   t:'¿Sus mecanismos automatizados cumplen las seis funciones: expediente, base consolidada, insumo a la metodología, ejecución del modelo, alertas y monitoreo de efectivo y metales?',
+   f:'RCG art. 41', w:'1 de junio de 2027, con información desde esa fecha.'},
+  {b:'Metodología y sistemas', o:'ebr', p:2,
+   t:'¿Conserva el historial de cambios de grado de riesgo y de perfil transaccional por al menos diez años?',
+   f:'RCG art. 41 fr. IV', w:'Si el sistema sobrescribe, la historia se pierde y no se reconstruye.'},
+
+  {b:'Personas y capacitación', o:'rep', p:2,
+   t:'¿La persona designada como Representante Encargada de Cumplimiento —persona física— aceptó el cargo en el Portal con su e.firma?',
+   f:'Ley art. 20 · RCG art. 10', w:'Antes del 30 de noviembre de 2026.'},
+  {b:'Personas y capacitación', o:'cap', p:2,
+   t:'¿Tiene programa anual de capacitación con evaluación, constancias y evidencia conservada diez años, impartido por quien acredite cinco años de experiencia?',
+   f:'RCG arts. 39 Bis y 39 Bis 1', w:'Primer periodo completo: 2027.'},
+  {b:'Personas y capacitación', o:'rep', p:2,
+   t:'¿Alguien consulta el buzón de notificaciones electrónicas cada día hábil?',
+   f:'RCG arts. 5 Bis y 6', w:'La notificación surte al cuarto día hábil, se abra o no.'},
+
+  {b:'Evidencia y auditoría', o:'aud', p:3,
+   t:'Si le pidieran hoy la evidencia de una decisión de riesgo que tomó, ¿podría mostrarla con fecha y responsable?',
+   f:'RCG art. 48 fr. III', w:'Es lo que califica el dictamen. Un control sin rastro no llega a «Cumple».'},
+  {b:'Evidencia y auditoría', o:'aud', p:2,
+   t:'¿Sabe ya si su auditoría del ejercicio 2028 será interna o externa —y si es externa, tiene con quién?',
+   f:'RCG arts. 44 y 45', w:'Decidirlo en 2026: el auditor certificado va a escasear.'}
+ ],
+obligaciones:[
   {id:'padron', corto:'Padrón', q:'Alta y registro en el padrón de actividades vulnerables',
    desde:null, ord:0,
    f:'Reglamento art. 12 · RCG arts. 4 a 8'},
@@ -920,7 +1049,7 @@ const CONFIG={
  servicios:{
   biopsia:{sello:'GMC360',ambito:'entidad',nombre:'Biopsia de Cumplimiento',
     alcance:'Diagnóstico de partida: qué fracciones del artículo 17 de la Ley le aplican, si el alta en el padrón y la designación del Representante están correctas, estado de los expedientes de identificación y de los avisos presentados, y qué falta frente a la Ley, el Reglamento y las RCG, con la fecha desde la que cada obligación es exigible. Expedientes y avisos se revisan sobre muestra; el tamaño se pacta por escrito antes de iniciar. No incluye la corrección de lo que se encuentre, ni la reconstrucción de periodos anteriores, ni representación ante la autoridad',
-    entregables:'Informe con los hallazgos ordenados por prioridad y por fecha de exigibilidad · matriz de actividades vulnerables aplicables con su fundamento · brecha obligación por obligación, con lo que existe y lo que falta · rango de sanción asociado a los hallazgos, en UMA y a título orientativo · ruta de trabajo por fases con tiempos',base:'fijo',importe:100000},
+    entregables:'Informe con los hallazgos ordenados por prioridad y por fecha de exigibilidad · matriz de actividades vulnerables aplicables con su fundamento · lista de verificación por obligación —79 puntos, cada uno con su fundamento— con el resultado punto por punto · brecha obligación por obligación, con lo que existe y lo que falta · rango de sanción asociado a los hallazgos, en UMA y a título orientativo · ruta de trabajo por fases con tiempos',base:'fijo',importe:100000},
   determinacion:{sello:'LEX-GMC',ambito:'entidad',nombre:'Dictamen de determinación de actividad vulnerable',
     alcance:'Opinión jurídica sobre si la operación configura actividad vulnerable y en qué fracción del artículo 17 de la Ley, con su fundamento. Es opinión de la firma: no vincula al SAT ni a la UIF, y no sustituye una consulta formal ante la autoridad',
     entregables:'Dictamen firmado por abogado, con el análisis de cada supuesto considerado · relación de las obligaciones que se activan si configura, con su fecha de exigibilidad · recomendación sobre el siguiente paso',base:'fijo',importe:96000},
@@ -1141,6 +1270,8 @@ function grupo(){return{
  nCertUIF:+$('g-nCertUIF').value||0,
  hAssessment:+$('g-hAssessment').value||0,
  pago:(CONFIG.pagos.find(x=>x.id===$('g-pago').value)||CONFIG.pagos[0]).n,
+ medidaPrecio:+$('g-medidaPrecio').value||0,
+ medidaDesc:$('g-medidaDesc').value.trim(),
  lider:$('g-lider').value.trim(), equipo:$('g-equipo').value.trim()};}
 
 /* La muestra no puede pasarse del universo. Antes, un cliente con UNA sola
@@ -1431,6 +1562,7 @@ const FALTANTES={
   nComercial:    'cuántas personas del área comercial van a capacitación',
   horas:         'cuántas horas de acompañamiento al mes',
   hAssessment:   'cuántas horas de assessment',
+  medidaPrecio:  'el precio del curso a la medida',
   ejercicios:    'cuántos ejercicios hay sin revisar',
   clientes:      'cuántos clientes activos tiene la entidad',
   avisosAnio:    'cuántos avisos presenta al año',
@@ -1500,9 +1632,14 @@ function calcular(id,ctx,g,idxEnt,totalEnt){
     /* A la medida se cobra POR CURSO, con piso. No por persona ni por hora:
        el temario se construye sobre el manual y los casos del cliente, y eso
        cuesta lo mismo lo tomen quince personas o cincuenta. */
+    /* El único servicio con precio ajustable a mano: el temario se construye
+       sobre el manual y los casos del cliente, y eso no se puede tabular. El
+       campo trae $40,000 sugerido y se cambia en la pantalla. */
     case 'sesiones':{ if(!g.sesiones) return sinDato(s,'sesiones');
-      imp=g.sesiones*s.importe;
-      txt=g.sesiones+(g.sesiones===1?' curso a la medida × ':' cursos a la medida × ')+mx(s.importe);
+      if(!g.medidaPrecio) return sinDato(s,'medidaPrecio');
+      imp=g.sesiones*g.medidaPrecio;
+      txt=g.sesiones+(g.sesiones===1?' curso × ':' cursos × ')+mx(g.medidaPrecio)
+         +(g.medidaPrecio!==s.importe?' · precio ajustado a mano':' · precio sugerido');
       break;}
     /* Capacitación: precio de lista de 360educa, menos el tramo por volumen
        que corresponde al TOTAL de personas del grupo, y convertido a sin IVA
@@ -1886,8 +2023,8 @@ const handler=ev=>{
     const i=+t.dataset.i; ENT[i].niv[t.dataset.n]=t.value;
     sincronizar(ENT[i]); pintarEntidades(); render(); return;
   }
-  if(t.dataset.m!==undefined){       // los 14 contenidos del Manual, en la hoja de diagnóstico
-    MANUAL14[t.dataset.m]=t.value; pintarManual14(); return;
+  if(t.dataset.dq!==undefined){      // el diagnóstico de 30 preguntas
+    dset(+t.dataset.dq, t.value); refrescarDiag(); return;
   }
   if(t.dataset.i!==undefined){
     const i=+t.dataset.i,k=t.dataset.k;
@@ -2013,124 +2150,220 @@ const GUION=[
 ];
 
 
-/* ══════════════════════════════════════════════════════════════
-   HOJA DE DIAGNÓSTICO · los contenidos del Manual
-   Vive aquí y NO en la captura de la cotización: no mueve el precio,
-   pero es lo que el cliente quiere ver y lo que pedía el equipo para
-   poder sostener la conversación del manual.
-   Se llena solo si hay papel de por medio. Si nadie lo toca, el informe
-   dice que no se revisó punto por punto, que es la verdad.
-   ══════════════════════════════════════════════════════════════ */
-const CONTENIDOS37BIS=[
-  {p:'Existe el Manual, está fechado y aprobado por la dirección', f:'RCG art. 37'},
-  {p:'Criterios de identificación y conocimiento de clientes', f:'RCG art. 37 Bis fr. I'},
-  {p:'Clasificación de clientes por grado de riesgo', f:'RCG art. 37 Bis fr. II'},
-  {p:'Debida diligencia diferenciada según el grado de riesgo', f:'RCG art. 37 Bis fr. III'},
-  {p:'Tratamiento de Personas Políticamente Expuestas', f:'RCG art. 37 Bis fr. IV'},
-  {p:'Perfil transaccional de los clientes', f:'RCG art. 37 Bis fr. V'},
-  {p:'Procedimiento de presentación de avisos', f:'RCG art. 37 Bis fr. VI'},
-  {p:'Criterios de conservación de la información', f:'RCG art. 37 Bis fr. VII'},
-  {p:'Acumulación de operaciones para umbrales', f:'RCG art. 37 Bis fr. VIII'},
-  {p:'Consulta de listas de personas bloqueadas', f:'RCG art. 37 Bis fr. IX'},
-  {p:'Funciones y responsabilidades del Representante', f:'RCG art. 37 Bis fr. X'},
-  {p:'Programas de capacitación', f:'RCG art. 37 Bis fr. XI'},
-  {p:'Control interno y auditoría', f:'RCG art. 37 Bis fr. XII'},
-  {p:'Confidencialidad y prohibición de avisar al cliente', f:'RCG art. 37 Bis fr. XIII'},
-  {p:'Procedimiento de actualización del propio Manual', f:'RCG art. 37 Bis fr. XIV'},
-  {p:'Si es grupo empresarial, hay manual del grupo con las particularidades de cada empresa', f:'RCG art. 37 Bis 1'}
-];
-let MANUAL14={};
-let MANUAL14_ENT=0;
+/* ══════════════════════════════════════════════════════════
+   HOJA DE DIAGNÓSTICO · 30 preguntas
+   Es el mismo instrumento que el autodiagnóstico publicado: mismas
+   preguntas, mismo peso, mismo fundamento, más tres que la página pública
+   no traía. Aquí va con nombre de cliente, folio e informe, y de aquí
+   sale el Eje A de la cotización con un botón.
+   Cuatro respuestas: Sí, En parte, No, No aplica. Lo que no se marca sale
+   como «no revisado», que es la verdad, en vez de fingir que se revisó.
+   ═══════════════════════════════════════════════════════════ */
+let DIAG={};        // DIAG[entidad][i] = 'si'|'parcial'|'no'|'na'
+let DIAG_ENT=0;
 
-function pintarManual14(){
-  const marcados=Object.keys(MANUAL14).length, N=CONTENIDOS37BIS.length;
-  const cumple=Object.values(MANUAL14).filter(v=>v==='si').length;
-  const medias=Object.values(MANUAL14).filter(v=>v==='parcial').length;
-  const opciones=(j)=>[['no','No lo trae'],['parcial','Incompleto'],['si','Sí lo trae']].map(([k,t])=>
-    `<label class="rd"><input type="radio" name="m${j}" data-m="${j}" value="${k}"${
-      MANUAL14[j]===k?' checked':''}><span>${t}</span></label>`).join('');
-  $('manual14').innerHTML=`
+const PREG=()=>CONFIG.diagnostico;
+const dget=i=>(DIAG[DIAG_ENT]||{})[i];
+function dset(i,v){ DIAG[DIAG_ENT]=DIAG[DIAG_ENT]||{}; DIAG[DIAG_ENT][i]=v; }
+const OPD=[['si','Sí'],['parcial','En parte'],['no','No'],['na','No aplica']];
+const VALOR={si:1, parcial:.5, no:0};
+
+/* Calificación: peso obtenido sobre peso posible. Lo no contestado y lo
+   «no aplica» salen del denominador: no se castiga lo que no se revisó. */
+function calificaDiag(){
+  let obt=0, pos=0, rev=0, si=0, med=0, no=0, na=0;
+  const bloq={}, oblig={};
+  PREG().forEach((q,i)=>{
+    const v=dget(i);
+    bloq[q.b]=bloq[q.b]||{o:0,p:0,n:0};
+    oblig[q.o]=oblig[q.o]||{o:0,p:0,n:0};
+    bloq[q.b].n++; oblig[q.o].n++;
+    if(!v) return;
+    rev++;
+    if(v==='na'){ na++; return; }
+    if(v==='si') si++; else if(v==='parcial') med++; else no++;
+    pos+=q.p; obt+=q.p*VALOR[v];
+    bloq[q.b].p+=q.p; bloq[q.b].o+=q.p*VALOR[v];
+    oblig[q.o].p+=q.p; oblig[q.o].o+=q.p*VALOR[v];
+  });
+  const pct = pos ? obt/pos : 0;
+  return {obt,pos,pct,rev,si,med,no,na,tot:PREG().length,bloq,oblig};
+}
+const nivelDiag=pct=>CONFIG.muestra.niveles.find(n=>
+   pct>=(n.id==='avanzado'?.8:n.id==='construccion'?.55:n.id==='inicial'?.3:0)) || CONFIG.muestra.niveles[3];
+
+function pintarDiag(){
+  const c=calificaDiag(), P=PREG();
+  const bloques=[...new Set(P.map(q=>q.b))];
+
+  const fila=(q,i)=>`
+    <div class="obq${dget(i)?' ok':''}">
+      <div class="obqh"><span class="obn">${i+1}. ${q.t}${q.p===3?' <span class="p3">PESO ALTO</span>':''}</span></div>
+      <p class="fund" style="margin:2px 0 1px">${q.f}</p>
+      <p class="fund" style="margin:0 0 7px;color:#7a7a7a">${q.w}</p>
+      <div class="obqr">${OPD.map(([k,t])=>
+        `<label class="rd"><input type="radio" name="dq${i}" data-dq="${i}" value="${k}"${
+          dget(i)===k?' checked':''}><span>${t}</span></label>`).join('')}</div>
+    </div>`;
+
+  $('listaDiag').innerHTML=`
    <div class="card">
      <div class="grid" style="margin-bottom:12px">
-       <div><label>¿De cuál empresa es el manual que estás revisando?</label>
-         <select id="m14ent">${ENT.map((e,j)=>`<option value="${j}"${j===MANUAL14_ENT?' selected':''}>${e.nombre||('Entidad '+(j+1))}</option>`).join('')}</select></div>
+       <div><label>¿De cuál empresa es lo que estás revisando?</label>
+         <select id="dEnt">${ENT.map((e,j)=>`<option value="${j}"${j===DIAG_ENT?' selected':''}>${e.nombre||('Entidad '+(j+1))}</option>`).join('')}</select></div>
      </div>
      <div class="aviso" style="margin:0 0 14px">
-       <b>Esto no se captura para cotizar.</b> Sirve para sostener la conversación del manual con el
-       cliente y para el informe. Si no tienes el manual enfrente, no lo llenes: el informe lo dirá así.
+       <b>Treinta preguntas, una sola vez.</b> Son las mismas del autodiagnóstico publicado más tres
+       que aquella no traía —oportunidad del aviso, beneficiario controlador propio y plazos de
+       conservación— y cubren la reforma completa: alta, expedientes, riesgo, beneficiario
+       controlador, avisos, manual, metodología, sistemas, personas y auditoría.
+       Contesta <b>como está hoy</b>, no como piensa estar en 2027. Usa <b>No aplica</b> sólo cuando
+       la obligación de verdad no lo alcanza. Lo que no marques sale en el informe como
+       <b>no revisado</b>, no como incumplido. Al terminar, el botón de abajo llena el Eje A de la
+       cotización con este resultado.
      </div>
-     ${CONTENIDOS37BIS.map((c,j)=>`
-       <div class="obq">
-         <div class="obqh"><span class="obn">${j+1}. ${c.p}</span>
-           <span class="fund">${c.f}</span></div>
-         <div class="obqr">${opciones(j)}</div>
-       </div>`).join('')}
-     <div class="nota">Revisados <b>${marcados}</b> de <b>${N}</b> ·
-       los trae <b>${cumple}</b> · incompletos <b>${medias}</b> ·
-       le faltan <b>${Math.max(0,marcados-cumple-medias)}</b></div>
+     ${bloques.map(b=>{
+       const idx=P.map((q,i)=>[q,i]).filter(([q])=>q.b===b);
+       const rev=idx.filter(([,i])=>dget(i)).length;
+       const bb=c.bloq[b]||{p:0,o:0};
+       return `<details class="dbloque"${rev?' open':''}>
+         <summary>${b} · ${idx.length} pregunta${idx.length===1?'':'s'}
+           <span class="dcnt">${rev?(bb.p?Math.round(bb.o/bb.p*100)+'%':'sin calificar')+' · '+rev+' de '+idx.length:'sin contestar'}</span></summary>
+         <div class="dcuerpo">${idx.map(([q,i])=>fila(q,i)).join('')}</div></details>`;}).join('')}
+     <div class="nota">Contestadas <b>${c.rev}</b> de <b>${c.tot}</b> ·
+       sí <b>${c.si}</b> · en parte <b>${c.med}</b> · no <b>${c.no}</b> · no aplica <b>${c.na}</b>
+       ${c.pos?` — calificación <b>${Math.round(c.pct*100)}%</b> · <b>${nivelDiag(c.pct).nombre}</b>`:''}</div>
      <div class="btns noprint">
-       <button class="b1" id="btnInfManual">Informe del manual en PDF</button>
-       <button class="b2" id="btnInfManualWord">Descargar para Word</button>
-       <button class="b3" id="btnLimpiar14">Limpiar</button>
+       <button class="b1" id="btnInfDiag">Informe de diagnóstico en PDF</button>
+       <button class="b2" id="btnInfDiagWord">Descargar para Word</button>
+       <button class="b2" id="btnDiagAEje">Llevar este resultado al Eje A</button>
+       <button class="b3" id="btnLimpiarDiag">Limpiar esta empresa</button>
      </div>
    </div>`;
-  const sel=$('m14ent'); if(sel) sel.onchange=()=>{ MANUAL14_ENT=+sel.value; pintarManual14(); };
-  $('btnLimpiar14').onclick=()=>{ MANUAL14={}; pintarManual14(); };
-  $('btnInfManual').onclick=()=>{ $('informe').innerHTML=informeManual();
-    imprimirCon(()=>{$('informe').innerHTML='';}, `Diagnostico del Manual ${nombreCliente()} ${hoyCorto()}`); };
-  $('btnInfManualWord').onclick=descargarInformeManual;
+  const sel=$('dEnt'); if(sel) sel.onchange=()=>{ DIAG_ENT=+sel.value; pintarDiag(); };
+  $('btnLimpiarDiag').onclick=()=>{ delete DIAG[DIAG_ENT]; pintarDiag(); };
+  $('btnDiagAEje').onclick=diagnosticoAlEje;
+  $('btnInfDiag').onclick=()=>{ $('informe').innerHTML=informeDetallado();
+    imprimirCon(()=>{$('informe').innerHTML='';}, `Diagnostico ${nombreCliente()} ${hoyCorto()}`); };
+  $('btnInfDiagWord').onclick=descargarInformeDetallado;
 }
 
-function informeManual(){
-  const e=ENT[MANUAL14_ENT]||ENT[0]||{};
-  const nom=e.nombre||('Entidad '+(MANUAL14_ENT+1));
+/* Al contestar no se repinta la lista entera: se actualizan los contadores.
+   Con treinta preguntas, repintar en cada clic tira el scroll y cierra los
+   bloques abiertos. */
+function refrescarDiag(){
+  const c=calificaDiag(), P=PREG();
+  const bloques=[...new Set(P.map(q=>q.b))];
+  document.querySelectorAll('#listaDiag .obq').forEach((el,i)=>{
+    el.classList.toggle('ok', !!dget(i));
+  });
+  document.querySelectorAll('#listaDiag details.dbloque').forEach((d,k)=>{
+    const b=bloques[k]; if(!b) return;
+    const idx=P.map((q,i)=>i).filter(i=>P[i].b===b);
+    const rev=idx.filter(i=>dget(i)).length;
+    const bb=c.bloq[b]||{p:0,o:0};
+    const sp=d.querySelector('.dcnt'); if(!sp) return;
+    sp.textContent = rev ? (bb.p?Math.round(bb.o/bb.p*100)+'%':'sin calificar')+' · '+rev+' de '+idx.length
+                         : 'sin contestar';
+  });
+  const n=document.querySelector('#listaDiag .nota');
+  if(n) n.innerHTML=`Contestadas <b>${c.rev}</b> de <b>${c.tot}</b> ·
+       sí <b>${c.si}</b> · en parte <b>${c.med}</b> · no <b>${c.no}</b> · no aplica <b>${c.na}</b>
+       ${c.pos?` — calificación <b>${Math.round(c.pct*100)}%</b> · <b>${nivelDiag(c.pct).nombre}</b>`:''}`;
+}
+
+/* El puente: el diagnóstico llena el Eje A de la cotización.
+   70% o más de la obligación → sí · 30 a 69% → parcial · menos → no.
+   Las obligaciones sin ninguna pregunta contestada no se tocan. */
+function diagnosticoAlEje(){
+  const c=calificaDiag();
+  const e=ENT[DIAG_ENT]; if(!e){ alert('Primero da de alta la empresa en la captura.'); return; }
+  let n=0;
+  CONFIG.obligaciones.forEach(o=>{
+    if(CALCULADAS.indexOf(o.id)>=0) return;   // padrón y avisos salen de la ficha, no del diagnóstico
+    const g=c.oblig[o.id]; if(!g||!g.p) return;
+    const r=g.o/g.p;
+    e.niv[o.id] = r>=.7 ? 'si' : r>=.3 ? 'parcial' : 'no';
+    n++;
+  });
+  if(!n){ alert('Todavía no hay respuestas suficientes para llenar el Eje A.'); return; }
+  render();
+  alert('Listo: se llenaron '+n+' obligaciones del Eje A de '+(e.nombre||('la entidad '+(DIAG_ENT+1)))+
+        ' con el resultado del diagnóstico.\n\nRevísalas en la pestaña de captura antes de cotizar: el botón propone, no decide.');
+}
+
+/* El informe: redacción de informe, no de formulario. */
+function informeDetallado(){
+  const e=ENT[DIAG_ENT]||ENT[0]||{};
+  const nom=e.nombre||('Entidad '+(DIAG_ENT+1));
   const cli=$('g-nombre').value||'[Cliente por confirmar]';
   const hoy=new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
-  const marcados=Object.keys(MANUAL14).length, N=CONTENIDOS37BIS.length;
-  const trae=CONTENIDOS37BIS.filter((c,j)=>MANUAL14[j]==='si');
-  const medias=CONTENIDOS37BIS.filter((c,j)=>MANUAL14[j]==='parcial');
-  const faltan=CONTENIDOS37BIS.filter((c,j)=>MANUAL14[j]==='no');
-  const sinRev=CONTENIDOS37BIS.filter((c,j)=>MANUAL14[j]===undefined);
-  const lista=(t,arr)=>arr.length?`<h2>${t} · ${arr.length}</h2>
-    <table><tbody>${arr.map(c=>`<tr><td class="ob">${c.p}<div class="fu">${c.f}</div></td></tr>`).join('')}</tbody></table>`:'';
-  const cierre = marcados===0
-    ? `<p>Este informe se emitió <b>sin haber revisado el Manual punto por punto</b>. Lo que antecede es
-       la lista de los contenidos que exigen las Reglas, no una evaluación del documento de la empresa.</p>`
-    : `<p>Se revisaron <b>${marcados}</b> de <b>${N}</b> contenidos.
-       ${sinRev.length?`Los otros <b>${sinRev.length}</b> no se revisaron y no se opina sobre ellos.`:''}</p>`;
+  const c=calificaDiag(), P=PREG();
+  const bloques=[...new Set(P.map(q=>q.b))];
+
+  const cuerpo=bloques.map(b=>{
+    const idx=P.map((q,i)=>[q,i]).filter(([q])=>q.b===b);
+    const g={si:[],parcial:[],no:[],na:[],sin:[]};
+    idx.forEach(([q,i])=>{ g[dget(i)||'sin'].push(q); });
+    const bb=c.bloq[b]||{p:0,o:0};
+    if(!g.si.length&&!g.parcial.length&&!g.no.length&&!g.na.length)
+      return `<h2>${b}</h2><p>No se revisó. No se emite opinión sobre este bloque.</p>`;
+    const lista=(t,arr)=>arr.length?`<p><b>${t}</b></p><table><tbody>${arr.map(x=>
+      `<tr><td class="ob">${x.t}<div class="fu">${x.f}${x.w?' · '+x.w:''}</div></td></tr>`).join('')}</tbody></table>`:'';
+    return `<h2>${b}</h2>
+      <p>Se contestaron <b>${idx.length-g.sin.length}</b> de <b>${idx.length}</b> preguntas${
+        bb.p?`; la calificación de este bloque es <b>${Math.round(bb.o/bb.p*100)}%</b>`:''}.</p>
+      ${lista('Lo que sí tiene', g.si)}
+      ${lista('Lo que está a medias', g.parcial)}
+      ${lista('Lo que falta', g.no)}
+      ${lista('No le aplica', g.na)}
+      ${lista('No revisado', g.sin)}`;
+  }).join('');
+
+  const porOblig=CONFIG.obligaciones.filter(o=>c.oblig[o.id]&&c.oblig[o.id].p).map(o=>{
+    const g=c.oblig[o.id], r=Math.round(g.o/g.p*100);
+    return `<tr><td class="ob">${o.corto}<div class="fu">${o.f}</div></td>
+      <td style="text-align:right;white-space:nowrap"><b>${r}%</b></td>
+      <td style="white-space:nowrap">${r>=70?'Cumple':r>=30?'Parcial':'No cumple'}</td></tr>`;}).join('');
+
   return `<div class="inf">
     <div class="marca">GMC360 · LEX-GMC · 360EDUCA</div>
-    <h1>Diagnóstico del Manual de Políticas Internas</h1>
+    <h1>Diagnóstico de brecha</h1>
     <div class="meta"><b>${cli}</b> · ${nom} · ${hoy}
       <span class="conf">DOCUMENTO CONFIDENCIAL</span></div>
-    <p>El artículo 37 Bis de las Reglas de Carácter General enumera los contenidos mínimos que debe
-    tener el Manual de Políticas Internas. Este documento los revisa uno por uno y dice, de cada uno,
-    si el Manual vigente de la empresa lo trae, lo trae incompleto o no lo trae.</p>
-    <div class="res"><b>Por qué importa el orden.</b> La autoridad revisa el Manual buscando los
-    contenidos en el orden del artículo. Cuando no los encuentra donde los busca, los da por ausentes,
-    aunque estén escritos más adelante dentro de otro capítulo. Reordenar el Manual conforme al 37 Bis
-    no es cuestión de forma: es lo que hace que se pueda verificar.</div>
-    ${lista('Contenidos que el Manual sí trae', trae)}
-    ${lista('Contenidos incompletos', medias)}
-    ${lista('Contenidos que faltan', faltan)}
-    ${lista('No revisados', sinRev)}
-    ${cierre}
+    <p>Este documento mide, con treinta preguntas, qué tan lejos está la empresa de cumplir la Ley,
+    su Reglamento y las Reglas de Carácter General del ACUERDO 115/2026. Cada pregunta cita el
+    artículo que la respalda y la fecha en que la obligación resulta exigible.</p>
+    <div class="res">Se contestaron <b>${c.rev}</b> de <b>${c.tot}</b> preguntas.
+      ${c.pos?`La calificación es <b>${Math.round(c.pct*100)}%</b>, que corresponde al nivel
+        <b>${nivelDiag(c.pct).nombre}</b>. Cumple <b>${c.si}</b>, está a medias en <b>${c.med}</b>,
+        no cumple <b>${c.no}</b>${c.na?` y <b>${c.na}</b> no le aplican`:''}.`
+       :'Ninguna fue contestada: lo que sigue es la lista de lo que la norma exige, no una evaluación de la empresa.'}
+      ${c.tot-c.rev?` Las <b>${c.tot-c.rev}</b> restantes no se revisaron y sobre ellas no se emite opinión.`:''}</div>
+    ${porOblig?`<h2>Resumen por obligación</h2>
+      <table><thead><tr><th>Obligación</th><th style="text-align:right">Calificación</th><th>Lectura</th></tr></thead>
+      <tbody>${porOblig}</tbody></table>`:''}
+    <div class="res"><b>Si sólo pudiera atender un pendiente esta semana.</b> El del bloque
+    «El dato de 2026»: es lo único que no se recupera después, porque la evaluación de riesgos
+    exigible el 1 de marzo de 2027 se construye con la información del año que se está viviendo.</div>
+    ${cuerpo}
     <div class="leg"><b>Alcance y limitaciones.</b> Este diagnóstico se elaboró con la información y la
     documentación que proporcionó el cliente y con lo que declaró durante la sesión de diagnóstico.
     <b>No constituye asesoría jurídica, dictamen de auditoría en términos del Capítulo XIV de las Reglas
-    de Carácter General, ni opinión sobre la configuración de actividad vulnerable.</b> No incluye
-    verificación documental de expedientes, revisión de avisos presentados ni pruebas sustantivas.
-    Sus conclusiones dependen de la veracidad y la integridad de lo declarado por el cliente y cambian
-    si cambia esa información. Las disposiciones citadas son las vigentes a la fecha de emisión y pueden
-    modificarse por reformas posteriores. Documento confidencial, para uso exclusivo del destinatario.</div>
+    de Carácter General, ni opinión sobre la configuración de actividad vulnerable.</b> Salvo donde se
+    indique que un punto fue revisado, no incluye verificación documental ni pruebas sustantivas. Sus
+    conclusiones dependen de la veracidad y la integridad de lo declarado por el cliente y cambian si
+    cambia esa información. Una calificación alta no acredita cumplimiento ante la autoridad. Las
+    disposiciones citadas son las vigentes a la fecha de emisión y pueden modificarse por reformas
+    posteriores. Documento confidencial, para uso exclusivo del destinatario.</div>
   </div>`;
 }
 
-function descargarInformeManual(){
-  $('informe').innerHTML=informeManual();
+function descargarInformeDetallado(){
+  $('informe').innerHTML=informeDetallado();
   const cli=nombreCliente();
   const doc=`<!DOCTYPE html><html xmlns:w="urn:schemas-microsoft-com:office:word"><head>
-    <meta charset="utf-8"><title>Diagnostico del Manual ${cli}</title><style>
+    <meta charset="utf-8"><title>Diagnostico detallado ${cli}</title><style>
     body{font-family:Arial,sans-serif;font-size:10.5pt;line-height:1.55;color:#1b1b1e}
     h1{font-size:16pt} h2{color:#64c27b;font-size:12pt}
     table{border-collapse:collapse;width:100%}
@@ -2141,8 +2374,8 @@ function descargarInformeManual(){
     .leg{font-size:8pt;color:#666;border-top:1px solid #ddd;padding-top:8px}
     </style></head><body>${$('informe').innerHTML}</body></html>`;
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob(['\ufeff'+doc],{type:'application/msword'}));
-  a.download=`Diagnostico del Manual ${cli}.doc`;
+  a.href=URL.createObjectURL(new Blob(['﻿'+doc],{type:'application/msword'}));
+  a.download=`Diagnostico detallado ${cli}.doc`;
   a.click(); URL.revokeObjectURL(a.href);
   $('informe').innerHTML='';
 }
@@ -2171,16 +2404,18 @@ const GUIA_HTML = `
   <div class="preg">2 · Entidades</div>
   <p class="porq">Una tarjeta por empresa. Arriba el Eje B, que dimensiona el trabajo; abajo el Eje A,
     que son ocho preguntas, una por obligación. El padrón y los avisos ya se contestaron arriba.</p>
-  <p class="oido"><b>Tres cosas que hay que hacer bien.</b> «A medias» es respuesta válida y cambia el
-    diagnóstico. El botón de «ver los N puntos» solo se abre cuando hay biopsia o auditoría de por medio.
-    Y las casillas de <b>«No sé todavía»</b> se usan: un cero capturado por desconocimiento hace que la
-    cotización salga en firme cuando no debería.</p>
+  <p class="oido"><b>Dos cosas que hay que hacer bien.</b> «A medias» es respuesta válida y cambia el
+    diagnóstico. Y las casillas de <b>«No sé todavía»</b> se usan: un cero capturado por desconocimiento
+    hace que la cotización salga en firme cuando no debería. Si ya llenaste el diagnóstico de las 30
+    preguntas, el botón «Llevar este resultado al Eje A» llena estas ocho por ti — y aun así conviene
+    revisarlas.</p>
 
   <div class="preg">3 · Diagnóstico de obligaciones</div>
   <p class="porq">Se llena solo. De aquí sale el informe que <b>sí</b> se le entrega al cliente: no lleva
     honorarios ni notas internas, solo qué le aplica, desde cuándo y cómo va.</p>
-  <p class="oido">De las trece obligaciones que revisa el motor, seis ya son exigibles hoy. Lo demás tiene fecha futura, y a
-    eso <b>no se le llama incumplimiento</b>: es un pendiente con fecha, y esa fecha es el argumento.</p>
+  <p class="oido">De las diez obligaciones que revisa el motor, buena parte todavía tiene fecha futura, y a
+    eso <b>no se le llama incumplimiento</b>: es un pendiente con fecha, y esa fecha es el argumento.
+    El calendario de exigibilidad está arriba, en esta misma hoja.</p>
 
   <div class="preg">4 · Lo que recomienda la herramienta</div>
   <p class="porq">Alertas, arquetipo y servicios en tres bloques. Los recomendados vienen palomeados.
@@ -2343,11 +2578,11 @@ function pintarGuion(){
    <table><thead><tr><th style="width:22%">Qué es</th><th style="width:24%">Qué se revisa</th>
      <th style="width:20%">Cómo se cobra</th><th>Cuándo va</th></tr></thead><tbody>
     <tr><td class="a">Diagnóstico</td>
-        <td>Nada. Se pregunta y el cliente contesta</td>
+        <td>Nada. Treinta preguntas: se pregunta y el cliente contesta</td>
         <td><b>No se cobra</b></td>
         <td>Siempre. Es lo que imprime esta herramienta al terminar la junta, y ya es un entregable</td></tr>
     <tr><td class="a">Biopsia de Cumplimiento</td>
-        <td>Papel: muestra de expedientes y un mes de avisos</td>
+        <td>Papel: muestra de expedientes y un mes de avisos, contra la lista de verificación de 79 puntos</td>
         <td>Precio cerrado</td>
         <td>Cuando saben que están mal y quieren saber qué tan mal, antes de decidir cuánto gastar</td></tr>
     <tr><td class="a">Assessment</td>
@@ -2364,13 +2599,13 @@ function pintarGuion(){
   $('t-guia').innerHTML = GUIA_HTML;
 }
 pintarGuion();
-pintarManual14();
+pintarDiag();
 
 document.querySelectorAll('.tab').forEach(b=>{
   b.onclick=()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
     ['cotizar','guion','consejos','guia','manual'].forEach(t=>$('t-'+t).hidden = (t!==b.dataset.t));
-    if(b.dataset.t==='manual') pintarManual14();
+    if(b.dataset.t==='manual') pintarDiag();
     window.scrollTo({top:0,behavior:'smooth'});
   };
 });
@@ -3286,7 +3521,8 @@ const campos=['g-nombre','g-contacto','g-correo','g-tel','g-ejecutivo','g-lider'
   'g-quien','g-postura','g-conting','g-fideicomiso','g-riesgoBanc','g-repTiempo','g-presupuesto',
   'g-atencion','g-iniciativa','g-modalidad','g-urgencia','g-descuento','g-renovacion','g-meses',
   'g-sesiones','g-horas','g-hAssessment','g-impresion','g-nPersonal','g-nCumplimiento','g-nDireccion',
-  'g-nIngreso','g-nCertUIF','g-nComercial','g-pago','p-dest','p-desc'];
+  'g-nIngreso','g-nCertUIF','g-nComercial','g-pago','g-medidaPrecio','g-medidaDesc',
+  'p-dest','p-desc'];
 
 function guardarBorrador(){
   try{
