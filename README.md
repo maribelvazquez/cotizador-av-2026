@@ -11,7 +11,7 @@ que no van al cliente.
 | Ruta | Qué es |
 |---|---|
 | `sitio/index.html` | El cotizador. Un solo archivo. |
-| `funciones/propuesta.js` | El redactor de propuestas. Corre en el servidor. |
+| `funciones/propuesta.js` | Corre en el servidor y hace dos trabajos: redacta la propuesta y, desde la v8.7, lee la transcripción de la junta para proponer la captura (`modo:'captura'`). Es el único que toca la llave. |
 | `netlify.toml` | Le dice a Netlify qué publicar y qué correr. |
 | `firestore.rules` | Reglas de la base. Se pegan en Firebase. **Cambiaron el 7-sep-2026**: antes ningún miembro del equipo podía mover el estatus de una cotización. |
 

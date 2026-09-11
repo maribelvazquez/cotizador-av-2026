@@ -54,6 +54,86 @@ async function verificar(idToken) {
   return u.email;
 }
 
+
+/* ══════════════════════════════════════════════════════════════
+   LEER LA JUNTA Y PROPONER LA CAPTURA · desde la v8.7
+   El navegador manda la transcripción y el esquema del formulario, con las
+   opciones que de verdad existen. El modelo devuelve un JSON con lo que la
+   junta sostiene, cada dato con la frase de donde salió. No decide nada:
+   el navegador lo pinta en ámbar y una persona lo revisa.
+   ══════════════════════════════════════════════════════════════ */
+async function leerCaptura(d, LLAVE, correo) {
+  const texto = String(d.transcripcion || '').slice(0, 200000);
+  if (!texto.trim()) return err(400, { error: 'No llegó la transcripción' });
+
+  const instruccion = `Lees la transcripción (o las notas) de una junta de diagnóstico de GMC360 con un
+prospecto que puede estar obligado por la Ley Federal para la Prevención e Identificación de Operaciones con
+Recursos de Procedencia Ilícita, y propones cómo llenar el cotizador interno. Una persona va a revisar todo
+lo que propongas; tu trabajo es ahorrarle la búsqueda, no decidir por ella.
+
+DEVUELVE SOLO UN OBJETO JSON VÁLIDO. Nada antes ni después, sin \`\`\`, sin comentarios.
+
+REGLAS
+1. Solo lo que EL CLIENTE dijo o confirmó. Lo que dijo el consultor para explicar, suponer o vender no es
+   dato del cliente. Si el cliente lo confirmó ("sí, así es"), entonces sí.
+2. Cada campo que llenes lleva "v" (el valor) y "cita" (la frase de la transcripción de donde sale, textual,
+   de 25 palabras como máximo).
+3. SI LA JUNTA NO LO DICE, OMITE EL CAMPO. No estimes, no lo deduzcas del giro, no pongas un valor típico.
+   Un cero solo si el cliente dijo cero o "ninguno". Un campo omitido es mejor que uno inventado.
+4. En los campos con opciones ("ops"), "v" es exactamente la CLAVE de la opción (por ejemplo "area"), nunca el
+   texto. En los numéricos, un número entero. En los de sí/no, true o false.
+5. EMPRESAS. Una entrada por empresa distinta. Si varias tienen EXACTAMENTE el mismo perfil —misma actividad,
+   mismo tipo de persona, mismas respuestas— van en UNA sola entrada con "iguales" igual a cuántas son.
+   Personas físicas y personas morales nunca van en la misma entrada. Si una sola entrada basta, "iguales" es 1.
+6. ACTIVIDAD. Solo si el cliente describió su operación con claridad. Si hay duda de encuadre o de si está
+   obligado, pon "sabe":"duda" y agrega la duda a "preguntas". No elijas la fracción por el nombre del giro.
+7. AVISOS AL AÑO. Es uno por cada OPERACIÓN que rebasa el umbral, no uno por mes presentado. "Presentamos
+   todos los meses" no es un número de avisos: omítelo y pregúntalo.
+8. EJE A ("niv"): "si" solo si el cliente dice que lo tiene completo; "parcial" si dice que lo tiene a medias,
+   viejo o sin terminar; "no" si dice que no lo tiene. Si no se habló, omítelo.
+9. "preguntas": lo que falta para cotizar y no salió en la junta, redactado como pregunta lista para mandarle
+   al cliente por correo, en lenguaje de dueño de negocio, sin tecnicismos. Máximo doce. Primero las que mueven
+   el precio: número de clientes activos, operaciones o avisos al año, ejercicios sin revisar, si tienen manual
+   y metodología, cuántas personas hay que capacitar por área.
+10. "alertas": lo que quien cotiza debe saber antes: requerimiento o visita de la autoridad, fideicomisos,
+   activos virtuales, cuentas bloqueadas, grupo internacional, contradicciones dentro de la junta. Frases cortas.
+11. "resumen": dos o tres frases sobre de qué se trata el caso.
+12. No menciones a otros clientes. No cites artículos de ley: eso lo pone el motor.
+
+FORMA EXACTA
+{"grupo":{"<id del campo>":{"v":...,"cita":"..."}},
+ "entidades":[{"<campo>":{"v":...,"cita":"..."}, "niv":{"<obligación>":{"v":"si|parcial|no","cita":"..."}}}],
+ "preguntas":["..."], "alertas":["..."], "resumen":"..."}`;
+
+  const contenido = `FECHA DE HOY: ${d.fecha || ''}
+
+ESQUEMA DE LA CAPTURA · los únicos campos y valores que existen
+${JSON.stringify(d.esquema || {}, null, 1)}
+
+TRANSCRIPCIÓN O NOTAS DE LA JUNTA
+${texto}`;
+
+  const upstream = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': LLAVE, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({
+      model: env('ANTHROPIC_MODEL') || 'claude-sonnet-4-5',
+      max_tokens: 8000,
+      temperature: 0,
+      system: instruccion,
+      stream: true,
+      messages: [{ role: 'user', content: contenido }]
+    })
+  });
+  if (!upstream.ok) {
+    const t = await upstream.text();
+    return err(502, { error: 'La API de Claude respondió con error', detalle: t.slice(0, 400) });
+  }
+  return new Response(upstream.body, {
+    headers: { 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store', 'X-Cotiza': correo }
+  });
+}
+
 export default async (request) => {
   try {
     if (request.method !== 'POST') return err(405, { error: 'Solo POST' });
@@ -70,6 +150,11 @@ export default async (request) => {
     if (!correo) return err(401, { error: 'Tu sesión no es válida. Sal del cotizador y vuelve a entrar.' });
 
     const d = cuerpo.datos || {};
+
+    /* La misma función atiende dos trabajos: redactar la propuesta (el de
+       siempre) y, desde la v8.7, leer la transcripción para proponer la
+       captura. Así la llave sigue viviendo en un solo lugar. */
+    if (cuerpo.modo === 'captura') return await leerCaptura(d, LLAVE, correo);
 
     /* ── Lo que el modelo PUEDE hacer: redactar la prosa.
          Lo que NO puede: inventar hechos, cifras, fundamentos o alcances.
@@ -146,6 +231,9 @@ treinta años de experiencia y más de seiscientas auditorías. Escribe la propu
 1 Quáter. NO EXPLIQUES POR QUÉ una obligación aplica o no aplica a una entidad más allá de lo que
    diga el diagnóstico. Si el diagnóstico dice que algo está en cierto estado, dilo y ya: no
    construyas la razón jurídica. Inventar el motivo es el error más caro que puedes cometer aquí.
+1 Quinquies. EMPRESAS IGUALES. Si una entidad trae "empresasConEstePerfil" mayor a 1, representa ese
+   número de empresas idénticas. Dilo así —"seis personas morales con el mismo perfil"— y trátalas en
+   una sola subsección. NO inventes sus razones sociales: si no vienen, escribe [POR CONFIRMAR].
 2. NO INVENTES FUNDAMENTOS. Cita solo los artículos del diagnóstico, tal como vienen, con su
    ordenamiento (Ley, Reglamento o RCG). Si una afirmación no tiene fundamento abajo, márcala como
    zona abierta; no le inventes uno.

@@ -381,6 +381,23 @@ tbody tr.subEnt td{background:#f6faf7;font-weight:600;border-top:1px solid var(-
 .rec .imp.falta span{display:block;font-weight:400;font-size:10.5px;color:#8a6d1f}
 .alerta .pend{margin:7px 0 0;padding-left:18px}
 .alerta .pend li{margin:3px 0}
+.alerta .pend a.irA{color:inherit;text-decoration:none;display:block;border-radius:4px;padding:2px 4px;margin-left:-4px}
+.alerta .pend a.irA:hover{background:rgba(0,0,0,.05)}
+.alerta .pend a.irA .ir{font-size:11px;color:var(--verde);font-weight:600;white-space:nowrap}
+@keyframes brillo{0%{box-shadow:0 0 0 0 rgba(100,194,123,.0)}20%{box-shadow:0 0 0 6px rgba(100,194,123,.45)}100%{box-shadow:0 0 0 0 rgba(100,194,123,0)}}
+.resaltado{animation:brillo 2.6s ease-out;background:#eaf7ee;border-radius:6px}
+/* Lo que propuso la lectura de la transcripción: ámbar hasta que alguien lo revise. */
+.propuesto{outline:2px solid #e0b24a;outline-offset:1px;background:#fff8e8 !important}
+label.rd.propuesto{border-radius:5px}
+.chk.propuesto{border-radius:5px}
+.cita{display:block;font-size:10.5px;color:#8a6d1f;font-style:italic;font-weight:400;margin-top:2px;line-height:1.3}
+.transc{border-left:4px solid var(--verde)}
+.transc textarea{width:100%;font:inherit;font-size:13px}
+.transc .res{margin-top:10px;font-size:13px}
+.transc .res ol{margin:6px 0 0;padding-left:20px}
+.transc .res li{margin:3px 0}
+.iguales{display:inline-block;background:var(--negro);color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:1px 8px;margin-left:8px;vertical-align:middle}
+.tipoP{display:inline-block;border:1px solid var(--linea);color:var(--gris);font-size:11px;border-radius:10px;padding:0 7px;margin-left:6px;vertical-align:middle}
 @media print{
   /* Al imprimir el informe o la propuesta se oculta todo menos esa caja.
      Hay que abrir el camino nivel por nivel: #informe vive DENTRO de
@@ -439,6 +456,20 @@ tbody tr.subEnt td{background:#f6faf7;font-weight:600;border-top:1px solid var(-
   <b>Cómo se usa.</b> Captura el diagnóstico de cada entidad y no marques servicios: la herramienta
   decide cuáles aplican, cuáles no y por qué. Lo común al grupo se cotiza una vez; lo propio de cada
   empresa, por empresa. El número no se le entrega al cliente antes de la sesión cliente/consultor360.
+</div>
+
+<!-- 0 · DESDE LA TRANSCRIPCIÓN -->
+<h2 class="noprint"><span class="n">0</span>¿Tienes la transcripción de la junta?</h2>
+<p class="hint noprint">Pégala aquí y la herramienta propone la captura completa: el cliente, las empresas y el Eje A.
+Lo que propone queda <b>en ámbar</b>, con la frase de la junta de donde lo sacó; lo que la junta no dice queda
+en «No sé todavía» y sale como pregunta para mandarle al cliente. Revisa lo ámbar y sigue como siempre.</p>
+<div class="card transc noprint">
+  <textarea id="t-transc" rows="6" placeholder="Pega aquí la transcripción de la junta, tus notas, o las dos cosas mezcladas."></textarea>
+  <div class="btns" style="margin:8px 0 0">
+    <button class="b1" id="btnCaptura">Llenar la captura desde la transcripción</button>
+  </div>
+  <div class="estadoIA" id="estadoCaptura"></div>
+  <div class="res" id="resCaptura"></div>
 </div>
 
 <!-- 1 · GRUPO -->
@@ -540,6 +571,22 @@ Lo que falta pero todavía no es exigible no se llama incumplimiento: se llama p
 <p class="hint noprint">Hasta aquí se decide cómo se entrega y en qué condiciones. Antes no,
 porque antes no sabíamos qué se iba a vender.</p>
 <div class="card noprint">
+  <div class="grupo-tit" id="bloqueCap">Capacitación · cuántas personas
+    <span class="ejeq">Va primero porque es lo que más se busca. El RCG art. 39 Bis exige capacitar por perfil, no a todos igual</span></div>
+  <div class="grid">
+    <div><label>¿Cuántas personas de todo el personal van a capacitación?<span class="fund">Anual General · 8 h</span></label>
+      <input type="number" id="g-nPersonal" min="0" value="0"></div>
+    <div><label>¿Cuántas del área de cumplimiento, con el Representante?<span class="fund">Especializada</span></label>
+      <input type="number" id="g-nCumplimiento" min="0" value="0"></div>
+    <div><label>¿Cuántas de consejo y dirección?<span class="fund">Alta dirección</span></label>
+      <input type="number" id="g-nDireccion" min="0" value="0"></div>
+    <div><label>¿Cuántas del área comercial y de promoción?<span class="fund">Bienvenido al mundo de PLD/FT · 4 h</span></label>
+      <input type="number" id="g-nComercial" min="0" value="0"></div>
+    <div><label>¿Cuántas de nuevo ingreso al año?<span class="fund">Inducción</span></label>
+      <input type="number" id="g-nIngreso" min="0" value="0"></div>
+    <div><label>¿Cuántas se van a certificar ante la UIF?<span class="fund">Membresía 360 UIF</span></label>
+      <input type="number" id="g-nCertUIF" min="0" value="0"></div>
+  </div>
   <div class="grupo-tit">Condiciones comerciales</div>
   <div class="grid">
     <div><label>Modalidad<span class="fund">Híbrida hasta 3 sesiones presenciales</span></label>
@@ -574,22 +621,6 @@ porque antes no sabíamos qué se iba a vender.</p>
       <select id="g-pago"></select></div>
     <div><label>¿Informe impreso?</label><select id="g-impresion">
       <option value="0">No</option><option value="1">Sí · $2,500</option></select></div>
-  </div>
-  <div class="grupo-tit">Capacitación · cuántas personas
-    <span class="ejeq">El RCG art. 39 Bis exige capacitar por perfil, no a todos igual</span></div>
-  <div class="grid">
-    <div><label>Todo el personal<span class="fund">Anual General · 8 h</span></label>
-      <input type="number" id="g-nPersonal" min="0" value="0"></div>
-    <div><label>Área comercial y promoción<span class="fund">Bienvenido al mundo de PLD/FT · 4 h</span></label>
-      <input type="number" id="g-nComercial" min="0" value="0"></div>
-    <div><label>Área de cumplimiento<span class="fund">Con el Representante</span></label>
-      <input type="number" id="g-nCumplimiento" min="0" value="0"></div>
-    <div><label>Consejo y dirección<span class="fund">Alta dirección</span></label>
-      <input type="number" id="g-nDireccion" min="0" value="0"></div>
-    <div><label>Personal de nuevo ingreso<span class="fund">Inducción al año</span></label>
-      <input type="number" id="g-nIngreso" min="0" value="0"></div>
-    <div><label>Van a certificarse ante la UIF<span class="fund">Membresía 360 UIF</span></label>
-      <input type="number" id="g-nCertUIF" min="0" value="0"></div>
   </div>
 </div>
 
@@ -677,9 +708,9 @@ const CONFIG={
     la barra de arriba mientras se trabaja, en el pie del informe y dentro de
     cada cotización que se guarda. Así, al abrir la página se ve de inmediato
     si es la versión nueva o la que traía el navegador en caché. */
- version:'8.6',
- versionFecha:'8 de septiembre de 2026',
- versionNota:'diagnóstico de treinta preguntas que llena el Eje A · los 79 puntos son el papel de trabajo de la biopsia, no del cotizador',
+ version:'8.7',
+ versionFecha:'11 de septiembre de 2026',
+ versionNota:'llenar la captura desde la transcripción · empresas iguales en una sola tarjeta · la alerta lleva al campo que falta · conservación a diez años',
  versionPrecios:'2026-09-07',
 
  /* ── QUIÉN PUEDE AUTORIZAR ──
@@ -777,9 +808,9 @@ const CONFIG={
    t:'¿Verifica al menos una vez al año que los expedientes de clientes con relación de negocios estén completos y actualizados?',
    f:'RCG art. 21', w:'Anual, desde la entrada en vigor.'},
   {b:'Cliente y expediente', o:'exp', p:2,
-   t:'¿Conserva la información y su soporte por los plazos que le exigen: cinco años los expedientes, diez años los avisos, la capacitación y la metodología?',
+   t:'¿Conserva la información y su soporte por los plazos que le exigen: diez años los expedientes y el soporte de la operación, los avisos, la capacitación y la metodología?',
    f:'Ley art. 18 fr. IV · Regl. art. 20 · RCG arts. 10 Septies 3 y 39 Bis 1',
-   w:'El plazo corre desde el acto u operación, no desde el cierre del ejercicio.'},
+   w:'El plazo corre desde el acto u operación, no desde el cierre del ejercicio. Los expedientes pasaron de cinco a diez años con la reforma a la Ley del 16-07-2025.'},
 
   {b:'Beneficiario controlador', o:'exp', p:3,
    t:'¿Aplica y documenta el orden de prelación para identificar al beneficiario controlador de sus clientes persona moral?',
@@ -1045,6 +1076,15 @@ obligaciones:[
     independiente con su propio informe y no se abarata por volumen.
     Los demás servicios sí escalan porque el marco se construye una vez. */
  entidadAdicional:{ auditoria:.15, otros:[{hasta:3,d:.15},{hasta:10,d:.30},{hasta:Infinity,d:.50}] },
+ /* ── EMPRESAS IGUALES ──  Decidido por dirección el 11-sep-2026.
+    Cuando varias empresas tienen el MISMO perfil (misma actividad, mismo tipo
+    de persona, misma madurez) se capturan en una sola tarjeta con «¿cuántas
+    hay así?». Lo que se cobra por empresa va escalonado sobre el precio
+    completo de la primera: la 2ª y la 3ª al 50%, de la 4ª en adelante al 25%.
+    'hasta' es la posición de la copia dentro de la tarjeta (la primera es 1).
+    La auditoría NO entra aquí: cada dictamen es un encargo independiente y
+    sigue con su propio descuento de entidadAdicional.auditoria. */
+ entidadesIguales:[{hasta:3,f:.50},{hasta:Infinity,f:.25}],
 
  servicios:{
   biopsia:{sello:'GMC360',ambito:'entidad',nombre:'Biopsia de Cumplimiento',
@@ -1177,6 +1217,17 @@ const sc=s=>s==='GMC360'?'s-gmc':(s==='LEX-GMC'||s==='LEX-QUO')?'s-lex':'s-edu';
 const escalon=(tabla,v)=>{for(const e of tabla){if(v<=e.h)return e.s}return tabla[tabla.length-1].s};
 
 let ENT=[], OV={};
+/* Lo que propuso la lectura de la transcripción y todavía nadie revisa.
+   g: campos del cliente por id · e[i]: campos de la tarjeta i ('niv.manual' para el Eje A). */
+let PROP={g:{},e:[],usado:false,total:0,corregidos:0};
+/* Nombre de la tarjeta, con cuántas empresas representa. */
+const nomEnt=(e,i)=>(e.nombre||('Entidad '+(i+1)))+((e.iguales||1)>1?' · '+e.iguales+(e.tipoPersona==='fisica'?' personas físicas iguales':' empresas iguales'):'');
+/* Cuántas empresas hay de verdad, contando las iguales. */
+/* Lo que a una persona física no le aplica: no se le pregunta ni cuenta como faltante. */
+const NO_APLICA_PF={
+  rep:'la persona física cumple personalmente (Ley art. 20)',
+  bcRegistro:'el Capítulo IV Bis obliga a las sociedades mercantiles, no a personas físicas (Ley arts. 33 Bis y 33 Ter)'};
+const cuentaEmpresas=lista=>lista.reduce((a,e)=>a+Math.max(1,+e.iguales||1),0);
 const nuevaEnt=()=>{
   /* Dos niveles de captura:
      'niv' es la respuesta rápida, una por obligación. Es lo que se contesta en
@@ -1186,7 +1237,12 @@ const nuevaEnt=()=>{
      El ejecutivo comercial nunca tiene que abrirlo. */
   const niv={};
   CONFIG.obligaciones.forEach(o=>{ niv[o.id]='no'; });
-  return {nombre:'',sabe:'si',actividad:'arrendamiento',actExtra:0,padron:'si',
+  return {nombre:'',
+   /* Una tarjeta puede valer por varias empresas iguales (ver CONFIG.entidadesIguales).
+      Persona física y moral nunca van en la misma tarjeta: la física cumple
+      personalmente y no designa Representante (Ley art. 20). */
+   iguales:1, tipoPersona:'moral',
+   sabe:'si',actividad:'arrendamiento',actExtra:0,padron:'si',
    avisos:'ok',avisosAnio:0,avisosReg:0,ejercicios:0,clientes:0,
    /* Dos umbrales, no uno: el de identificación dimensiona expedientes y el
       de aviso dimensiona avisos. Antes iban revueltos en un solo campo. */
@@ -1246,6 +1302,10 @@ function sincronizar(e){
                   tarde30m:'no', ninguno:'no', ceros:'no', nose:'no'};
   e.niv.padron = dePadron[e.padron] || 'no';
   e.niv.avisos = deAvisos[e.avisos] || 'no';
+  /* La persona física no designa Representante: cumple ella misma (Ley art. 20).
+     No se le pregunta y no cuenta como faltante. */
+  if(e.tipoPersona==='fisica') Object.keys(NO_APLICA_PF).forEach(k=>{ e.niv[k]='si'; });
+  e.iguales=Math.max(1, Math.round(+e.iguales||1));
   ['manual','rep','exp','ebr','matriz','cap'].forEach(k=>{ e[k]=pct(e,k)>=.7; });
   e.nivel=nivelDe(e).id;
   return e;
@@ -1298,6 +1358,9 @@ function riesgoDe(e,g){
 function diagnostico(e){
   return CONFIG.obligaciones.map(o=>{
     const futura=!!o.desde, v=pct(e,o.id), es=escalaDe(v,futura);
+    if(e.tipoPersona==='fisica'&&NO_APLICA_PF[o.id])
+      return {id:o.id, q:o.q, corto:o.corto||o.q, f:o.f+' · '+NO_APLICA_PF[o.id],
+              desde:o.desde||'Vigente hoy', ord:o.ord||0, futura, estado:'No aplica', clase:'e-si', pct:1};
     return {id:o.id, q:o.q, corto:o.corto||o.q, f:o.f, desde:o.desde||'Vigente hoy', ord:o.ord||0, futura,
             estado:es.t, clase:es.c, pct:v};
   });
@@ -1306,7 +1369,7 @@ function diagnostico(e){
 function pintarDiagnostico(){
   const g=grupo();
   $('diagnostico').innerHTML=ENT.map((e,i)=>{
-    const nom=e.nombre||('Entidad '+(i+1));
+    const nom=nomEnt(e,i);
     if(e.actividad==='ninguna'||e.sabe!=='si')
       return `<div class="diag"><div class="dh"><span class="tit">${nom}</span></div>
         <div class="resumen">Esta entidad no se diagnostica todavía: o no actualiza supuestos de actividad
@@ -1383,7 +1446,7 @@ function recEntidad(e,g){
 
   const mal=['tarde30m','parcial','ninguno','ceros','nose'].includes(e.avisos);
   if(mal){
-    si('reconstruccion','Hay avisos no presentados o con retraso relevante. Se reconstruyen cinco ejercicios: las facultades de comprobación son de cinco años.','R4 · Ley art. 53 fr. III y art. 54');
+    si('reconstruccion','Hay avisos no presentados o con retraso relevante. Se reconstruyen cinco ejercicios: la verificación abarca los cinco años anteriores a la visita.','R4 · Ley art. 36 (la verificación abarca los cinco años anteriores a la visita) · Ley art. 53 fr. III y art. 54');
     si('art55','La autocorrección opera al cien por ciento la primera vez; después es "hasta el cincuenta por ciento" y no garantizado.','Ley art. 55 (autorregularización espontánea) · Reglamento art. 55 Bis (el escrito)');
     if(e.avisosReg>0) si('avisosExt','Hay avisos que preparar y cargar.','Por bloque de 1,000');
     if(e.avisos==='ceros') A.push({t:'Hallazgo crítico en '+(e.nombre||'esta entidad'),d:'Avisos en ceros operando sobre umbral. Va nombrado y cuantificado en el resumen ejecutivo.'});
@@ -1401,11 +1464,13 @@ function recEntidad(e,g){
     no('auditoria','Cobrar la auditoría integral aquí sería cotizar trabajo que no existe.','R5 · N1');
   }else si('auditoria','Padrón intragrupo pero volumen alto: hay operación suficiente que revisar.','R5 corregida');
 
-  if(!e.exp&&terceros) si('expedientes','Hay clientes terceros sin expediente integrado.','RCG art. 12 (expediente único) y art. 21 (verificación anual) · Ley art. 18 fr. IV · conservación 5 años');
+  if(!e.exp&&terceros) si('expedientes','Hay clientes terceros sin expediente integrado.','RCG art. 12 (expediente único) y art. 21 (verificación anual) · Ley art. 18 fr. IV · conservación 10 años');
   else if(!terceros) no('expedientes','Padrón intragrupo: no hay expedientes de terceros que integrar.','R5');
   /* El del cliente no se cotiza aparte: va dentro del Manual. El del registro sí,
      y obliga aunque la empresa no sea sujeto obligado. */
-  if(pct(e,'bcRegistro')<1)
+  if(e.tipoPersona==='fisica')
+    no('bcRegistro','Es persona física: el Capítulo IV Bis obliga a las sociedades mercantiles, no a ella.','Ley arts. 33 Bis y 33 Ter');
+  else if(pct(e,'bcRegistro')<1)
     si('bcRegistro','No tienen armado el expediente de beneficiario controlador que pide el Capítulo IV Bis. Obliga a toda sociedad mercantil, sea o no sujeto obligado, y la multa va de 2,000 a 10,000 UMA. El sistema para registrarlo todavía no abre: por eso vale tener el expediente listo y la constancia fechada.','Ley arts. 33 Bis y 33 Ter · vigente desde julio de 2025 · lineamientos sin publicar');
   /* Nota, no servicio: el id '*' pinta la explicación sin renglón de precio. */
   if(pct(e,'bc')<1)
@@ -1531,7 +1596,7 @@ function recGrupo(ents,g){
   if(g.riesgoBanc==='bloqueo') A.push({t:'Prioridad invertida',d:'Con cuentas bloqueadas, la defensa bancaria va antes que el plan de cumplimiento. Ese servicio se cotiza aparte, fuera de esta herramienta.'});
   if(g.conting!=='c0') A.push({t:'Escalar a dirección',d:'Hay acto de autoridad. No se cotiza de rutina: no hay factor automático, la propuesta se arma a la medida.'});
   if(g.fideicomiso!=='no') A.push({t:'Escalar a dirección',d:'Hay fideicomiso involucrado.'});
-  if(ents.length>2) A.push({t:'Escalar a dirección',d:'Más de dos entidades.'});
+  if(cuentaEmpresas(ents)>2) A.push({t:'Escalar a dirección',d:'Más de dos entidades'+(cuentaEmpresas(ents)!==ents.length?' (contando las empresas iguales)':'')+'.'});
   if(g.urgente) A.push({t:'Urgencia de diez días',d:'El honorario va al doble. Confirma que el equipo puede entregar en ese plazo antes de mandarla.'});
   if(g.postura==='minimo'&&ob.some(e=>!e.manual||!e.ebr)) A.push({t:'Cuidado con sobredimensionar',d:'Postura de mínimo con brecha grande: alcance y precio cerrados, sin iguala.'});
   if(ents.some(e=>e.avisos==='nose'||e.padron==='nose')) A.push({t:'Faltan datos',d:'Hay respuestas en "no sé". El motor las trató como riesgo; la cotización no es firme hasta confirmarlas.'});
@@ -1580,7 +1645,26 @@ function tramoCap(g){
   return CONFIG.tramosCapacitacion.find(x=>t>=x.min)||CONFIG.tramosCapacitacion.slice(-1)[0];
 }
 
-const sinDato=(s,campo)=>({imp:0, txt:'falta un dato', s, falta:FALTANTES[campo]||'un dato'});
+const sinDato=(s,campo)=>({imp:0, txt:'falta un dato', s, falta:FALTANTES[campo]||'un dato', campo});
+
+/* ── LA ALERTA TE LLEVA AL CAMPO ──
+   Antes decía «abajo, en Condiciones comerciales» y nadie encontraba el
+   campo: había dos bloques y el de personas quedaba debajo de un recuadro
+   largo. Ahora cada renglón de la alerta es un enlace que baja al campo,
+   lo resalta y le pone el cursor. Sirve igual para los datos de la empresa
+   (clientes, avisos, ejercicios): los busca en la tarjeta que corresponde. */
+function irA(campo, ent){
+  let el=$('g-'+campo);
+  if(!el && ent!==undefined && ent!==null && ent!=='')
+    el=document.querySelector(`[data-i="${ent}"][data-k="${campo}"]`);
+  if(!el) return false;
+  const caja=el.closest('div')||el;
+  caja.scrollIntoView({behavior:'smooth',block:'center'});
+  caja.classList.remove('resaltado'); void caja.offsetWidth; caja.classList.add('resaltado');
+  setTimeout(()=>caja.classList.remove('resaltado'),3000);
+  if(!el.disabled) setTimeout(()=>el.focus({preventScroll:true}),350);
+  return false;
+}
 
 function calcular(id,ctx,g,idxEnt,totalEnt){
   const s=CONFIG.servicios[id]; if(!s) return null;
@@ -1708,6 +1792,30 @@ function calcular(id,ctx,g,idxEnt,totalEnt){
   return{imp,txt,s};
 }
 
+/* ── UNA TARJETA, VARIAS EMPRESAS IGUALES ──
+   La primera empresa de la tarjeta se cotiza como siempre, con su posición
+   en el grupo. Las copias se cotizan sobre el precio COMPLETO de la primera
+   (sin descuento por posición) con el escalonado de CONFIG.entidadesIguales.
+   La auditoría conserva su propio descuento por empresa adicional. Lo que se
+   cotiza para todo el grupo no pasa por aquí. */
+function calcularCard(id,ctx,g,pos,nOb){
+  const c0=calcular(id,ctx,g,pos,nOb);
+  const k=Math.max(1,Math.round(+ctx.iguales||1));
+  if(!c0||c0.falta||k<=1||c0.s.ambito!=='entidad') return c0;
+  const lleno=calcular(id,ctx,g,0,nOb);
+  const esAud=c0.s.base==='auditoria'||c0.s.base==='auditoriaAvisos';
+  let extra=0; const tramos={};
+  for(let j=2;j<=k;j++){
+    const f=esAud ? 1-CONFIG.entidadAdicional.auditoria
+      : (CONFIG.entidadesIguales.find(x=>j<=x.hasta)||CONFIG.entidadesIguales.slice(-1)[0]).f;
+    extra+=lleno.imp*f; tramos[f]=(tramos[f]||0)+1;
+  }
+  const detalle=Object.entries(tramos).sort((a,b)=>b[0]-a[0])
+    .map(([f,n])=>n+' al '+Math.round(f*100)+'%').join(' + ');
+  return {...c0, imp:c0.imp+extra, k,
+    txt:c0.txt+' · ×'+k+' iguales: la 1ª completa + '+detalle};
+}
+
 /* ══ INTERFAZ ══ */
 /* La versión se escribe sola, para que nunca vuelva a quedarse vieja. */
 $('gateVer').textContent=`versión ${CONFIG.version} · ${CONFIG.versionFecha}`;
@@ -1729,9 +1837,21 @@ function pintarEntidades(){
   $('entidades').innerHTML=ENT.map((e,i)=>`
   <div class="card ent">
     <div class="entHead"><div class="tit">${e.nombre||('Entidad '+(i+1))}</div>
+      <span class="tipoP">${e.tipoPersona==='fisica'?'Persona física':'Persona moral'}</span>
+      ${(e.iguales||1)>1?`<span class="iguales">×${e.iguales} iguales</span>`:''}
+      <span style="flex:1"></span>
+      <button class="b3 noprint" onclick="duplicar(${i})" title="Crea otra tarjeta con las mismas respuestas, para cambiarle solo lo que sea distinto">Duplicar</button>
       ${ENT.length>1?`<button class="b3 noprint" onclick="quitar(${i})">Quitar</button>`:''}</div>
     <div class="grid">
-      <div><label>Razón social</label><input type="text" data-i="${i}" data-k="nombre" value="${e.nombre}"></div>
+      <div><label>Razón social<span class="fund">Si la tarjeta vale por varias, pon el nombre del grupo de empresas o de la primera</span></label>
+        <input type="text" data-i="${i}" data-k="nombre" value="${e.nombre}"></div>
+      <div><label>¿Persona moral o física?</label>
+        <select data-i="${i}" data-k="tipoPersona">
+          <option value="moral"${e.tipoPersona!=='fisica'?' selected':''}>Persona moral</option>
+          <option value="fisica"${e.tipoPersona==='fisica'?' selected':''}>Persona física · cumple personalmente, sin Representante</option></select></div>
+      <div><label>¿Cuántas empresas hay con este mismo perfil?
+        <span class="fund">Misma actividad, mismas respuestas. La 1ª completa, la 2ª y 3ª al 50%, de la 4ª en adelante al 25%. Morales y físicas, en tarjetas separadas</span></label>
+        <input type="number" min="1" max="200" data-i="${i}" data-k="iguales" value="${e.iguales||1}"></div>
       <div><label>¿Sabe que realiza actividad vulnerable?</label>
         <select data-i="${i}" data-k="sabe">
           <option value="si"${e.sabe==='si'?' selected':''}>Sí, lo tiene claro</option>
@@ -1811,10 +1931,10 @@ function pintarEntidades(){
     </div></details>
 
     <div class="grupo-tit">Eje A · Brecha normativa
-      <span class="ejeq">Ocho preguntas. El padrón y los avisos ya se contestaron arriba.</span></div>
+      <span class="ejeq">${e.tipoPersona==='fisica'?'Seis preguntas: a la persona física no le aplican el Representante ni el registro de beneficiario controlador.':'Ocho preguntas.'} El padrón y los avisos ya se contestaron arriba.</span></div>
     <p class="hint" style="margin:-4px 0 10px">Contesta lo que sepas hoy. Si algo está a medias, ponlo a medias:
        eso ya cambia el diagnóstico y cambia el precio.</p>
-    ${CONFIG.obligaciones.filter(o=>!CALCULADAS.includes(o.id)).map(o=>{
+    ${CONFIG.obligaciones.filter(o=>!CALCULADAS.includes(o.id)&&!(e.tipoPersona==='fisica'&&NO_APLICA_PF[o.id])).map(o=>{
       const v=pct(e,o.id), es=escalaDe(v,!!o.desde);
       return `<div class="obq">
         <div class="obqh">
@@ -1830,15 +1950,26 @@ function pintarEntidades(){
     <div class="nota">Nivel de cumplimiento calculado: <b>${nivelDe(e).n.nombre}</b> ·
       muestra que se revisaría: <b>${muestraDe(e)}</b> de <b>${e.clientes||0}</b> expediente${(e.clientes||0)===1?'':'s'}</div>
   </div>`).join('');
+  marcarPropuestos();
 }
 
 function agregar(){ENT.push(nuevaEnt());pintarEntidades();render();}
-function quitar(i){ENT.splice(i,1);pintarEntidades();render();}
+/* Duplicar copia las respuestas a una tarjeta nueva, al final, para cambiarle
+   solo lo distinto. Si las empresas son idénticas, no dupliques: sube el número
+   de «¿cuántas hay con este mismo perfil?» en la misma tarjeta. */
+function duplicar(i){
+  const c=JSON.parse(JSON.stringify(ENT[i]));
+  c.nombre=(ENT[i].nombre||('Entidad '+(i+1)))+' (copia)'; c.iguales=1;
+  ENT.push(c); pintarEntidades(); render();
+  const t=document.querySelectorAll('#entidades .ent'); const u=t[t.length-1];
+  if(u) u.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function quitar(i){ENT.splice(i,1);PROP.e.splice(i,1);pintarEntidades();render();}
 
 function filaRec(r,clase,ctx,g,pref,idx,tot){
   if(r.id==='*') return `<div class="rec no"><div class="cuerpo"><div class="por">${r.por}</div>${r.regla?`<div class="regla">${r.regla}</div>`:''}</div></div>`;
   const s=CONFIG.servicios[r.id]; if(!s) return '';
-  const key=pref+'|'+r.id, c=calcular(r.id,ctx,g,idx,tot);
+  const key=pref+'|'+r.id, c=calcularCard(r.id,ctx,g,idx,tot);
   const on=OV[key]!==undefined?OV[key]:(clase==='si');
   /* Las tres categorías llevan casilla. Recomendado viene palomeado; a considerar
      y no se recomienda vienen apagados. Así el ejecutivo puede agregar algo que el
@@ -1850,7 +1981,7 @@ function filaRec(r,clase,ctx,g,pref,idx,tot){
       ${s.propuesto?'<span class="flag"> ◆ propuesto, sin autorizar</span>':''}</div>
       <div class="por">${r.por}</div>${r.regla?`<div class="regla">${r.regla}</div>`:''}
       ${clase==='no'&&on?'<div class="forzado">Agregado a mano contra la recomendación del motor. Justifícalo con dirección antes de mandarla.</div>':''}</div>
-    ${c&&!c.falta?`<div class="imp">${clase==='no'?'<span class="siSola">si se cotizara sola</span>':''}${mx(c.imp)}</div>`:''}
+    ${c&&!c.falta?`<div class="imp">${clase==='no'?'<span class="siSola">si se cotizara sola</span>':''}${mx(c.imp)}${c.k>1?`<span class="siSola">por las ${c.k} empresas</span>`:''}</div>`:''}
     ${c&&c.falta&&on?`<div class="imp falta">falta capturar<span>${c.falta}</span></div>`:''}</div>`;
 }
 
@@ -1896,10 +2027,10 @@ function render(){
   /* Para los escalones cuenta el número de entidades que de verdad se
      cotizan. Una holding capturada solo para dejar constancia de que NO
      realiza actividad vulnerable no debe mover el precio de las demás. */
-  const nOb=Math.max(1, ob.length);
+  const nOb=Math.max(1, cuentaEmpresas(ob));
   let html='';
   porEnt.forEach((x,i)=>{
-    const nom=x.e.nombre||('Entidad '+(i+1));
+    const nom=nomEnt(x.e,i);
     html+=`<div class="card"><div class="entHead"><div class="tit">${nom}</div>
       <span class="riesgo ${x.r.riesgo.c}">Nivel de riesgo: ${x.r.riesgo.n}</span></div>`;
     const ctx={...x.e};
@@ -1928,19 +2059,19 @@ function render(){
     const lista=[...x.r.R.map(r=>({r,def:true})),...x.r.O.map(r=>({r,def:false})),...x.r.N.map(r=>({r,def:false}))]
       .filter(o=>o.r.id!=='*'&&activo('e'+i,o.r,o.def));
     if(!lista.length) return;
-    filas.push(`<tr class="sec"><td colspan="3">${x.e.nombre||('Entidad '+(i+1))} — riesgo ${x.r.riesgo.n}</td></tr>`);
+    filas.push(`<tr class="sec"><td colspan="3">${nomEnt(x.e,i)} — riesgo ${x.r.riesgo.n}</td></tr>`);
     const v=new Set(); let subEnt=0, filasEnt=0;
     lista.forEach(({r})=>{if(v.has(r.id))return; v.add(r.id);
-      const c=calcular(r.id,ctx,g,i,nOb); if(!c)return;
-      if(c.falta){ pendientes.push(c); filas.push(filaFalta(c)); return; }
+      const c=calcularCard(r.id,ctx,g,i,nOb); if(!c)return;
+      if(c.falta){ pendientes.push({...c, ent:i}); filas.push(filaFalta(c)); return; }
       sub+=c.imp; subEnt+=c.imp; filasEnt++;
       if(r.id==='iguala'||r.id==='igualaArranque') hayIguala=true;
       filas.push(`<tr><td>${c.s.nombre}</td><td>${c.txt}</td><td class="num">${mx(c.imp)}</td></tr>`);});
     /* Cada empresa cierra con su propio subtotal: es lo que se le enseña al
        dueño cuando pregunta "¿y esta cuánto me cuesta?". */
-    if(filasEnt) filas.push(`<tr class="subEnt"><td colspan="2">Subtotal ${x.e.nombre||('Entidad '+(i+1))}</td>
+    if(filasEnt) filas.push(`<tr class="subEnt"><td colspan="2">Subtotal ${nomEnt(x.e,i)}</td>
       <td class="num">${mx(subEnt)}</td></tr>`);
-    porEmpresa.push({nombre:x.e.nombre||('Entidad '+(i+1)), sub:subEnt});
+    porEmpresa.push({nombre:nomEnt(x.e,i), sub:subEnt});
   });
   const listaG=[...rg.R.map(r=>({r,def:true})),...rg.O.map(r=>({r,def:false})),...rg.N.map(r=>({r,def:false}))]
     .filter(o=>o.r.id!=='*'&&activo('g',o.r,o.def));
@@ -1982,13 +2113,13 @@ function render(){
 
   /* Lo que falta capturar para poder cotizar lo que ya está palomeado. */
   if(pendientes.length){
-    const l=pendientes.map(c=>`<li><b>${c.s.nombre}</b> — falta capturar ${c.falta}</li>`).join('');
+    const l=pendientes.map(c=>`<li><a href="#" class="irA" onclick="return irA('${c.campo||''}','${c.ent??''}')"><b>${c.s.nombre}</b> — falta capturar ${c.falta} <span class="ir">ir al campo →</span></a></li>`).join('');
     $('alertas').innerHTML =
       `<div class="alerta critico"><b>Hay ${pendientes.length} servicio${pendientes.length===1?'':'s'} palomeado${
         pendientes.length===1?'':'s'} que todavía no se puede${pendientes.length===1?'':'n'} cotizar.</b>
         Aparece${pendientes.length===1?'':'n'} en el desglose marcado${pendientes.length===1?'':'s'} en ámbar y
-        <b>no suma${pendientes.length===1?'':'n'} al total</b>. Los datos que faltan se capturan abajo, en
-        <b>Condiciones comerciales</b>.<ul class="pend">${l}</ul></div>` + $('alertas').innerHTML;
+        <b>no suma${pendientes.length===1?'':'n'} al total</b>. Da clic en cada renglón y te lleva al campo
+        que falta.<ul class="pend">${l}</ul></div>` + $('alertas').innerHTML;
   }
 
   /* Aviso de traslape: recorre la tabla CONFIG.incompatibles y avisa si dos
@@ -2018,6 +2149,7 @@ function render(){
 
 const handler=ev=>{
   const t=ev.target;
+  revisadoPorHumano(t);
   if(t.dataset.ov!==undefined){OV[t.dataset.ov]=t.checked;render();return;}
   if(t.dataset.n!==undefined){
     const i=+t.dataset.i; ENT[i].niv[t.dataset.n]=t.value;
@@ -2030,6 +2162,8 @@ const handler=ev=>{
     const i=+t.dataset.i,k=t.dataset.k;
     ENT[i][k]=t.type==='checkbox'?t.checked:(t.type==='number'?+t.value:t.value);
     if(['clientes','nivel'].includes(k)) pintarEntidades();
+    /* Solo al soltar el campo: repintar mientras se escribe «12» se come el foco en el «1». */
+    if(['iguales','tipoPersona'].includes(k)&&ev.type==='change'){ sincronizar(ENT[i]); pintarEntidades(); }
     /* El encabezado de la tarjeta sigue el nombre mientras se escribe. */
     if(k==='nombre'){ const h=t.closest('.ent'); if(h) h.querySelector('.tit').textContent=t.value||('Entidad '+(i+1)); }
   }
@@ -2091,7 +2225,7 @@ const GUION=[
     porq:'"¿Tiene manual?" no sirve de nada: el manual tiene catorce contenidos mínimos. Uno que existe pero no trae clasificación de riesgo ni perfil transaccional está a medias, y así hay que capturarlo.',
     oido:'Si dicen que sí, pide verlo. La diferencia entre "cumple" y "cumple mayoritariamente" es lo que se vende.'},
    {p:'¿Cuántos ejercicios llevan sin revisar?',
-    porq:'Las facultades de comprobación son de cinco años. Corregir solo el ejercicio en curso deja descubierto el resto y gasta el beneficio de la autocorrección en el año equivocado.',
+    porq:'La autoridad solo puede revisar los cinco años anteriores al inicio de la visita (Ley art. 36). Corregir solo el ejercicio en curso deja descubierto el resto y gasta el beneficio de la autocorrección en el año equivocado.',
     oido:'Si no lo saben, márcalo como "no sé" en la herramienta. Un cero capturado por desconocimiento hace que la cotización salga en firme cuando no debería.'}]}]},
 
  {t:'Eje B · De qué tamaño es', eje:'Dimensiona el trabajo. De aquí salen los escalones del precio, así que estas son las que no se pueden dejar en blanco.',
@@ -2394,6 +2528,14 @@ const GUIA_HTML = `
 
  <h2>El orden de la captura</h2>
  <div class="bloque">
+  <div class="preg">0 · Si tienes la transcripción, empieza por ahí</div>
+  <p class="porq">Pégala en el recuadro de arriba y da clic en «Llenar la captura desde la transcripción».
+    La herramienta propone el cliente, las empresas y el Eje A. Lo que propone queda <b>en ámbar</b> con la
+    frase de la junta de donde lo sacó (pasa el cursor encima). Lo que la junta no dice queda en
+    «No sé todavía» y aparece en la lista de preguntas para el cliente, que se copia con un botón.</p>
+  <p class="oido"><b>Propone, no decide.</b> Revisa cada campo ámbar: al cambiarlo o confirmarlo deja de estar
+    en ámbar. La cotización guarda cuántos campos propuso la herramienta y cuántos corregiste: así se calibra.</p>
+
   <div class="preg">1 · El cliente</div>
   <p class="porq">Nombre, contacto con correo, quién cotiza y quién va a liderar el proyecto. Debajo, ocho
     preguntas de postura y capacidad. No miden cumplimiento: deciden qué clase de propuesta va a leer el
@@ -2402,7 +2544,12 @@ const GUIA_HTML = `
     y no se cotiza de rutina.</p>
 
   <div class="preg">2 · Entidades</div>
-  <p class="porq">Una tarjeta por empresa. Arriba el Eje B, que dimensiona el trabajo; abajo el Eje A,
+  <p class="porq">Una tarjeta por empresa, <b>salvo que sean iguales</b>: si hay seis personas morales con el
+    mismo perfil, es una tarjeta con «¿cuántas hay con este mismo perfil?» en 6. La primera se cobra completa,
+    la segunda y la tercera al 50% y de la cuarta en adelante al 25%. Morales y físicas van en tarjetas
+    separadas: la persona física no designa Representante. Si son parecidas pero no iguales, usa
+    «Duplicar» y cámbiale solo lo distinto.</p>
+  <p class="porq"> Arriba el Eje B, que dimensiona el trabajo; abajo el Eje A,
     que son ocho preguntas, una por obligación. El padrón y los avisos ya se contestaron arriba.</p>
   <p class="oido"><b>Dos cosas que hay que hacer bien.</b> «A medias» es respuesta válida y cambia el
     diagnóstico. Y las casillas de <b>«No sé todavía»</b> se usan: un cero capturado por desconocimiento
@@ -2736,6 +2883,7 @@ async function usarComoBase(folio){
 
     /* Las entidades vuelven tal cual se capturaron. Se quitan los campos que el
        motor calcula solo, para que se recalculen con los precios de hoy. */
+    PROP={g:{},e:[],usado:false,total:0,corregidos:0};
     ENT = (x.entidades||[]).map(e=>{
       const c={...e}; delete c.riesgo; delete c.muestra;
       const base=nuevaEnt();
@@ -2877,7 +3025,11 @@ function armarRegistro(){
     partidas:filas,
     totales:{ subtotal:sub, texto:$('tfoot').innerText.trim() },
     alertas:$('alertas').innerText.trim(),
-    propuesta:ULTIMA_PROPUESTA||null
+    propuesta:ULTIMA_PROPUESTA||null,
+    /* Para calibrar la lectura de la transcripción: cuántos campos propuso,
+       cuántos corrigió la persona y cuántos se guardaron sin tocar. */
+    origenCaptura:{desdeTranscripcion:PROP.usado, propuestos:PROP.total,
+      corregidos:PROP.corregidos, sinRevisar:contarPropuestos()}
   };
 }
 
@@ -2893,7 +3045,7 @@ async function guardar(){
       'Ojo: hay '+pend.length+' servicio'+(pend.length===1?'':'s')+' palomeado'+(pend.length===1?'':'s')+
       ' que todavía no se puede'+(pend.length===1?'':'n')+' cotizar y NO está'+(pend.length===1?'':'n')+
       ' en el total:\n\n  · '+pend.join('\n  · ')+
-      '\n\nLos datos que faltan se capturan abajo, en Condiciones comerciales.\n\n'+
+      '\n\nEn la alerta roja de la sección 4, cada renglón te lleva al campo que falta.\n\n'+
       '¿Guardar así de todos modos?')) return;
 
   btn.disabled=true; est.textContent='Guardando…';
@@ -2945,14 +3097,17 @@ function insumosPropuesta(){
     /* Las fracciones del artículo 17, ya resueltas por entidad. */
     actividades:ENT.filter(e=>e.actividad!=='ninguna'&&e.sabe==='si').map(e=>{
       const a=CONFIG.actividades.find(x=>x.id===e.actividad)||{};
-      return {entidad:e.nombre||'la entidad', actividad:a.nombre||'',
+      return {entidad:e.nombre||'la entidad',
+              tipoPersona:e.tipoPersona==='fisica'?'persona física':'persona moral',
+              empresasConEstePerfil:e.iguales||1,
+              actividad:a.nombre||'',
               fraccion:a.fr?('artículo 17, fracción '+a.fr+' de la Ley'):'[POR CONFIRMAR]',
               actividadesAdicionales:e.actExtra||0,
               soloGrupo:e.tipoClientes==='grupo'};}),
     contexto:$('p-desc').value.trim(),
     arquetipo:$('arquetipo').innerText.trim(),
     diagnostico:ENT.filter(e=>e.actividad!=='ninguna'&&e.sabe==='si')
-      .map(e=>({entidad:e.nombre||'la entidad', riesgo:riesgoDe(e,g).n,
+      .map(e=>({entidad:e.nombre||'la entidad', empresasConEstePerfil:e.iguales||1, riesgo:riesgoDe(e,g).n,
         obligaciones:diagnostico(e).map(x=>({obligacion:x.q, fundamento:x.f,
           exigibleDesde:x.desde, estado:x.estado}))})),
     servicios,
@@ -3270,7 +3425,7 @@ function armarInforme(){
 
   const bloque=e=>{
     const d=diagnostico(e), niv=nivelDe(e), pc=Math.round(niv.v*100);
-    const nom=e.nombre||'La entidad';
+    const nom=(e.nombre||'La entidad')+((e.iguales||1)>1?' · '+e.iguales+(e.tipoPersona==='fisica'?' personas físicas':' empresas')+' con el mismo perfil':'');
     const act=buscar(CONFIG.actividades,e.actividad).nombre;
     const conFalta=d.filter(x=>!x.futura&&x.pct<1).length;
     const alDia=d.filter(x=>!x.futura).length-conFalta;
@@ -3507,7 +3662,241 @@ function propuestaPdf(){
 }
 $('btnPropPdf').onclick=propuestaPdf;
 $('btnPropuesta').onclick=redactar;
+$('btnCaptura').onclick=capturaDesdeTranscripcion;
 $('btnWord').onclick=descargarWord;
+
+
+/* ══════════════════════════════════════════════════════════════
+   LLENAR LA CAPTURA DESDE LA TRANSCRIPCIÓN
+
+   Pasar una junta al formulario tardaba más que armar la propuesta a mano:
+   la junta va en un orden, el formulario en otro, y el formulario pide datos
+   que la junta no trae. Aquí se pega la transcripción y el modelo PROPONE la
+   captura. No decide: todo lo que llena queda en ámbar con la frase de donde
+   salió, y lo que no está en la junta se queda en «No sé todavía» y se vuelve
+   pregunta para el cliente. Nunca un cero por no saber.
+
+   Usa la misma función del servidor que redacta la propuesta (/api/propuesta),
+   con modo 'captura'. La llave sigue allá, nunca en esta página.
+
+   El esquema se arma aquí, con las opciones que de verdad tiene el formulario,
+   para que el modelo no pueda devolver un valor que la pantalla no conoce.
+   Si se agrega una opción a una tarjeta de empresa, hay que agregarla también
+   en ESQ_ENT, abajo.
+   ══════════════════════════════════════════════════════════════ */
+const ESQ_ENT={
+  nombre:{tipo:'texto', q:'Razón social'},
+  tipoPersona:{q:'¿Persona moral o física?', ops:{moral:'Persona moral', fisica:'Persona física'}},
+  iguales:{tipo:'numero', q:'Cuántas empresas hay con EXACTAMENTE este mismo perfil (misma actividad, mismo tipo de persona, mismas respuestas). 1 si es una sola'},
+  sabe:{q:'¿Sabe que realiza actividad vulnerable?', ops:{si:'Sí, lo tiene claro', duda:'Tiene dudas del encuadre'}},
+  actividad:{q:'Actividad vulnerable principal', ops:null},     // se llena con CONFIG.actividades
+  actExtra:{tipo:'numero', q:'Cuántas actividades vulnerables ADICIONALES a la principal realiza'},
+  padron:{q:'¿Está en el padrón del SAT?', ops:{si:'Sí, actualizado', desact:'Sí, desactualizado', no:'No', nose:'No sé'}},
+  avisos:{q:'¿Cómo va con los avisos?', ops:{ok:'Todos y a tiempo', tarde30:'Con retraso menor a 30 días', tarde30m:'Con retraso mayor a 30 días', parcial:'Solo algunos', ninguno:'Ninguno', ceros:'En ceros, operando sobre umbral', nose:'No sé'}},
+  avisosAnio:{tipo:'numero', q:'Avisos al año: uno por OPERACIÓN reportable, no uno por mes presentado. Si presentan mes con mes sin operaciones que reportar, es 0'},
+  clientes:{tipo:'numero', q:'Clientes activos'},
+  ejercicios:{tipo:'numero', q:'Ejercicios sin revisar (0 a 5)'},
+  avisosReg:{tipo:'numero', q:'Avisos por regularizar'},
+  tipoClientes:{q:'¿A quién le vende o le renta?', ops:{terceros:'A terceros', ambos:'A terceros y a su grupo', grupo:'Solo a su grupo'}},
+  rEfectivo:{tipo:'bool', q:'¿Hay efectivo en la operación?'},
+  rDivisas:{tipo:'bool', q:'¿Hay divisas o comercio exterior?'},
+  rVirtuales:{tipo:'bool', q:'¿Hay activos virtuales?'},
+  paises:{q:'¿Opera en otros países o es parte de un grupo internacional?', ops:{no:'No, solo México', opera:'Sí, opera en otros países', grupo:'Sí, es parte de un grupo internacional', nose:'No sé todavía'}},
+  estados:{tipo:'numero', q:'¿En cuántos estados opera?'},
+  control:{q:'¿Cómo lleva el control?', ops:{hoja:'Hoja de cálculo', sistema:'Un sistema', nada:'No lleva control'}},
+  opsIdent:{q:'Operaciones sobre umbral de identificación al mes', ops:{a:'1 a 10', b:'11 a 100', c:'101 a 1,000', d:'Más de 1,000'}},
+  opsAviso:{q:'Operaciones sobre umbral de aviso al mes', ops:{a:'1 a 10', b:'11 a 100', c:'101 a 1,000', d:'Más de 1,000'}}
+};
+/* Si la junta no dice el número, estos quedan en «No sé todavía». */
+const NS_DE={avisosAnio:'nsAvisos', clientes:'nsClientes', ejercicios:'nsEjercicios', avisosReg:'nsAvisosReg'};
+/* Y estos, si la junta no los dice, no pueden quedarse en el valor de fábrica
+   («Sí, actualizado», «Todos y a tiempo»): la cotización saldría como si el
+   cliente estuviera al corriente. Quedan en «No sé» y el motor lo avisa. */
+const NS_SEL={padron:'nose', avisos:'nose', paises:'nose'};
+const CAMPOS_GRUPO=['g-nombre','g-contacto','g-correo','g-tel','g-quien','g-postura','g-conting','g-fideicomiso',
+  'g-riesgoBanc','g-repTiempo','g-presupuesto','g-atencion','g-iniciativa',
+  'g-nPersonal','g-nCumplimiento','g-nDireccion','g-nComercial','g-nIngreso','g-nCertUIF'];
+const escA=t=>String(t??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function esquemaCaptura(){
+  const etiqueta=el=>{const l=el.closest('div')?.querySelector('label'); if(!l) return el.id;
+    const c=l.cloneNode(true); c.querySelectorAll('.fund').forEach(x=>x.remove()); return c.textContent.trim();};
+  const grupo={};
+  CAMPOS_GRUPO.forEach(id=>{const el=$(id); if(!el) return;
+    const d={q:etiqueta(el)};
+    if(el.tagName==='SELECT'){ d.ops={}; [...el.options].forEach(o=>d.ops[o.value]=o.textContent.trim()); }
+    else d.tipo=el.type==='number'?'numero':'texto';
+    grupo[id]=d;});
+  const ent=JSON.parse(JSON.stringify(ESQ_ENT));
+  ent.actividad.ops={}; CONFIG.actividades.forEach(a=>ent.actividad.ops[a.id]=a.nombre+(a.fr?' (art. 17 fr. '+a.fr+')':''));
+  const niv={};
+  CONFIG.obligaciones.filter(o=>!CALCULADAS.includes(o.id)).forEach(o=>{
+    niv[o.id]={q:o.q, ops:{no:'No tiene', parcial:'A medias', si:'Completo, según el cliente'}};});
+  return {grupo, entidad:ent, niv};
+}
+
+/* Lee el flujo del servidor y devuelve el texto completo. */
+async function leerFlujo(r, alAvanzar){
+  const lector=r.body.getReader(), dec=new TextDecoder();
+  let texto='', resto='', truncada=false;
+  while(true){
+    const {done,value}=await lector.read(); if(done) break;
+    resto+=dec.decode(value,{stream:true});
+    const lineas=resto.split('\n'); resto=lineas.pop();
+    for(const linea of lineas){
+      if(!linea.startsWith('data:')) continue;
+      const crudo=linea.slice(5).trim(); if(!crudo||crudo==='[DONE]') continue;
+      try{ const ev=JSON.parse(crudo);
+        if(ev.type==='content_block_delta'&&ev.delta&&ev.delta.text) texto+=ev.delta.text;
+        if(ev.type==='message_delta'&&ev.delta&&ev.delta.stop_reason==='max_tokens') truncada=true;
+        if(ev.type==='error'&&ev.error) throw new Error(ev.error.message||'error de la API');
+      }catch(e){ if(e instanceof SyntaxError) continue; throw e; }
+    }
+    if(alAvanzar) alAvanzar(texto.length);
+  }
+  return {texto, truncada};
+}
+
+async function capturaDesdeTranscripcion(){
+  const est=$('estadoCaptura'), btn=$('btnCaptura'), txt=$('t-transc').value.trim();
+  if(!txt){ est.textContent='Primero pega la transcripción o tus notas.'; return; }
+  if(local){ est.textContent='En modo local no se puede: entra por la dirección en línea.'; return; }
+  if(!USUARIO){ est.textContent='Entra con tu correo primero.'; return; }
+  const yaHay=ENT.some(e=>e.nombre)||$('g-nombre').value.trim();
+  if(yaHay && !confirm('Esto reemplaza lo que ya está capturado en el cliente y en las empresas. ¿Seguir?')) return;
+
+  btn.disabled=true; $('resCaptura').innerHTML='';
+  est.textContent='Leyendo la junta. Tarda entre veinte segundos y un minuto…';
+  try{
+    const idToken=await USUARIO.getIdToken();
+    const r=await fetch('/api/propuesta',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({idToken, modo:'captura', datos:{esquema:esquemaCaptura(), transcripcion:txt,
+        fecha:new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})}})});
+    const tipo=r.headers.get('content-type')||'';
+    if(!r.ok||tipo.includes('application/json')){
+      let msj='código '+r.status;
+      if(tipo.includes('application/json')){const d=await r.json(); msj=(d.error||msj)+(d.detalle?' · '+d.detalle:'');}
+      est.textContent='No se pudo: '+msj; btn.disabled=false; return;
+    }
+    const {texto,truncada}=await leerFlujo(r, n=>{ est.textContent='Leyendo la junta… '+Math.round(n/100)/10+' mil caracteres de respuesta'; });
+    const a=texto.indexOf('{'), b=texto.lastIndexOf('}');
+    if(a<0||b<a) throw new Error('la respuesta no trae la captura'+(truncada?' (se cortó por largo)':''));
+    let d; try{ d=JSON.parse(texto.slice(a,b+1)); }
+    catch(e){ throw new Error('la captura vino incompleta'+(truncada?' porque se cortó por largo; prueba con la transcripción en dos partes':'')); }
+    aplicarCaptura(d);
+    if(!$('p-desc').value.trim()) $('p-desc').value=txt;   // la misma junta alimenta la propuesta
+    est.innerHTML='Listo. <b>Revisa lo que está en ámbar</b>: pasa el cursor sobre un campo para ver de qué frase salió. Al cambiarlo o confirmarlo deja de estar en ámbar.';
+  }catch(e){ est.textContent='No se pudo: '+e.message; }
+  btn.disabled=false;
+}
+
+function aplicarCaptura(d){
+  PROP={g:{},e:[],usado:true,total:0,corregidos:0};
+  const esq=esquemaCaptura();
+  const val=(def,x)=>{
+    if(!x||x.v===undefined||x.v===null||x.v==='') return undefined;
+    if(def.ops) return Object.prototype.hasOwnProperty.call(def.ops,String(x.v))?String(x.v):undefined;
+    if(def.tipo==='numero'){const n=Math.round(+x.v); return isFinite(n)&&n>=0?n:undefined;}
+    if(def.tipo==='bool') return x.v===true||x.v==='si'||x.v==='true';
+    return String(x.v);
+  };
+  /* El cliente */
+  Object.entries(d.grupo||{}).forEach(([id,x])=>{
+    const def=esq.grupo[id], el=$(id); if(!def||!el) return;
+    const v=val(def,x); if(v===undefined) return;
+    el.value=v; PROP.g[id]=x.cita||''; PROP.total++;
+  });
+  if($('g-contacto').value&&!destTocado) $('p-dest').value=$('g-contacto').value;
+  /* Las empresas */
+  const lista=(d.entidades||[]).length?d.entidades:[{}];
+  ENT=lista.map((x,i)=>{
+    const e=nuevaEnt(), pr={};
+    Object.entries(esq.entidad).forEach(([k,def])=>{
+      const v=val(def,x[k]); if(v===undefined) return;
+      e[k]=v; pr[k]=x[k].cita||''; PROP.total++;
+    });
+    Object.entries(NS_DE).forEach(([k,ns])=>{ if(pr[k]===undefined) e[ns]=true; });
+    Object.entries(NS_SEL).forEach(([k,v])=>{ if(pr[k]===undefined) e[k]=v; });
+    Object.entries(x.niv||{}).forEach(([id,y])=>{
+      const def=esq.niv[id]; if(!def) return; const v=val(def,y); if(v===undefined) return;
+      e.niv[id]=v; pr['niv.'+id]=y.cita||''; PROP.total++;
+    });
+    PROP.e[i]=pr; return sincronizar(e);
+  });
+  OV={}; DIAG={};
+  pintarEntidades(); marcarGrupo(); render();
+
+  /* Lo que el ejecutivo tiene que leer antes de cotizar. */
+  const faltanEje=ENT.map((e,i)=>{
+    const sin=CONFIG.obligaciones.filter(o=>!CALCULADAS.includes(o.id)&&!(e.tipoPersona==='fisica'&&NO_APLICA_PF[o.id])
+      &&PROP.e[i]['niv.'+o.id]===undefined).map(o=>o.corto||o.q);
+    return sin.length?`<li><b>${escA(nomEnt(e,i))}</b>: ${sin.map(escA).join(', ')}</li>`:'';}).join('');
+  const preg=(d.preguntas||[]).filter(Boolean);
+  const alertas=(d.alertas||[]).filter(Boolean);
+  $('resCaptura').innerHTML=`
+    ${d.resumen?`<p><b>El caso:</b> ${escA(d.resumen)}</p>`:''}
+    <p><b>${PROP.total}</b> datos propuestos en ${ENT.length} tarjeta${ENT.length===1?'':'s'}${
+      ENT.some(e=>e.iguales>1)?` (${cuentaEmpresas(ENT)} sujetos obligados, contando los iguales)`:''}.
+      Lo que la junta no dijo quedó en «No sé todavía»${ENT.some((e,i)=>PROP.e[i].padron===undefined||PROP.e[i].avisos===undefined)?', incluidos el padrón o los avisos: el motor los trata como riesgo hasta que se confirmen':''}.</p>
+    ${alertas.length?`<div class="alerta"><b>Para que lo sepas antes de cotizar.</b><ul class="pend">${alertas.map(t=>`<li>${escA(t)}</li>`).join('')}</ul></div>`:''}
+    ${faltanEje?`<p style="margin-bottom:2px"><b>Eje A sin dato en la junta</b> — quedó en «No tiene»; confírmalo:</p><ul class="pend">${faltanEje}</ul>`:''}
+    ${preg.length?`<p style="margin:10px 0 2px"><b>Lo que hay que preguntarle al cliente</b> · sirve tal cual como correo:</p>
+      <ol id="pregCaptura">${preg.map(t=>`<li>${escA(t)}</li>`).join('')}</ol>
+      <div class="btns" style="margin:6px 0 0"><button class="b2" onclick="copiarPreguntas()">Copiar las preguntas</button></div>`:''}`;
+}
+
+function copiarPreguntas(){
+  const t=[...document.querySelectorAll('#pregCaptura li')].map((li,i)=>(i+1)+'. '+li.textContent).join('\n');
+  try{ navigator.clipboard.writeText(t); $('estadoCaptura').textContent='Preguntas copiadas.'; }
+  catch(e){ $('estadoCaptura').textContent='No se pudo copiar; selecciónalas a mano.'; }
+}
+
+/* Pinta en ámbar lo propuesto y todavía sin revisar, con su cita. */
+function ponerCita(el, cita, destino){
+  el.classList.add('propuesto'); el.title=cita?('De la junta: «'+cita+'»'):'Propuesto desde la transcripción';
+  const donde=destino||el.closest('div'); if(!donde||donde.querySelector(':scope > .cita')) return;
+  if(cita){ const sp=document.createElement('span'); sp.className='cita'; sp.textContent='«'+cita+'»'; donde.appendChild(sp); }
+}
+function marcarGrupo(){
+  document.querySelectorAll('.card:not(.transc) .cita').forEach(x=>{ if(!x.closest('#entidades')) x.remove(); });
+  CAMPOS_GRUPO.forEach(id=>{const el=$(id); if(!el) return; el.classList.remove('propuesto'); el.removeAttribute('title');
+    if(PROP.g[id]!==undefined) ponerCita(el, PROP.g[id]);});
+}
+function marcarPropuestos(){
+  (PROP.e||[]).forEach((pr,i)=>{ if(!pr) return;
+    Object.entries(pr).forEach(([k,cita])=>{
+      if(k.startsWith('niv.')){
+        const id=k.slice(4), v=ENT[i]&&ENT[i].niv[id];
+        const inp=document.querySelector(`input[name="n${i}-${id}"][value="${v}"]`);
+        const lab=inp&&inp.closest('label'); if(lab) ponerCita(lab, cita, lab.closest('.obq'));
+      }else{
+        const el=document.querySelector(`[data-i="${i}"][data-k="${k}"]`);
+        if(el) ponerCita(el.type==='checkbox'?el.closest('label'):el, cita);
+      }
+    });
+  });
+}
+function contarPropuestos(){
+  return Object.keys(PROP.g).length+(PROP.e||[]).reduce((a,pr)=>a+(pr?Object.keys(pr).length:0),0);
+}
+/* En cuanto alguien toca un campo propuesto, ya lo revisó: deja de estar en ámbar. */
+function revisadoPorHumano(t){
+  if(!PROP.usado||!t) return;
+  if(t.id&&PROP.g[t.id]!==undefined){
+    delete PROP.g[t.id]; PROP.corregidos++;
+    t.classList.remove('propuesto'); t.removeAttribute('title');
+    const c=t.closest('div')?.querySelector(':scope > .cita'); if(c) c.remove(); return;
+  }
+  const i=t.dataset.i; if(i===undefined||!PROP.e[+i]) return;
+  const k=t.dataset.n!==undefined?'niv.'+t.dataset.n:t.dataset.k;
+  if(PROP.e[+i][k]!==undefined){ delete PROP.e[+i][k]; PROP.corregidos++;
+    const el=(t.type==='checkbox'||t.type==='radio')?t.closest('label'):t;
+    if(el){ el.classList.remove('propuesto'); el.removeAttribute('title'); }
+    const caja=t.dataset.n!==undefined?t.closest('.obq'):t.closest('div');
+    const c=caja&&caja.querySelector(':scope > .cita'); if(c) c.remove();
+    if(t.dataset.n!==undefined) t.closest('.obq')?.querySelectorAll('.propuesto').forEach(x=>x.classList.remove('propuesto'));
+  }
+}
 
 /* ══ BORRADOR AUTOMÁTICO ══
    «No le des actualizar si no has guardado, porque vas a borrar todo» no
@@ -3547,7 +3936,7 @@ function ofrecerBorrador(){
       <button class="b3" id="bDescartar">Descartarla</button></div></div>`;
   $('bRecuperar').onclick=()=>{
     campos.forEach(id=>{const el=$(id); if(el&&d.campos[id]!==undefined) el.value=d.campos[id];});
-    ENT=d.ENT; OV=d.OV||{};
+    ENT=d.ENT; OV=d.OV||{}; PROP={g:{},e:[],usado:false,total:0,corregidos:0};
     ENT.forEach(sincronizar); pintarEntidades(); render();
     $('avisoDerivada').innerHTML=''; window.scrollTo({top:0,behavior:'smooth'});
   };
